@@ -3590,11 +3590,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayCameraController
   panSpeed: 10
-  acceleration: 5
+  acceleration: 25
   deceleration: 15
+  xBounds: {x: -20, y: 20}
+  zBounds: {x: -20, y: 20}
+  touchSensitivity: 0.01
   panAction: {fileID: -3484814926775667231, guid: d8bc36ad2e5af0c45b945dc0ee386d4f, type: 3}
   touchPositionAction: {fileID: 1644640536022376878, guid: d8bc36ad2e5af0c45b945dc0ee386d4f, type: 3}
   touchPressAction: {fileID: 4730746238064529406, guid: d8bc36ad2e5af0c45b945dc0ee386d4f, type: 3}
+  touchPanSpeed: 0.01
+  gameplayCamera: {fileID: 697052295}
+  zoomAction: {fileID: 1838403950209756930, guid: d8bc36ad2e5af0c45b945dc0ee386d4f, type: 3}
+  zoomSpeed: 2
+  zoomSmoothness: 10
+  minZoom: 5
+  maxZoom: 20
 --- !u!1 &1684681489
 GameObject:
   m_ObjectHideFlags: 0
