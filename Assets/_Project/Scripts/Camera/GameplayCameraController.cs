@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,6 +23,7 @@ public class GameplayCameraController : MonoBehaviour
     private Vector2 lastTouchPosition;
 
     [Header("Zoom")]
+    [SerializeField] private TMPro.TMP_Text debugText;
     [SerializeField] private Transform gameplayCamera;
     [SerializeField] private InputActionReference zoomAction;
     [SerializeField] private float zoomSpeed = 2f;
@@ -139,13 +139,6 @@ public class GameplayCameraController : MonoBehaviour
         bool touch1Pressed =
             touch1PressAction.action.IsPressed();
 
-        // Для Pinch потрібні два пальці
-        if (!touch0Pressed || !touch1Pressed)
-        {
-            isPinching = false;
-            return;
-        }
-
         Vector2 touch0 =
             touch0PositionAction.action.ReadValue<Vector2>();
 
@@ -155,6 +148,28 @@ public class GameplayCameraController : MonoBehaviour
         float currentDistance =
             Vector2.Distance(touch0, touch1);
 
+        float pinchDelta = 0f;
+
+        // Діагностична інформація
+        if (debugText != null)
+        {
+            debugText.text =
+                "Touch0: " + touch0Pressed +
+                "\nTouch1: " + touch1Pressed +
+                "\nTouch0 Pos: " + touch0 +
+                "\nTouch1 Pos: " + touch1 +
+                "\nDistance: " + currentDistance +
+                "\nPinch Delta: " + pinchDelta +
+                "\nTarget Zoom: " + targetZoom;
+        }
+
+        // Для Pinch потрібні два пальці
+        if (!touch0Pressed || !touch1Pressed)
+        {
+            isPinching = false;
+            return;
+        }
+
         // Перший кадр Pinch
         if (!isPinching)
         {
@@ -163,10 +178,23 @@ public class GameplayCameraController : MonoBehaviour
             return;
         }
 
-        float pinchDelta =
+        pinchDelta =
             currentDistance - lastPinchDistance;
 
         lastPinchDistance = currentDistance;
+
+        // Оновлюємо діагностику
+        if (debugText != null)
+        {
+            debugText.text =
+                "Touch0: " + touch0Pressed +
+                "\nTouch1: " + touch1Pressed +
+                "\nTouch0 Pos: " + touch0 +
+                "\nTouch1 Pos: " + touch1 +
+                "\nDistance: " + currentDistance +
+                "\nPinch Delta: " + pinchDelta +
+                "\nTarget Zoom: " + targetZoom;
+        }
 
         // Розводимо пальці → наближаємо
         // Зводимо пальці → віддаляємо
