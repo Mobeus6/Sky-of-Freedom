@@ -14,6 +14,11 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         private Sprite icon;
 
+        [Header("Requirements")]
+
+        [SerializeField]
+        private ResearchSO requiredResearch;
+
         [SerializeField]
         [TextArea]
         private string description;
@@ -32,6 +37,14 @@ namespace SkyOfFreedom.Data
             get
             {
                 return componentName;
+            }
+        }
+
+        public ResearchSO RequiredResearch
+        {
+            get
+            {
+                return requiredResearch;
             }
         }
 
@@ -86,5 +99,25 @@ namespace SkyOfFreedom.Data
                 return total;
             }
         }
+
+#if UNITY_EDITOR
+        public void SetData(
+            string id,
+            string componentName,
+            string description,
+            float productionTime,
+            List<MaterialAmount> recipe)
+        {
+            SetID(id);
+
+            this.componentName = componentName;
+            this.description = description;
+            this.productionTime = productionTime;
+
+            this.recipe.Clear();
+            this.recipe.AddRange(recipe);
+        }
+#endif
+
     }
 }

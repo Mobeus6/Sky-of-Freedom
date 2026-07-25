@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71fe47f0ce659244eab2723603124559, type: 3}
+  m_Name: RES-END-03
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
+  id: RES-END-03
+  researchName: 
+  description: Unlocks cutting-edge manufacturing technologies, maximizing production
+    efficiency across the entire factory.
+  branch: 3
+  category: 12
+  tier: 3
+  requiredFactoryLevel: 0
+  cost: 75000
+  researchTime: 5400
+  prerequisites:
+  - {fileID: 11400000, guid: 0c78e4a172769f34e948074662e066ad, type: 2}
+  - {fileID: 11400000, guid: 3e1ea86164da1fc40903d115e9b79353, type: 2}
+  effectDescription: +25% Global Factory Efficiency
+  unlockDescription: 

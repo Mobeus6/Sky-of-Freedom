@@ -6,7 +6,18 @@ namespace SkyOfFreedom.Data
     {
         [SerializeField]
         private string id;
-
-        public string ID => id;
+#if UNITY_EDITOR
+        public void SetID(string id)
+        {
+            this.id = id;
+        }
+#endif
+        public string ID
+        {
+            get
+            {
+                return id;
+            }
+        }
     }
 }

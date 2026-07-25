@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71fe47f0ce659244eab2723603124559, type: 3}
+  m_Name: RES-SUP-03
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
+  id: RES-SUP-03
+  researchName: 
+  description: Optimizes supplier logistics, reducing material costs and improving
+    delivery efficiency.
+  branch: 1
+  category: 7
+  tier: 3
+  requiredFactoryLevel: 0
+  cost: 3000
+  researchTime: 240
+  prerequisites:
+  - {fileID: 11400000, guid: 31bf9a8f3a597374b9fa7a63c877b401, type: 2}
+  effectDescription: -3% Material Prices
+  unlockDescription: 

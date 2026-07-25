@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f2e02a008c70d0409b7240935d73eb7, type: 3}
+  m_Name: S-REC-PHM-T1
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
+  id: S-REC-PHM-T1
+  modelName: Phantom
+  icon: {fileID: 0}
+  description: An elite stealth drone engineered for silent surveillance and infiltration.
+  platform: 0
+  type: 0
+  tier: 0
+  assemblyTime: 40
+  components:
+  - component: {fileID: 11400000, guid: 5b9eeb719faeb7243b8bef7826391b43, type: 2}
+    amount: 1
+  - component: {fileID: 11400000, guid: cec31a729ac7e6a46a20b8c096deb6fc, type: 2}
+    amount: 1
+  - component: {fileID: 11400000, guid: bd19cb6802b64e249b8dde0bb9a25739, type: 2}
+    amount: 1
+  - component: {fileID: 11400000, guid: 075cf0cf6254a944693d82a9c7415609, type: 2}
+    amount: 1
+  - component: {fileID: 11400000, guid: 9271276c4ad52d248ae52ebab0d8f92e, type: 2}
+    amount: 1
+  - component: {fileID: 11400000, guid: 81130f59f7827dc4bb2a2ecd104b56c4, type: 2}
+    amount: 4
+  - component: {fileID: 11400000, guid: c1b8537840d814c4180a30fab1afe665, type: 2}
+    amount: 4
+  flightDistanceKm: 150
+  payloadCapacityKg: 5
+  durability: 3
+  navigation: 4
+  stealth: 5
