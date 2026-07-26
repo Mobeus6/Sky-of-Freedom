@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71fe47f0ce659244eab2723603124559, type: 3}
+  m_Name: RES-END-01
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
+  id: RES-END-01
+  researchName: Factory AI
+  description: 
+  branch: 3
+  category: 12
+  tier: 1
+  requiredFactoryLevel: 0
+  cost: 35000
+  researchTime: 2700
+  prerequisites:
+  - {fileID: 11400000, guid: e17b7520523de7f47bce1311dbf21b17, type: 2}
+  - {fileID: 11400000, guid: bf7929bcf71a7f641bf2499c06e2c639, type: 2}
+  effectDescription: Fully Automated Production Queue
+  unlockDescription: A centralized AI system that coordinates all production processes
+    in real time.

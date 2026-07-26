@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c684fbd0bf414924596947f6e86ea0f7, type: 3}
-  m_Name: Copper
+  m_Name: COPPER
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-COPPER
   materialName: Copper Wire

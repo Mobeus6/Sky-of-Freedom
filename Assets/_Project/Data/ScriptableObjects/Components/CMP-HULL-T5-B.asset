@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c6a8997b0e09e6498f6afc6c9ab9680, type: 3}
+  m_Name: CMP-HULL-T5-B
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
+  id: CMP-HULL-T5-B
+  componentName: Hull T5 (B)
+  icon: {fileID: 0}
+  description: Hull component T5 for -class drones.
+  productionTime: 240
+  recipe:
+  - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}
+    amount: 18
+  - material: {fileID: 11400000, guid: 556428415bac0264f8cb5130e6614c32, type: 2}
+    amount: 18
+  - material: {fileID: 11400000, guid: 246cc820ea3ee4c4d9f25f5010a3f022, type: 2}
+    amount: 12

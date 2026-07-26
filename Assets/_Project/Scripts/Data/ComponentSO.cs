@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace SkyOfFreedom.Data
 {
     [CreateAssetMenu(fileName = "NewComponent", menuName = "Sky of Freedom/Data/Component")]
+
     public class ComponentSO : DataSO
     {
         [Header("General")]
@@ -17,9 +19,6 @@ namespace SkyOfFreedom.Data
         [Header("Requirements")]
 
         [SerializeField]
-        private ResearchSO requiredResearch;
-
-        [SerializeField]
         [TextArea]
         private string description;
 
@@ -31,22 +30,6 @@ namespace SkyOfFreedom.Data
 
         [SerializeField]
         private List<MaterialAmount> recipe = new();
-
-        public string ComponentName
-        {
-            get
-            {
-                return componentName;
-            }
-        }
-
-        public ResearchSO RequiredResearch
-        {
-            get
-            {
-                return requiredResearch;
-            }
-        }
 
         public Sprite Icon
         {

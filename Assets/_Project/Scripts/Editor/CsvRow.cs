@@ -23,8 +23,15 @@ namespace SkyOfFreedom.Editor
 
         public int GetInt(string key)
         {
-            int.TryParse(Get(key), out int value);
-            return value;
+            string value = Get(key)
+                .Replace("+", "")
+                .Replace(",", "")
+                .Replace(" ", "")
+                .Trim();
+
+            int.TryParse(value, out int result);
+
+            return result;
         }
 
         public float GetFloat(string key)

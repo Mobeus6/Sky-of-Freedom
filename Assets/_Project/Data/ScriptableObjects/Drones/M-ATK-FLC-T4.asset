@@ -22,21 +22,21 @@ MonoBehaviour:
   tier: 3
   assemblyTime: 64
   components:
-  - component: {fileID: 11400000, guid: f5be4e6018533f94b8a9bb9405314f6a, type: 2}
+  - component: {fileID: 11400000, guid: a0bf17162129c274f8318955d89fffb9, type: 2}
     amount: 1
-  - component: {fileID: 11400000, guid: ae86c07d1335cb64b85592492af9f153, type: 2}
+  - component: {fileID: 11400000, guid: 45965be16800f0140b4e5a4ea78611fb, type: 2}
     amount: 1
-  - component: {fileID: 11400000, guid: a75898d8bf9f50047b7a99f376d112da, type: 2}
+  - component: {fileID: 11400000, guid: df4a06ecb56648f4c8b2ed703a27cab5, type: 2}
     amount: 1
-  - component: {fileID: 11400000, guid: 18c22f2ceee74b54d8f7c94a5f223837, type: 2}
+  - component: {fileID: 11400000, guid: b17253ef5755db54fa416b6646773dc0, type: 2}
     amount: 1
-  - component: {fileID: 11400000, guid: 57da190bdd21f6542a7f8a8c1a1932c1, type: 2}
+  - component: {fileID: 11400000, guid: 2254a202d5bbfac4ea51450e0f4c973f, type: 2}
     amount: 1
-  - component: {fileID: 11400000, guid: 8892c174b77a8594db47e497e483c084, type: 2}
+  - component: {fileID: 11400000, guid: 57a6bfc4b85bcb6478ee848ed208e523, type: 2}
     amount: 1
-  - component: {fileID: 11400000, guid: d3647ad9eb7cd6d4ea05a647c25f0c6c, type: 2}
+  - component: {fileID: 11400000, guid: 7b5fbbd315e862b4a8ec91470e6a62d8, type: 2}
     amount: 3
-  - component: {fileID: 11400000, guid: fe64548f66f08ec40afafd357971e86c, type: 2}
+  - component: {fileID: 11400000, guid: 74904b20d2e980242be3ba9d05ea736a, type: 2}
     amount: 3
   flightDistanceKm: 350
   payloadCapacityKg: 10

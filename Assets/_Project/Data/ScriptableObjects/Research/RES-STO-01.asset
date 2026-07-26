@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71fe47f0ce659244eab2723603124559, type: 3}
+  m_Name: RES-STO-01
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
+  id: RES-STO-01
+  researchName: Storage I
+  description: 
+  branch: 0
+  category: 3
+  tier: 1
+  requiredFactoryLevel: 0
+  cost: 500
+  researchTime: 30
+  prerequisites: []
+  effectDescription: +20 Storage Capacity
+  unlockDescription: Expands warehouse capacity, allowing more materials and components
+    to be stored.

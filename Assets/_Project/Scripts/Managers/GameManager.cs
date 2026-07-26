@@ -1,4 +1,4 @@
-using SkyOfFreedom.Inventory;
+using SkyOfFreedom.Warehouse;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,9 +13,9 @@ namespace SkyOfFreedom.Managers
         [SerializeField] private EconomyManager economyManager;
         [SerializeField] private FactoryManager factoryManager;
         [SerializeField] private ResearchManager researchManager;
-        [SerializeField] private InventoryManager inventoryManager;
+        [SerializeField] private WarehouseManager inventoryManager;
 
-        public InventoryManager Inventory => inventoryManager;
+        public WarehouseManager Inventory => inventoryManager;
         public TimeManager Time => timeManager;
         public EconomyManager Economy => economyManager;
         public FactoryManager Factory => factoryManager;

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cfe6818e9cc0cf44bfa33aaf2a8605f, type: 3}
+  m_Name: LIC-CONTROLLER-T2
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.LicenseSO
+  id: LIC-CONTROLLER-T2
+  licenseName: Controller T2 License
+  description: Unlocks the ability to manufacture Controller T2 License.
+  unlockedComponent: {fileID: 11400000, guid: 6fd261ca2acd32848a5cda53bbb70285, type: 2}
+  requiredFactoryLevel: 2
+  purchaseCost: 12000
