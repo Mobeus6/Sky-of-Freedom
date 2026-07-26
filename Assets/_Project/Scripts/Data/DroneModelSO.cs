@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SkyOfFreedom.Data
 {
     [CreateAssetMenu(fileName = "NewDroneModel", menuName = "Sky of Freedom/Data/Drone Model")]
-    public class DroneModelSO : DataSO
+    public class DroneModelSO : DataSO, IProducible
     {
         [Header("General")]
 
@@ -59,7 +59,13 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         [Range(1, 5)]
         private int stealth = 1;
-
+        float IProducible.ProductionTime
+        {
+            get
+            {
+                return AssemblyTime;
+            }
+        }
         public string ModelName
         {
             get
