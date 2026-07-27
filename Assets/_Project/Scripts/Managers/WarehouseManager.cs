@@ -1,3 +1,4 @@
+using SkyOfFreedom.Data;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,7 +39,75 @@ namespace SkyOfFreedom.Warehouse
 
             return item.Quantity;
         }
+        public bool HasMaterials(IReadOnlyList<MaterialAmount> recipe, int multiplier = 1)
+        {
+            if (recipe == null)
+                return false;
 
+            foreach (MaterialAmount material in recipe)
+            {
+                if (material == null || material.Material == null)
+                    continue;
+
+                if (!HasItem(material.Material.ID, material.Amount * multiplier))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool RemoveMaterials(IReadOnlyList<MaterialAmount> recipe, int multiplier = 1)
+        {
+            if (!HasMaterials(recipe, multiplier))
+                return false;
+
+            foreach (MaterialAmount material in recipe)
+            {
+                if (material == null || material.Material == null)
+                    continue;
+
+                RemoveItem(material.Material.ID, material.Amount * multiplier);
+            }
+
+            return true;
+        }
+
+        public bool HasComponents(IReadOnlyList<DroneComponent> components, int multiplier = 1)
+        {
+            if (components == null)
+                return false;
+
+            foreach (DroneComponent component in components)
+            {
+                if (component == null || component.Component == null)
+                    continue;
+
+                if (!HasItem(component.Component.ID,
+                    component.Amount * multiplier))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        public bool RemoveComponents(IReadOnlyList<DroneComponent> components, int multiplier = 1)
+        {
+            if (!HasComponents(components, multiplier))
+                return false;
+
+            foreach (DroneComponent component in components)
+            {
+                if (component == null || component.Component == null)
+                    continue;
+
+                RemoveItem(
+                    component.Component.ID,
+                    component.Amount * multiplier);
+            }
+
+            return true;
+        }
         public void SetQuantity(string id, int quantity)
         {
             if (string.IsNullOrWhiteSpace(id))

@@ -13,13 +13,14 @@ namespace SkyOfFreedom.Managers
         [SerializeField] private EconomyManager economyManager;
         [SerializeField] private FactoryManager factoryManager;
         [SerializeField] private ResearchManager researchManager;
-        [SerializeField] private WarehouseManager inventoryManager;
-
-        public WarehouseManager Inventory => inventoryManager;
+        [SerializeField] private WarehouseManager warehouseManager;
+        [SerializeField] private LicenseManager licenseManager;
+        public WarehouseManager Warehouse => warehouseManager;
         public TimeManager Time => timeManager;
         public EconomyManager Economy => economyManager;
         public FactoryManager Factory => factoryManager;
         public ResearchManager Research => researchManager;
+        public LicenseManager License => licenseManager;
 
         private void Awake()
         {
@@ -44,16 +45,17 @@ namespace SkyOfFreedom.Managers
             economyManager?.Initialize();
             factoryManager?.Initialize();
             researchManager?.Initialize();
-            inventoryManager?.Initialize();
+            warehouseManager?.Initialize();
+            licenseManager?.Initialize();
             SceneManager.LoadScene("MainMenu");
         }
 
         private void ShutdownManagers()
         {
-
             factoryManager?.Shutdown();
             economyManager?.Shutdown();
-            inventoryManager?.Shutdown();
+            warehouseManager?.Shutdown();
+            licenseManager?.Shutdown();
         }
     }
 }

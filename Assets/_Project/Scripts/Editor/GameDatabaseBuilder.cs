@@ -29,6 +29,8 @@ namespace SkyOfFreedom.Editor
 
             FillList<ResearchSO>(
                 serializedDatabase.FindProperty("researches"));
+            FillList<LicenseSO>(
+    serializedDatabase.FindProperty("licenses"));
 
             serializedDatabase.ApplyModifiedProperties();
 
@@ -41,13 +43,28 @@ namespace SkyOfFreedom.Editor
                 $"Materials: {database.Materials.Count}\n" +
                 $"Components: {database.Components.Count}\n" +
                 $"Drone Models: {database.DroneModels.Count}\n" +
-                $"Researches: {database.Researches.Count}");
+                $"Researches: {database.Researches.Count}\n" +
+                $"Licenses: {database.Licenses.Count}");
+            SerializedProperty licenses = serializedDatabase.FindProperty("licenses");
+
+            FillList<LicenseSO>(licenses);
+
+            Debug.Log($"Licenses property size: {licenses.arraySize}");
+
+            serializedDatabase.ApplyModifiedProperties();
+
+            Debug.Log($"Database Licenses Count: {database.Licenses.Count}");
         }
 
         private static void FillList<T>(SerializedProperty property)
-            where T : DataSO
+     where T : DataSO
         {
+            Debug.Log($"FillList<{typeof(T).Name}>");
+            Debug.Log($"Property: {property?.name}");
+
             string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
+
+            Debug.Log($"Found: {guids.Length}");
 
             List<T> assets = new List<T>();
 
@@ -57,26 +74,23 @@ namespace SkyOfFreedom.Editor
 
                 T asset = AssetDatabase.LoadAssetAtPath<T>(path);
 
+                Debug.Log($"{path} -> {(asset == null ? "NULL" : asset.name)}");
+
                 if (asset != null)
-                {
                     assets.Add(asset);
-                }
             }
 
-            assets = assets
-                .OrderBy(a => a.ID)
-                .ToList();
+            Debug.Log($"Loaded: {assets.Count}");
 
             property.ClearArray();
 
             for (int i = 0; i < assets.Count; i++)
             {
                 property.InsertArrayElementAtIndex(i);
-
-                property
-                    .GetArrayElementAtIndex(i)
-                    .objectReferenceValue = assets[i];
+                property.GetArrayElementAtIndex(i).objectReferenceValue = assets[i];
             }
+
+            Debug.Log($"Serialized size: {property.arraySize}");
         }
         [CustomEditor(typeof(GameDatabase))]
         public class GameDatabaseEditor : UnityEditor.Editor
@@ -113,9 +127,11 @@ namespace SkyOfFreedom.Editor
                     $"Materials: {gameDatabase.Materials.Count}\n" +
                     $"Components: {gameDatabase.Components.Count}\n" +
                     $"Drone Models: {gameDatabase.DroneModels.Count}\n" +
-                    $"Researches: {gameDatabase.Researches.Count}",
-                    MessageType.Info);
+                    $"Researches: {gameDatabase.Researches.Count}\n" +
+                $"Licenses: {gameDatabase.Licenses.Count}",
+                MessageType.Info);
             }
         }
+
     }
 }

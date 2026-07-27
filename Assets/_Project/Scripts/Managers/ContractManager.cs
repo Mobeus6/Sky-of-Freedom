@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace SkyOfFreedom.Contracts
 {
-    public class ContractManager : MonoBehaviour
+    public class ContractManager : BaseManager
     {
         [Header("References")]
         [SerializeField] private GameDatabase database;
-        [SerializeField] private WarehouseManager warehouseManager;
+        
         [SerializeField] private EconomyManager economyManager;
 
         [Header("Settings")]

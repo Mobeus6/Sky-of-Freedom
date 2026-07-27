@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace SkyOfFreedom.Managers
 {
-    public class LicenseManager : MonoBehaviour
+    public class LicenseManager : BaseManager
     {
-        public static LicenseManager Instance { get; private set; }
 
         [Header("References")]
         [SerializeField]
@@ -14,24 +13,36 @@ namespace SkyOfFreedom.Managers
 
         private readonly HashSet<string> unlockedLicenses = new();
 
-        private readonly Dictionary<ComponentSO, LicenseSO> componentLicenses = new();
-
-        private void Awake()
+        private readonly Dictionary<string, LicenseSO> componentLicenses = new();
+        public bool CanProduce(IProducible item)
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            if (item == null)
+                return false;
 
-            Instance = this;
+            if (item is ComponentSO component)
+                return CanProduce(component.ID);
+
+            return true;
         }
-
-        private void Start()
+        public override void Initialize()
         {
+            if (IsInitialized)
+                return;
+
+            base.Initialize();
+
             BuildLookup();
         }
 
+        public override void Shutdown()
+        {
+            if (!IsInitialized)
+                return;
+
+            componentLicenses.Clear();
+
+            base.Shutdown();
+        }
         private void BuildLookup()
         {
             componentLicenses.Clear();
@@ -54,7 +65,7 @@ namespace SkyOfFreedom.Managers
                     continue;
                 }
 
-                componentLicenses[license.UnlockedComponent] = license;
+                componentLicenses[license.UnlockedComponent.ID] = license; 
             }
         }
 
@@ -68,17 +79,13 @@ namespace SkyOfFreedom.Managers
             return unlockedLicenses.Contains(license.ID);
         }
 
-        public bool CanProduce(ComponentSO component)
+        public bool CanProduce(string componentId)
         {
-            if (component == null)
-            {
+            if (string.IsNullOrEmpty(componentId))
                 return false;
-            }
 
-            if (!componentLicenses.TryGetValue(component, out LicenseSO license))
-            {
+            if (!componentLicenses.TryGetValue(componentId, out LicenseSO license))
                 return true;
-            }
 
             return IsUnlocked(license);
         }

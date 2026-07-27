@@ -1,243 +1,138 @@
-using System.Collections.Generic;
 using SkyOfFreedom.Data;
-using SkyOfFreedom.Warehouse;
+using SkyOfFreedom.Managers;
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace SkyOfFreedom.Managers
+namespace SkyOfFreedom.Production
 {
     public class ProductionManager : BaseManager
     {
-        [Header("References")]
-        [SerializeField] private FactoryManager factoryManager;
-        [SerializeField] private WarehouseManager warehouseManager;
+        [SerializeField]
+        private List<ProductionZone> productionZones = new List<ProductionZone>();
 
-        [Header("Settings")]
-        [SerializeField, Min(0)]
-        private int initialProductionZoneCount = 1;
-
-        [SerializeField, Min(0)]
-        private int initialAssemblyZoneCount = 1;
-
-        private readonly List<ProductionZone> productionZones = new();
-        private readonly List<AssemblyZone> assemblyZones = new();
-
-        public IReadOnlyList<ProductionZone> ProductionZones => productionZones;
-        public IReadOnlyList<AssemblyZone> AssemblyZones => assemblyZones;
+        public IReadOnlyList<ProductionZone> Zones => productionZones;
 
         public override void Initialize()
         {
             if (IsInitialized)
-            {
                 return;
-            }
 
             base.Initialize();
 
-            factoryManager ??= GameManager.Instance?.Factory;
-            warehouseManager ??= GameManager.Instance?.Inventory;
-
-            CreateZones();
-
-            if (TimeManager.Instance != null)
+            foreach (ProductionZone zone in productionZones)
             {
-                TimeManager.Instance.OnTick += HandleTick;
+                if (zone == null)
+                    continue;
+
+                zone.ItemProduced += OnItemProduced;
+                zone.TaskCompleted += OnTaskCompleted;
             }
         }
 
         public override void Shutdown()
         {
             if (!IsInitialized)
-            {
                 return;
-            }
 
-            if (TimeManager.Instance != null)
+            foreach (ProductionZone zone in productionZones)
             {
-                TimeManager.Instance.OnTick -= HandleTick;
-            }
+                if (zone == null)
+                    continue;
 
-            ClearZones();
+                zone.ItemProduced -= OnItemProduced;
+                zone.TaskCompleted -= OnTaskCompleted;
+                zone.ClearQueue();
+            }
 
             base.Shutdown();
         }
 
-        public bool StartComponentProduction(ComponentSO component, int quantity)
+        private void Update()
         {
-            if (component == null || quantity <= 0)
-            {
-                return false;
-            }
+            if (!IsInitialized)
+                return;
 
-            ProductionZone zone = GetAvailableProductionZone();
-
-            if (zone == null)
-            {
-                return false;
-            }
-
-            return zone.Enqueue(component, quantity);
-        }
-
-        public bool StartDroneAssembly(DroneModelSO droneModel, int quantity)
-        {
-            if (droneModel == null || quantity <= 0)
-            {
-                return false;
-            }
-
-            AssemblyZone zone = GetAvailableAssemblyZone();
-
-            if (zone == null)
-            {
-                return false;
-            }
-
-            return zone.Enqueue(droneModel, quantity);
-        }
-
-        public bool CancelProduction(ProductionTask task)
-        {
-            if (task == null)
-            {
-                return false;
-            }
+            float deltaTime = Time.deltaTime;
 
             foreach (ProductionZone zone in productionZones)
             {
-                if (zone.CancelTask(task))
-                {
-                    return true;
-                }
+                if (zone != null)
+                    zone.Tick(deltaTime);
             }
-
-            foreach (AssemblyZone zone in assemblyZones)
-            {
-                if (zone.CancelTask(task))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
-        public void ClearAllProduction()
+        public bool QueueProduction(ProductionZoneType zoneType, IProducible item, int quantity)
+        {
+            if (item == null || quantity <= 0)
+                return false;
+
+            ProductionZone zone = GetAvailableZone(zoneType);
+
+            if (zone == null)
+                return false;
+
+            if (!GameManager.Instance.License.CanProduce(item))
+                return false;
+
+            if (!ProductionRecipeProcessor.CanProduce(item, quantity))
+                return false;
+
+            if (!ProductionRecipeProcessor.Consume(item, quantity))
+                return false;
+
+            return zone.Enqueue(new ProductionTask(item, quantity));
+        }
+
+        public void ClearAll()
         {
             foreach (ProductionZone zone in productionZones)
             {
-                zone.ClearQueue();
-            }
-
-            foreach (AssemblyZone zone in assemblyZones)
-            {
-                zone.ClearQueue();
+                zone?.ClearQueue();
             }
         }
 
-        private void HandleTick(float deltaTime)
+        public ProductionZone GetAvailableZone(ProductionZoneType type)
         {
-            for (int i = 0; i < productionZones.Count; i++)
+            ProductionZone bestZone = null;
+            int smallestQueue = int.MaxValue;
+
+            foreach (ProductionZone zone in productionZones)
             {
-                productionZones[i].Tick(deltaTime);
-                HandleProducedItems(productionZones[i]);
-            }
+                if (zone == null)
+                    continue;
 
-            for (int i = 0; i < assemblyZones.Count; i++)
-            {
-                assemblyZones[i].Tick(deltaTime);
-                HandleProducedItems(assemblyZones[i]);
-            }
-        }
+                if (zone.ZoneType != type)
+                    continue;
 
-        private void HandleProducedItems(ProductionZoneBase zone)
-        {
-            if (zone == null)
-            {
-                return;
-            }
+                if (zone.Queue.Count >= zone.QueueCapacity)
+                    continue;
 
-            zone.ItemProduced -= OnItemProduced;
-            zone.ItemProduced += OnItemProduced;
-        }
+                int queueSize = zone.Queue.Count;
 
-        private void OnItemProduced(IProducible producible)
-        {
-            if (producible == null || warehouseManager == null)
-            {
-                return;
-            }
+                if (zone.CurrentTask != null)
+                    queueSize++;
 
-            DataSO data = producible as DataSO;
-
-            if (data == null)
-            {
-                return;
-            }
-
-            warehouseManager.AddItem(data.ID, 1);
-        }
-
-        private void CreateZones()
-        {
-            ClearZones();
-
-            for (int i = 0; i < initialProductionZoneCount; i++)
-            {
-                ProductionZone zone = new ProductionZone();
-                zone.ItemProduced += OnItemProduced;
-                productionZones.Add(zone);
-            }
-
-            for (int i = 0; i < initialAssemblyZoneCount; i++)
-            {
-                AssemblyZone zone = new AssemblyZone();
-                zone.ItemProduced += OnItemProduced;
-                assemblyZones.Add(zone);
-            }
-        }
-
-        private void ClearZones()
-        {
-            for (int i = 0; i < productionZones.Count; i++)
-            {
-                productionZones[i].ItemProduced -= OnItemProduced;
-                productionZones[i].ClearQueue();
-            }
-
-            for (int i = 0; i < assemblyZones.Count; i++)
-            {
-                assemblyZones[i].ItemProduced -= OnItemProduced;
-                assemblyZones[i].ClearQueue();
-            }
-
-            productionZones.Clear();
-            assemblyZones.Clear();
-        }
-
-        private ProductionZone GetAvailableProductionZone()
-        {
-            for (int i = 0; i < productionZones.Count; i++)
-            {
-                if (productionZones[i].Queue.Count < productionZones[i].QueueCapacity)
+                if (queueSize < smallestQueue)
                 {
-                    return productionZones[i];
+                    smallestQueue = queueSize;
+                    bestZone = zone;
                 }
             }
 
-            return null;
+            return bestZone;
         }
 
-        private AssemblyZone GetAvailableAssemblyZone()
+        private void OnTaskCompleted(ProductionZone zone, ProductionTask task)
         {
-            for (int i = 0; i < assemblyZones.Count; i++)
-            {
-                if (assemblyZones[i].Queue.Count < assemblyZones[i].QueueCapacity)
-                {
-                    return assemblyZones[i];
-                }
-            }
+            Debug.Log($"{task.Target.ID} production completed.");
+        }
 
-            return null;
+        private void OnItemProduced(ProductionZone zone, IProducible item)
+        {
+            if (item == null)
+                return;
+
+            GameManager.Instance?.Warehouse?.AddItem(item.ID, 1);
         }
     }
 }

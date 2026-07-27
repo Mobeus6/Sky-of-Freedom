@@ -1,5 +1,6 @@
-using UnityEngine;
 using SkyOfFreedom.Data;
+using System.Xml;
+using UnityEngine;
 
 namespace SkyOfFreedom.Contracts
 {
@@ -25,6 +26,15 @@ namespace SkyOfFreedom.Contracts
         [SerializeField] private int reputationPenalty;
         [SerializeField] private int minQuantity = 1;
         [SerializeField] private int maxQuantity = 5;
+
+        [SerializeField, Min(1)]
+        private int generationWeight = 100;
+
+        [SerializeField, Min(1)]
+        private int requiredFactoryLevel = 1;
+
+        public int GenerationWeight => generationWeight;
+        public int RequiredFactoryLevel => requiredFactoryLevel;
         public string TargetID
         {
             get

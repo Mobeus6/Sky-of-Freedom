@@ -22,16 +22,20 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         private List<ResearchSO> researches = new();
 
-        private Dictionary<string, MaterialSO> materialLookup;
-        private Dictionary<string, ComponentSO> componentLookup;
-        private Dictionary<string, DroneModelSO> droneModelLookup;
-        private Dictionary<string, ResearchSO> researchLookup;
-
+        [SerializeField]
         private bool isInitialized;
+
         [SerializeField]
         private List<LicenseSO> licenses = new();
         [SerializeField]
         private List<ContractSO> contracts = new();
+
+        private Dictionary<string, MaterialSO> materialLookup;
+        private Dictionary<string, ComponentSO> componentLookup;
+        private Dictionary<string, DroneModelSO> droneModelLookup;
+        private Dictionary<string, ResearchSO> researchLookup;
+        private Dictionary<string, LicenseSO> licenseLookup;
+
 
         public IReadOnlyList<LicenseSO> Licenses
         {
@@ -159,8 +163,29 @@ namespace SkyOfFreedom.Data
                 researchLookup.Add(research.ID, research);
             }
 
+            licenseLookup = new Dictionary<string, LicenseSO>();
+
+            foreach (LicenseSO license in licenses)
+            {
+                if (license == null)
+                {
+                    continue;
+                }
+
+                if (licenseLookup.ContainsKey(license.ID))
+                {
+                    Debug.LogError($"Duplicate License ID: {license.ID}", this);
+                    continue;
+                }
+
+                licenseLookup.Add(license.ID, license);
+            }
+
+
             isInitialized = true;
         }
+
+ 
 
         public MaterialSO GetMaterial(string id)
         {
@@ -196,6 +221,14 @@ namespace SkyOfFreedom.Data
             researchLookup.TryGetValue(id, out ResearchSO research);
 
             return research;
+        }
+        public LicenseSO GetLicense(string id)
+        {   
+            Initialize();
+
+            licenseLookup.TryGetValue(id, out LicenseSO license);
+
+            return license;
         }
     }
 }
