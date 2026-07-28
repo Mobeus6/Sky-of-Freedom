@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-PRD-03
   researchName: Production III
-  description: 
   branch: 0
   category: 1
   tier: 3

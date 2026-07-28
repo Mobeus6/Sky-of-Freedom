@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-STO-02
   researchName: Storage II
-  description: 
   branch: 0
   category: 3
   tier: 2

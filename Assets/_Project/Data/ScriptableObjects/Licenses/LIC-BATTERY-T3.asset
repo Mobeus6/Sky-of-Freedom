@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Battery T3 License
   description: Unlocks the ability to manufacture Battery T3 License.
   unlockedComponent: {fileID: 11400000, guid: 066135b8ad5b787448caeb1ae180964b, type: 2}
-  requiredFactoryLevel: 4
+  requiredFactoryLevel: 3
   purchaseCost: 24000

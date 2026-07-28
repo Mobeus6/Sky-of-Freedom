@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: GPS T5 License
   description: Unlocks the ability to manufacture GPS T5 License.
   unlockedComponent: {fileID: 11400000, guid: aec6a50be99ab2c4ba542395cd687030, type: 2}
-  requiredFactoryLevel: 8
+  requiredFactoryLevel: 5
   purchaseCost: 306000

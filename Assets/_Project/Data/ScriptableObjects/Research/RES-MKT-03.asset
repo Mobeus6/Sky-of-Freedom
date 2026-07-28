@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-MKT-03
   researchName: Marketing III
-  description: 
   branch: 1
   category: 5
   tier: 3

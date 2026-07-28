@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-PRG-05
   researchName: Programming V
-  description: 
   branch: 0
   category: 2
   tier: 5

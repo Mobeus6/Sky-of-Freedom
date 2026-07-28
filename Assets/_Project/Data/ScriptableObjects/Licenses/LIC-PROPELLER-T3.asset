@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Propeller T3 License
   description: Unlocks the ability to manufacture Propeller T3 License.
   unlockedComponent: {fileID: 11400000, guid: f77745acf5d7156408474b8394242d26, type: 2}
-  requiredFactoryLevel: 4
+  requiredFactoryLevel: 3
   purchaseCost: 10000

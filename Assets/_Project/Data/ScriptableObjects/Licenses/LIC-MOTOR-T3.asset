@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Motor T3 License
   description: Unlocks the ability to manufacture Motor T3 License.
   unlockedComponent: {fileID: 11400000, guid: 08d4abea872194641a164db3382e0d29, type: 2}
-  requiredFactoryLevel: 4
+  requiredFactoryLevel: 3
   purchaseCost: 16000

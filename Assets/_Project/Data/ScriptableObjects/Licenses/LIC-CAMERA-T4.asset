@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Camera T4 License
   description: Unlocks the ability to manufacture Camera T4 License.
   unlockedComponent: {fileID: 11400000, guid: 2254a202d5bbfac4ea51450e0f4c973f, type: 2}
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   purchaseCost: 90000

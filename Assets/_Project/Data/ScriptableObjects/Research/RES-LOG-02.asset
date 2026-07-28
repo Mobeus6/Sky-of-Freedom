@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-LOG-02
   researchName: Advanced Logistics II
-  description: 
   branch: 2
   category: 11
   tier: 2

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-COR-03
   researchName: Corporate Management III
-  description: 
   branch: 2
   category: 10
   tier: 3

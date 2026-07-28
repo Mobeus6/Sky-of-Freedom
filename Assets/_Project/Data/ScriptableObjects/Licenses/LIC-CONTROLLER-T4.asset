@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Controller T4 License
   description: Unlocks the ability to manufacture Controller T4 License.
   unlockedComponent: {fileID: 11400000, guid: df4a06ecb56648f4c8b2ed703a27cab5, type: 2}
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   purchaseCost: 120000

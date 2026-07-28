@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Hull T3 L License
   description: Unlocks the ability to manufacture Hull T3 L License.
   unlockedComponent: {fileID: 11400000, guid: c81ed27f7b831b840baacf60b8e2180e, type: 2}
-  requiredFactoryLevel: 5
+  requiredFactoryLevel: 3
   purchaseCost: 77000

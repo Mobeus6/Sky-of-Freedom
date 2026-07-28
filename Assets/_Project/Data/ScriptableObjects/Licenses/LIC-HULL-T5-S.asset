@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Hull T5 S License
   description: Unlocks the ability to manufacture Hull T5 S License.
   unlockedComponent: {fileID: 11400000, guid: b94014717fa296540ad90371f96b1569, type: 2}
-  requiredFactoryLevel: 7
+  requiredFactoryLevel: 5
   purchaseCost: 100000

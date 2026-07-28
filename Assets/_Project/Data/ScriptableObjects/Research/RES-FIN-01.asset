@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-FIN-01
   researchName: Finance I
-  description: 
   branch: 1
   category: 6
   tier: 1

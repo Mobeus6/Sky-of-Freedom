@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-GOV-01
   researchName: Government Relations I
-  description: 
   branch: 1
   category: 8
   tier: 1

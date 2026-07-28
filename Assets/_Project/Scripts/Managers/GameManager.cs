@@ -39,6 +39,10 @@ namespace SkyOfFreedom.Managers
         {
             ShutdownManagers();
         }
+        private void Start()
+        {
+            SceneManager.LoadSceneAsync("MainMenu");
+        }
 
         private void InitializeManagers()
         {

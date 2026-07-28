@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Hull T4 M License
   description: Unlocks the ability to manufacture Hull T4 M License.
   unlockedComponent: {fileID: 11400000, guid: a0bf17162129c274f8318955d89fffb9, type: 2}
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   purchaseCost: 90000

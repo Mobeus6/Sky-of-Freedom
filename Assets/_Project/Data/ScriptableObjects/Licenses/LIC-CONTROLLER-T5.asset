@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Controller T5 License
   description: Unlocks the ability to manufacture Controller T5 License.
   unlockedComponent: {fileID: 11400000, guid: 4868a6db9bfb4644aaceb187f02b7596, type: 2}
-  requiredFactoryLevel: 8
+  requiredFactoryLevel: 5
   purchaseCost: 340000

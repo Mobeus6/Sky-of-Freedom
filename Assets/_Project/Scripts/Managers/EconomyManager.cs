@@ -67,7 +67,7 @@ namespace SkyOfFreedom.Managers
 
         public void SetMoney(long amount)
         {
-            money = Mathf.Max(0, (int)amount);
+            money = Math.Max(0L, amount);
 
             OnMoneyChanged?.Invoke(money);
         }

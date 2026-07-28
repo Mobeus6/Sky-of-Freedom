@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: GPS T3 License
   description: Unlocks the ability to manufacture GPS T3 License.
   unlockedComponent: {fileID: 11400000, guid: 045a5a1868c66d743bb3c34aec552651, type: 2}
-  requiredFactoryLevel: 4
+  requiredFactoryLevel: 3
   purchaseCost: 36000

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-AI-03
   researchName: AI Systems III
-  description: 
   branch: 2
   category: 9
   tier: 3

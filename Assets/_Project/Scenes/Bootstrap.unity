@@ -135,6 +135,8 @@ GameObject:
   - component: {fileID: 250106900}
   - component: {fileID: 250106899}
   - component: {fileID: 250106906}
+  - component: {fileID: 250106907}
+  - component: {fileID: 250106908}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -193,8 +195,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11280dd2d4e4fe8458069ecc48582a91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.EconomyManager
-  money: 500
-  reputation: 0
+  money: 1000
+  reputation: 5
 --- !u!114 &250106903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,7 +226,8 @@ MonoBehaviour:
   economyManager: {fileID: 250106902}
   factoryManager: {fileID: 250106899}
   researchManager: {fileID: 250106900}
-  inventoryManager: {fileID: 250106901}
+  warehouseManager: {fileID: 250106901}
+  licenseManager: {fileID: 250106907}
 --- !u!4 &250106905
 Transform:
   m_ObjectHideFlags: 0
@@ -253,6 +256,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DatabaseManager
   database: {fileID: 11400000, guid: 4d08e8a6770487f4d85233f219cebd0e, type: 2}
+--- !u!114 &250106907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250106898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03434334b1319fd4085a1ed60de61da7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.LicenseManager
+  database: {fileID: 11400000, guid: 4d08e8a6770487f4d85233f219cebd0e, type: 2}
+--- !u!114 &250106908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250106898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e7fac8251499042b5683318f353e14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.CurrencyManager
+  startingMoney: 10000
+  startingReputation: 0
+  startingPremium: 0
+  money: 0
+  reputation: 0
+  premium: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

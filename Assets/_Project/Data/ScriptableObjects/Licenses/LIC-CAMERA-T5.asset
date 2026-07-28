@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Camera T5 License
   description: Unlocks the ability to manufacture Camera T5 License.
   unlockedComponent: {fileID: 11400000, guid: 122e179101efa844cbaa855fbde3c8dc, type: 2}
-  requiredFactoryLevel: 8
+  requiredFactoryLevel: 5
   purchaseCost: 255000

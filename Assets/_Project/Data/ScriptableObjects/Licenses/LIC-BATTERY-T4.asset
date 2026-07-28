@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Battery T4 License
   description: Unlocks the ability to manufacture Battery T4 License.
   unlockedComponent: {fileID: 11400000, guid: 45965be16800f0140b4e5a4ea78611fb, type: 2}
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   purchaseCost: 72000

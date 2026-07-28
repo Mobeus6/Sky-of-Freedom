@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-AUT-04
   researchName: Industrial Automation IV
-  description: 
   branch: 0
   category: 4
   tier: 4

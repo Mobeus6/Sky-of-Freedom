@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Propeller T4 License
   description: Unlocks the ability to manufacture Propeller T4 License.
   unlockedComponent: {fileID: 11400000, guid: 7b5fbbd315e862b4a8ec91470e6a62d8, type: 2}
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   purchaseCost: 30000

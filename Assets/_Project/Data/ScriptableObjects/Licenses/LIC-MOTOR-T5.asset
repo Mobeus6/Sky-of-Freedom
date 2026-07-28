@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Motor T5 License
   description: Unlocks the ability to manufacture Motor T5 License.
   unlockedComponent: {fileID: 11400000, guid: 792bce9e6c31b6c4685df7dc2fb5777b, type: 2}
-  requiredFactoryLevel: 8
+  requiredFactoryLevel: 5
   purchaseCost: 136000

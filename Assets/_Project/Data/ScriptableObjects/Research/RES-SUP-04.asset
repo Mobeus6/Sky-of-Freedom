@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-SUP-04
   researchName: Supply Chain IV
-  description: 
   branch: 1
   category: 7
   tier: 4

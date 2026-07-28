@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: GPS T4 License
   description: Unlocks the ability to manufacture GPS T4 License.
   unlockedComponent: {fileID: 11400000, guid: b17253ef5755db54fa416b6646773dc0, type: 2}
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   purchaseCost: 108000

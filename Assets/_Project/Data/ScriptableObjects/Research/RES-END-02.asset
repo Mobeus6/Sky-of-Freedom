@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-END-02
   researchName: Autonomous Factory
-  description: 
   branch: 3
   category: 12
   tier: 2

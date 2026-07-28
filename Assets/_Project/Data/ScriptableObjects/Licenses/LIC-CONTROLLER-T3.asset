@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Controller T3 License
   description: Unlocks the ability to manufacture Controller T3 License.
   unlockedComponent: {fileID: 11400000, guid: 8e3100e6aa52d0b4fa90c061829590c7, type: 2}
-  requiredFactoryLevel: 4
+  requiredFactoryLevel: 3
   purchaseCost: 40000

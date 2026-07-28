@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Battery T5 License
   description: Unlocks the ability to manufacture Battery T5 License.
   unlockedComponent: {fileID: 11400000, guid: 448f8df225abeab4b925688444c1d2ce, type: 2}
-  requiredFactoryLevel: 8
+  requiredFactoryLevel: 5
   purchaseCost: 204000

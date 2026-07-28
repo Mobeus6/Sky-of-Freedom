@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-ASM-03
   researchName: Assembly III
-  description: 
   branch: 0
   category: 0
   tier: 3

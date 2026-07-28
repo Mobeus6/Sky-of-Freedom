@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-FIN-04
   researchName: Finance IV
-  description: 
   branch: 1
   category: 6
   tier: 4

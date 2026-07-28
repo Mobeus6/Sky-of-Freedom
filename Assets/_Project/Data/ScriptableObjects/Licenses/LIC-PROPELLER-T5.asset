@@ -16,5 +16,5 @@ MonoBehaviour:
   licenseName: Propeller T5 License
   description: Unlocks the ability to manufacture Propeller T5 License.
   unlockedComponent: {fileID: 11400000, guid: 03c036251fe22b642aafd6cb82481e8d, type: 2}
-  requiredFactoryLevel: 8
+  requiredFactoryLevel: 5
   purchaseCost: 85000
