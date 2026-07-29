@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-CAMERA-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CAMERA-T4
-  componentName: Camera T4
+  category: 5
+  componentName: 
   icon: {fileID: 0}
   description: Camera component T4 for -class drones.
   productionTime: 90

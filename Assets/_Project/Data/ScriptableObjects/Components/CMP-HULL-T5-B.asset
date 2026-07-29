@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-HULL-T5-B
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-HULL-T5-B
-  componentName: Hull T5 (B)
+  category: 1
+  componentName: 
   icon: {fileID: 0}
   description: Hull component T5 for -class drones.
   productionTime: 240

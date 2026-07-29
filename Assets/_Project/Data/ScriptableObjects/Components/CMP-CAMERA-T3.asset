@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-CAMERA-T3
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CAMERA-T3
-  componentName: Camera T3
+  category: 5
+  componentName: 
   icon: {fileID: 0}
   description: Camera component T3 for -class drones.
   productionTime: 60

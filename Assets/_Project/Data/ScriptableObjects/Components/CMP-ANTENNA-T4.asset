@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-ANTENNA-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T4
-  componentName: Antenna T4
+  category: 6
+  componentName: 
   icon: {fileID: 0}
   description: Antenna component T4 for -class drones.
   productionTime: 90

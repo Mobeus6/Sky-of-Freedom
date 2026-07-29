@@ -6,8 +6,13 @@ namespace SkyOfFreedom.Data
 {
     [CreateAssetMenu(fileName = "NewComponent", menuName = "Sky of Freedom/Data/Component")]
 
-    public class ComponentSO : DataSO
+    public class ComponentSO : DataSO, IProducible
     {
+        [SerializeField]
+        private ProductionCategory category;
+
+        public ProductionCategory Category => category;
+
         [Header("General")]
 
         [SerializeField]
@@ -62,7 +67,7 @@ namespace SkyOfFreedom.Data
                 return recipe;
             }
         }
-
+        public string Name => componentName;
         public int ProductionCost
         {
             get
@@ -88,6 +93,7 @@ namespace SkyOfFreedom.Data
             string id,
             string componentName,
             string description,
+            ProductionCategory category,
             float productionTime,
             List<MaterialAmount> recipe)
         {
@@ -95,12 +101,20 @@ namespace SkyOfFreedom.Data
 
             this.componentName = componentName;
             this.description = description;
+            this.category = category;
             this.productionTime = productionTime;
 
             this.recipe.Clear();
             this.recipe.AddRange(recipe);
         }
-#endif
+        private void OnValidate()
+        {
+            if (category == ProductionCategory.All)
+            {
+                Debug.LogWarning($"{name}: 'All' is a UI filter and should not be assigned to components.");
+            }
+        }
 
+#endif
     }
 }

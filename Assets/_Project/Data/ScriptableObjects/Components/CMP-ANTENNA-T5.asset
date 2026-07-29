@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-ANTENNA-T5
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T5
-  componentName: Antenna T5
+  category: 6
+  componentName: 
   icon: {fileID: 0}
   description: Antenna component T5 for -class drones.
   productionTime: 120

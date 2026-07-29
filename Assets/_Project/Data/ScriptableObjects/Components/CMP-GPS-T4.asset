@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-GPS-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-GPS-T4
-  componentName: GPS Module T4
+  category: 4
+  componentName: 
   icon: {fileID: 0}
   description: Gps component T4 for -class drones.
   productionTime: 90

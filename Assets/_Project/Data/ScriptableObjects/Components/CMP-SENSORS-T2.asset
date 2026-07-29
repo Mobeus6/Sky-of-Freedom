@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-SENSORS-T2
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-SENSORS-T2
-  componentName: Sensors T2
+  category: 7
+  componentName: 
   icon: {fileID: 0}
   description: Sensors component T2 for -class drones.
   productionTime: 45

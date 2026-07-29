@@ -7,6 +7,7 @@ namespace SkyOfFreedom.Editor
 {
     public static class ComponentImporter
     {
+        
         private const string MaterialFolder = "Assets/_Project/Data/ScriptableObjects/Materials";
 
         public static void Import(string csvPath, string outputFolder)
@@ -52,11 +53,12 @@ namespace SkyOfFreedom.Editor
                 AddMaterial(recipe, "MAT-MICROCHIP", row.GetInt("MICROCHIP"));
                 AddMaterial(recipe, "MAT-STEEL", row.GetInt("STEEL"));
                 AddMaterial(recipe, "MAT-MAGNET", row.GetInt("MAGNET"));
-
+                ProductionCategory category = ParseCategory(row["Category"]);
                 component.SetData(
     id,
     row["Component Name"],
     row["Description"],
+    category,
     row.GetFloat("Production Time"),
     recipe);
 
@@ -90,5 +92,23 @@ namespace SkyOfFreedom.Editor
 
             recipe.Add(new MaterialAmount(material, amount));
         }
+        private static ProductionCategory ParseCategory(string value)
+        {
+            return value.Trim() switch
+            {
+                "Hull" => ProductionCategory.Hulls,
+                "Battery" => ProductionCategory.Batteries,
+                "Controller" => ProductionCategory.Controllers,
+                "GPS" => ProductionCategory.GPS,
+                "Camera" => ProductionCategory.Cameras,
+                "Antenna" => ProductionCategory.Antennas,
+                "Sensor" => ProductionCategory.Sensors,
+                "Propeller" => ProductionCategory.Propellers,
+                "Motor" => ProductionCategory.Motors,
+
+                _ => throw new System.Exception($"Unknown category: {value}")
+            };
+        }
     }
+
 }

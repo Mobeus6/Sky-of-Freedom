@@ -7,6 +7,7 @@ namespace SkyOfFreedom.Production
 {
     public class ProductionManager : BaseManager
     {
+        private DatabaseManager databaseManager;
         [SerializeField]
         private List<ProductionZone> productionZones = new List<ProductionZone>();
 
@@ -18,6 +19,7 @@ namespace SkyOfFreedom.Production
                 return;
 
             base.Initialize();
+            databaseManager = GameManager.Instance.Database;
 
             foreach (ProductionZone zone in productionZones)
             {
@@ -60,7 +62,47 @@ namespace SkyOfFreedom.Production
                     zone.Tick(deltaTime);
             }
         }
+        private void QueueComponent(ComponentSO component)
+        {
+            Debug.Log($"Queue component: {component.Name}");
+        }
 
+        private void QueueDrone(DroneModelSO drone)
+        {
+            Debug.Log($"Queue drone: {drone.Name}");
+        }
+        public void QueueProduction(IProducible producible)
+        {
+            if (producible == null)
+                return;
+
+            if (producible is ComponentSO component)
+            {
+                QueueComponent(component);
+                return;
+            }
+
+            if (producible is DroneModelSO drone)
+            {
+                QueueDrone(drone);
+                return;
+            }
+        }
+        private ProductionZone GetAvailableZone(ProductionZoneType zoneType)
+        {
+            foreach (ProductionZone zone in productionZones)
+            {
+                if (zone == null)
+                    continue;
+
+                if (zone.ZoneType != zoneType)
+                    continue;
+
+                return zone;
+            }
+
+            return null;
+        }
         public bool QueueProduction(ProductionZoneType zoneType, IProducible item, int quantity)
         {
             if (item == null || quantity <= 0)
@@ -91,35 +133,51 @@ namespace SkyOfFreedom.Production
             }
         }
 
-        public ProductionZone GetAvailableZone(ProductionZoneType type)
+        public List<IProducible> GetAvailableItems(
+            ProductionView view,
+            ProductionCategory category)
         {
-            ProductionZone bestZone = null;
-            int smallestQueue = int.MaxValue;
+            List<IProducible> result = new();
 
-            foreach (ProductionZone zone in productionZones)
+            switch (view)
             {
-                if (zone == null)
-                    continue;
+                case ProductionView.Components:
 
-                if (zone.ZoneType != type)
-                    continue;
+                    foreach (ComponentSO component in databaseManager.Database.Components)
+                    {
+                        if (component == null)
+                            continue;
 
-                if (zone.Queue.Count >= zone.QueueCapacity)
-                    continue;
+                        // All Categories
+                        if (category == ProductionCategory.All)
+                        {
+                            result.Add(component);
+                            continue;
+                        }
 
-                int queueSize = zone.Queue.Count;
+                        // Конкретна категорія
+                        if (component.Category == category)
+                        {
+                            result.Add(component);
+                        }
+                    }
 
-                if (zone.CurrentTask != null)
-                    queueSize++;
+                    break;
 
-                if (queueSize < smallestQueue)
-                {
-                    smallestQueue = queueSize;
-                    bestZone = zone;
-                }
+                case ProductionView.Drones:
+
+                    foreach (DroneModelSO drone in databaseManager.Database.DroneModels)
+                    {
+                        if (drone == null)
+                            continue;
+
+                        result.Add(drone);
+                    }
+
+                    break;
             }
 
-            return bestZone;
+            return result;
         }
 
         private void OnTaskCompleted(ProductionZone zone, ProductionTask task)

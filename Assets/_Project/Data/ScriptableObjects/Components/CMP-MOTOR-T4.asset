@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-MOTOR-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-MOTOR-T4
-  componentName: Electric Motor T4
+  category: 9
+  componentName: 
   icon: {fileID: 0}
   description: Motor component T4 for -class drones.
   productionTime: 90

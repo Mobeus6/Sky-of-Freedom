@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-CONTROLLER-T2
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CONTROLLER-T2
-  componentName: Controller T2
+  category: 3
+  componentName: 
   icon: {fileID: 0}
   description: Controller component T2 for -class drones.
   productionTime: 45

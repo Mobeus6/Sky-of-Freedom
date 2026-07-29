@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-PROPELLER-T1
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-PROPELLER-T1
-  componentName: Propeller T1
+  category: 8
+  componentName: 
   icon: {fileID: 0}
   description: Propeller component T1 for -class drones.
   productionTime: 20

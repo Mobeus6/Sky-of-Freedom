@@ -1,8 +1,9 @@
+using SkyOfFreedom.Managers;
 using UnityEngine;
 
 namespace SkyOfFreedom.Data
 {
-    public class DatabaseManager : MonoBehaviour
+    public class DatabaseManager : BaseManager
     {
         [SerializeField]
         private GameDatabase database;
@@ -14,10 +15,18 @@ namespace SkyOfFreedom.Data
                 return database;
             }
         }
-
-        private void Awake()
+        public override void Initialize()
         {
+            if (IsInitialized)
+                return;
+
             database.Initialize();
+
+            base.Initialize();
+        }
+        public override void Shutdown()
+        {
+            base.Shutdown();
         }
     }
 }

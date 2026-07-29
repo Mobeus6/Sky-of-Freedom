@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-BATTERY-T1
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-BATTERY-T1
-  componentName: Battery T1
+  category: 2
+  componentName: 
   icon: {fileID: 0}
   description: Battery component T1 for -class drones.
   productionTime: 30

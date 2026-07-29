@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: CMP-HULL-T4-S
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-HULL-T4-S
-  componentName: Hull T4 (S)
+  category: 1
+  componentName: 
   icon: {fileID: 0}
   description: Hull component T4 for S-class drones.
   productionTime: 90

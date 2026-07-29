@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.EconomyManager
   money: 1000
-  reputation: 5
+  reputation: 10
 --- !u!114 &250106903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,6 +222,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 255a6d995c125f24d86be1a6f5bb9fad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.GameManager
+  databaseManager: {fileID: 250106906}
+  productionManager: {fileID: 250106908}
   timeManager: {fileID: 250106903}
   economyManager: {fileID: 250106902}
   factoryManager: {fileID: 250106899}
@@ -278,15 +280,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 250106898}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1e7fac8251499042b5683318f353e14, type: 3}
+  m_Script: {fileID: 11500000, guid: f4aedb4194db02e40b1dd3f9a98cf2a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.CurrencyManager
-  startingMoney: 10000
-  startingReputation: 0
-  startingPremium: 0
-  money: 0
-  reputation: 0
-  premium: 0
+  productionZones: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

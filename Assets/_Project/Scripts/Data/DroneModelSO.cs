@@ -7,14 +7,20 @@ namespace SkyOfFreedom.Data
     public class DroneModelSO : DataSO, IProducible
     {
         [Header("General")]
-
+        public string Name
+        {
+            get
+            {
+                return modelName;
+            }
+        }
         [SerializeField]
         private string modelName;
 
         [SerializeField]
         private Sprite icon;
+        public float ProductionTime => assemblyTime;
 
-        [SerializeField]
         [TextArea]
         private string description;
 
@@ -59,13 +65,7 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         [Range(1, 5)]
         private int stealth = 1;
-        float IProducible.ProductionTime
-        {
-            get
-            {
-                return AssemblyTime;
-            }
-        }
+
         public string ModelName
         {
             get
