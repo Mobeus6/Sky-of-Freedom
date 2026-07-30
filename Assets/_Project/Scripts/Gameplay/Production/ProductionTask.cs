@@ -7,7 +7,7 @@ namespace SkyOfFreedom.Production
     {
         public Guid Id { get; }
 
-        public SkyOfFreedom.Data.IProducible Target { get; }
+        public IProducible Target { get; }
 
         public int Quantity { get; private set; }
 
@@ -24,7 +24,7 @@ namespace SkyOfFreedom.Production
         public bool IsCompleted => ProducedQuantity >= Quantity;
 
         public ProductionTask(
-            SkyOfFreedom.Data.IProducible target,
+            IProducible target,
             int quantity)
         {
             Id = Guid.NewGuid();
@@ -41,9 +41,7 @@ namespace SkyOfFreedom.Production
         public void AddQuantity(int amount)
         {
             if (amount <= 0)
-            {
                 return;
-            }
 
             Quantity += amount;
         }
@@ -73,9 +71,7 @@ namespace SkyOfFreedom.Production
         public void ProduceOne()
         {
             if (State != ProductionState.Working)
-            {
                 return;
-            }
 
             ProducedQuantity++;
             CurrentItemProgress = 0f;

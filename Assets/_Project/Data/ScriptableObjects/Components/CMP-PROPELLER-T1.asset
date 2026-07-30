@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-PROPELLER-T1
   category: 8
-  componentName: 
-  icon: {fileID: 0}
-  description: Propeller component T1 for -class drones.
+  tier: 1
+  componentName: Standard Propeller
+  icon: {fileID: -1676960174, guid: 58fc1f8cbad2dbb4ca0c3d4b1c33f882, type: 3}
+  description: Standard composite propeller designed for stable flight.
   productionTime: 20
   recipe:
   - material: {fileID: 11400000, guid: 246cc820ea3ee4c4d9f25f5010a3f022, type: 2}

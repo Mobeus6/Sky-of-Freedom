@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CONTROLLER-T5
   category: 3
-  componentName: 
-  icon: {fileID: 0}
-  description: Controller component T5 for -class drones.
+  tier: 5
+  componentName: AI Flight Computer
+  icon: {fileID: -1173607450, guid: 2cfea636d9a70374abc4ee4c5cf4e3cb, type: 3}
+  description: AI-assisted flight computer delivering maximum stability and accuracy.
   productionTime: 120
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

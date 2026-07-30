@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-PROPELLER-T3
   category: 8
-  componentName: 
-  icon: {fileID: 0}
-  description: Propeller component T3 for -class drones.
+  tier: 3
+  componentName: Carbon Fiber Propeller
+  icon: {fileID: -1676960174, guid: 58fc1f8cbad2dbb4ca0c3d4b1c33f882, type: 3}
+  description: Carbon fiber propeller reducing vibration and increasing thrust.
   productionTime: 45
   recipe:
   - material: {fileID: 11400000, guid: 246cc820ea3ee4c4d9f25f5010a3f022, type: 2}

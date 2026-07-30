@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-MOTOR-T3
   category: 9
-  componentName: 
-  icon: {fileID: 0}
-  description: Motor component T3 for -class drones.
+  tier: 3
+  componentName: Performance Motor
+  icon: {fileID: 712404596, guid: e965dd6dc06c22d4bb673c505248999f, type: 3}
+  description: Performance brushless motor optimized for demanding missions.
   productionTime: 60
   recipe:
   - material: {fileID: 11400000, guid: 556428415bac0264f8cb5130e6614c32, type: 2}

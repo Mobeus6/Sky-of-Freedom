@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CONTROLLER-T4
   category: 3
-  componentName: 
-  icon: {fileID: 0}
-  description: Controller component T4 for -class drones.
+  tier: 4
+  componentName: Professional Flight Controller
+  icon: {fileID: -1173607450, guid: 2cfea636d9a70374abc4ee4c5cf4e3cb, type: 3}
+  description: Professional flight controller optimized for high-performance drones.
   productionTime: 90
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

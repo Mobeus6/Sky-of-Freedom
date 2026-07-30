@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-SENSORS-T1
   category: 7
-  componentName: 
-  icon: {fileID: 0}
-  description: Sensors component T1 for -class drones.
+  tier: 1
+  componentName: Basic Sensor Module
+  icon: {fileID: 1830775136, guid: 050427344fe75b341949101777136256, type: 3}
+  description: Basic environmental sensor supporting essential flight functions.
   productionTime: 30
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

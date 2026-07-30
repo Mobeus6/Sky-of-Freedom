@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-SENSORS-T4
   category: 7
-  componentName: 
-  icon: {fileID: 0}
-  description: Sensors component T4 for -class drones.
+  tier: 4
+  componentName: Professional Sensor Suite
+  icon: {fileID: 1830775136, guid: 050427344fe75b341949101777136256, type: 3}
+  description: Professional sensor suite designed for autonomous navigation.
   productionTime: 90
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

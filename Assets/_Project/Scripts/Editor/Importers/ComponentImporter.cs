@@ -54,13 +54,15 @@ namespace SkyOfFreedom.Editor
                 AddMaterial(recipe, "MAT-STEEL", row.GetInt("STEEL"));
                 AddMaterial(recipe, "MAT-MAGNET", row.GetInt("MAGNET"));
                 ProductionCategory category = ParseCategory(row["Category"]);
+                int tier = ParseTier(id);
                 component.SetData(
-    id,
-    row["Component Name"],
-    row["Description"],
-    category,
-    row.GetFloat("Production Time"),
-    recipe);
+     id,
+     row["Component Name"],
+     row["Description"],
+     category,
+     tier,
+     row.GetFloat("Production Time"),
+     recipe);
 
                 EditorUtility.SetDirty(component);
             }
@@ -109,6 +111,26 @@ namespace SkyOfFreedom.Editor
                 _ => throw new System.Exception($"Unknown category: {value}")
             };
         }
-    }
 
+            private static int ParseTier(string id)
+        {
+            if (id.Contains("-T1"))
+                return 1;
+
+            if (id.Contains("-T2"))
+                return 2;
+
+            if (id.Contains("-T3"))
+                return 3;
+
+            if (id.Contains("-T4"))
+                return 4;
+
+            if (id.Contains("-T5"))
+                return 5;
+
+            throw new System.Exception($"Cannot determine Tier from ID: {id}");
+        }
+    }
 }
+

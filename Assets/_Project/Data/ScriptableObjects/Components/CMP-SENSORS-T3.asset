@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-SENSORS-T3
   category: 7
-  componentName: 
-  icon: {fileID: 0}
-  description: Sensors component T3 for -class drones.
+  tier: 3
+  componentName: Advanced Sensor Array
+  icon: {fileID: 1830775136, guid: 050427344fe75b341949101777136256, type: 3}
+  description: Advanced sensor array providing increased situational awareness.
   productionTime: 60
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

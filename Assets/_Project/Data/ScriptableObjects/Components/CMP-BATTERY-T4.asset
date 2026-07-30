@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-BATTERY-T4
   category: 2
-  componentName: 
-  icon: {fileID: 0}
-  description: Battery component T4 for -class drones.
+  tier: 4
+  componentName: Advanced Battery
+  icon: {fileID: 1866127158, guid: 20dcb665877d7fc4b8e7bfd066031b53, type: 3}
+  description: Advanced power module delivering superior efficiency under heavy loads.
   productionTime: 90
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

@@ -9,13 +9,17 @@ namespace SkyOfFreedom.UI
 {
     public class ProductionCardUI : MonoBehaviour
     {
+        [Header("Tier Style")]
+        [SerializeField] private CardTierVisual visual;
+
         [Header("UI")]
         [SerializeField] private Image icon;
         [SerializeField] private TMP_Text nameText;
+        [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private TMP_Text costText;
         [SerializeField] private TMP_Text timeText;
+        [SerializeField] private TMP_Text tierText;
         [SerializeField] private Button produceButton;
-        [SerializeField] private TMP_Text descriptionText;
 
         private IProducible producible;
         private ProductionManager productionManager;
@@ -31,15 +35,20 @@ namespace SkyOfFreedom.UI
         public void Setup(IProducible item)
         {
             producible = item;
-            descriptionText.text = item.Description;
+
             nameText.text = item.Name;
+            descriptionText.text = item.Description;
 
             icon.sprite = item.Icon;
             icon.enabled = item.Icon != null;
 
             costText.text = $"{item.ProductionCost:N0} ₴";
-
             timeText.text = $"{item.ProductionTime:0.#} s";
+
+            visual.SetTier(item.Tier);
+
+            if (tierText != null)
+                tierText.text = $"T{item.Tier}";
         }
 
         private void OnProduceClicked()

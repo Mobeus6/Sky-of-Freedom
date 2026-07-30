@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T5
   category: 6
-  componentName: 
-  icon: {fileID: 0}
-  description: Antenna component T5 for -class drones.
+  tier: 5
+  componentName: Long-Range Antenna
+  icon: {fileID: -652382839, guid: a2c4bb861fedae5468ad730603eff75a, type: 3}
+  description: Advanced antenna module engineered for maximum communication range.
   productionTime: 120
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

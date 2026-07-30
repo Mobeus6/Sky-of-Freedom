@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T2
   category: 6
-  componentName: 
-  icon: {fileID: 0}
-  description: Antenna component T2 for -class drones.
+  tier: 2
+  componentName: Enhanced Antenna
+  icon: {fileID: -652382839, guid: a2c4bb861fedae5468ad730603eff75a, type: 3}
+  description: Improved antenna with increased transmission range.
   productionTime: 45
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

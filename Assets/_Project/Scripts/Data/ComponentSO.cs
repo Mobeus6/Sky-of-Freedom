@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.ComponentModel;
+using SkyOfFreedom.Production;
 using UnityEngine;
 
 namespace SkyOfFreedom.Data
@@ -10,7 +10,9 @@ namespace SkyOfFreedom.Data
     {
         [SerializeField]
         private ProductionCategory category;
-
+        [SerializeField]
+        private int tier;
+        public int Tier => tier;
         public ProductionCategory Category => category;
 
         [Header("General")]
@@ -90,12 +92,13 @@ namespace SkyOfFreedom.Data
 
 #if UNITY_EDITOR
         public void SetData(
-            string id,
-            string componentName,
-            string description,
-            ProductionCategory category,
-            float productionTime,
-            List<MaterialAmount> recipe)
+    string id,
+    string componentName,
+    string description,
+    ProductionCategory category,
+    int tier,
+    float productionTime,
+    List<MaterialAmount> recipe)
         {
             SetID(id);
 
@@ -103,6 +106,7 @@ namespace SkyOfFreedom.Data
             this.description = description;
             this.category = category;
             this.productionTime = productionTime;
+            this.tier = tier;
 
             this.recipe.Clear();
             this.recipe.AddRange(recipe);

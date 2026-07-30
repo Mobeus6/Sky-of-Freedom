@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T3
   category: 6
-  componentName: 
-  icon: {fileID: 0}
-  description: Antenna component T3 for -class drones.
+  tier: 3
+  componentName: High-Gain Antenna
+  icon: {fileID: -652382839, guid: a2c4bb861fedae5468ad730603eff75a, type: 3}
+  description: High-gain communication antenna for long-distance operation.
   productionTime: 60
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

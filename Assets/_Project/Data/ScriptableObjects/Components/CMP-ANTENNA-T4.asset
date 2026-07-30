@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T4
   category: 6
-  componentName: 
-  icon: {fileID: 0}
-  description: Antenna component T4 for -class drones.
+  tier: 4
+  componentName: Professional Antenna
+  icon: {fileID: -652382839, guid: a2c4bb861fedae5468ad730603eff75a, type: 3}
+  description: Professional communication system with enhanced signal stability.
   productionTime: 90
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

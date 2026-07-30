@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-HULL-T5-B
   category: 1
-  componentName: 
-  icon: {fileID: 0}
-  description: Hull component T5 for -class drones.
+  tier: 5
+  componentName: Adaptive B-Class Frame
+  icon: {fileID: 741854073, guid: 0ff7167fb5c87174980e85faf5f13319, type: 3}
+  description: Heavy-duty adaptive frame for B-class drones designed for maximum
+    payload capacity.
   productionTime: 240
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-GPS-T4
   category: 4
-  componentName: 
-  icon: {fileID: 0}
-  description: Gps component T4 for -class drones.
+  tier: 4
+  componentName: Professional GPS Module
+  icon: {fileID: -733326798, guid: af5bfe48e8bf0c14082011bc80e3bf9b, type: 3}
+  description: Professional navigation system with advanced signal filtering.
   productionTime: 90
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

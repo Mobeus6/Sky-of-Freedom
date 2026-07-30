@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CAMERA-T4
   category: 5
-  componentName: 
-  icon: {fileID: 0}
-  description: Camera component T4 for -class drones.
+  tier: 4
+  componentName: Professional Camera System
+  icon: {fileID: 698875669, guid: 375fe5e3aaf36054288643670368edfa, type: 3}
+  description: Professional imaging system optimized for long-range observation.
   productionTime: 90
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

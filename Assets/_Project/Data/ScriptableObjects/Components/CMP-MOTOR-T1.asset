@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-MOTOR-T1
   category: 9
-  componentName: 
-  icon: {fileID: 0}
-  description: Motor component T1 for -class drones.
+  tier: 1
+  componentName: Standard Brushless Motor
+  icon: {fileID: 712404596, guid: e965dd6dc06c22d4bb673c505248999f, type: 3}
+  description: Reliable brushless motor suitable for entry-level drones.
   productionTime: 30
   recipe:
   - material: {fileID: 11400000, guid: 556428415bac0264f8cb5130e6614c32, type: 2}

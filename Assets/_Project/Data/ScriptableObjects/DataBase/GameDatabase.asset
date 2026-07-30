@@ -196,7 +196,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f393e1353b5e89041a53c4ab47d556bb, type: 2}
   - {fileID: 11400000, guid: 74aa1800ca9d8644a8eeb4564b6b9fc7, type: 2}
   - {fileID: 11400000, guid: f9d7357eacba6b841b737860eb5c931b, type: 2}
-  isInitialized: 0
+  isInitialized: 1
   licenses:
   - {fileID: 11400000, guid: e855ec189136bd74097eeaedf7090cfc, type: 2}
   - {fileID: 11400000, guid: 62113d6f21cabf343956fc3833fc49f0, type: 2}

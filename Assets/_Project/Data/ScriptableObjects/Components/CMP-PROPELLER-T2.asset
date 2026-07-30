@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-PROPELLER-T2
   category: 8
-  componentName: 
-  icon: {fileID: 0}
-  description: Propeller component T2 for -class drones.
+  tier: 2
+  componentName: Aerodynamic Propeller
+  icon: {fileID: -1676960174, guid: 58fc1f8cbad2dbb4ca0c3d4b1c33f882, type: 3}
+  description: Improved aerodynamic propeller delivering greater efficiency.
   productionTime: 30
   recipe:
   - material: {fileID: 11400000, guid: 246cc820ea3ee4c4d9f25f5010a3f022, type: 2}

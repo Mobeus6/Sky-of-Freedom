@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using SkyOfFreedom.Data;
 using UnityEngine;
+using SkyOfFreedom.Production;
 
 namespace SkyOfFreedom.Managers
 {

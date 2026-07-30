@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-HULL-T4-L
   category: 1
-  componentName: 
-  icon: {fileID: 0}
-  description: Hull component T4 for L-class drones.
+  tier: 4
+  componentName: Aerospace L-Class Frame
+  icon: {fileID: 741854073, guid: 0ff7167fb5c87174980e85faf5f13319, type: 3}
+  description: Advanced aerospace-grade frame for L-class drones engineered for maximum
+    durability.
   productionTime: 110
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CONTROLLER-T2
   category: 3
-  componentName: 
-  icon: {fileID: 0}
-  description: Controller component T2 for -class drones.
+  tier: 2
+  componentName: Enhanced Flight Controller
+  icon: {fileID: -1173607450, guid: 2cfea636d9a70374abc4ee4c5cf4e3cb, type: 3}
+  description: Enhanced flight controller with improved navigation precision.
   productionTime: 45
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}

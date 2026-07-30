@@ -1,3 +1,4 @@
+using SkyOfFreedom.Production;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,21 +8,14 @@ namespace SkyOfFreedom.Data
     public class DroneModelSO : DataSO, IProducible
     {
         [Header("General")]
-        public string Name
-        {
-            get
-            {
-                return modelName;
-            }
-        }
         [SerializeField]
         private string modelName;
 
         [SerializeField]
         private Sprite icon;
-        public float ProductionTime => assemblyTime;
 
         [TextArea]
+        [SerializeField]
         private string description;
 
         [Header("Classification")]
@@ -66,109 +60,15 @@ namespace SkyOfFreedom.Data
         [Range(1, 5)]
         private int stealth = 1;
 
-        public string ModelName
-        {
-            get
-            {
-                return modelName;
-            }
-        }
+        // ===== IProducible =====
 
-        public Sprite Icon
-        {
-            get
-            {
-                return icon;
-            }
-        }
+        public string Name => modelName;
+        public string Description => description;
+        public Sprite Icon => icon;
 
-        public string Description
-        {
-            get
-            {
-                return description;
-            }
-        }
+        public int Tier => (int)tier;
 
-        public DronePlatform Platform
-        {
-            get
-            {
-                return platform;
-            }
-        }
-
-        public DroneType Type
-        {
-            get
-            {
-                return type;
-            }
-        }
-
-        public DroneTier Tier
-        {
-            get
-            {
-                return tier;
-            }
-        }
-
-        public float AssemblyTime
-        {
-            get
-            {
-                return assemblyTime;
-            }
-        }
-
-        public IReadOnlyList<DroneComponent> Components
-        {
-            get
-            {
-                return components;
-            }
-        }
-
-        public int FlightDistanceKm
-        {
-            get
-            {
-                return flightDistanceKm;
-            }
-        }
-
-        public int PayloadCapacityKg
-        {
-            get
-            {
-                return payloadCapacityKg;
-            }
-        }
-
-        public int Durability
-        {
-            get
-            {
-                return durability;
-            }
-        }
-
-        public int Navigation
-        {
-            get
-            {
-                return navigation;
-            }
-        }
-
-        public int Stealth
-        {
-            get
-            {
-                return stealth;
-            }
-        }
+        public float ProductionTime => assemblyTime;
 
         public int ProductionCost
         {
@@ -179,9 +79,7 @@ namespace SkyOfFreedom.Data
                 foreach (DroneComponent component in components)
                 {
                     if (component == null)
-                    {
                         continue;
-                    }
 
                     total += component.TotalCost;
                 }
@@ -190,7 +88,29 @@ namespace SkyOfFreedom.Data
             }
         }
 
+        // ===== Additional Properties =====
+
+        public DronePlatform Platform => platform;
+        public DroneType Type => type;
+
+        public DroneTier DroneTier => tier;
+
+        public float AssemblyTime => assemblyTime;
+
+        public IReadOnlyList<DroneComponent> Components => components;
+
+        public int FlightDistanceKm => flightDistanceKm;
+
+        public int PayloadCapacityKg => payloadCapacityKg;
+
+        public int Durability => durability;
+
+        public int Navigation => navigation;
+
+        public int Stealth => stealth;
+
 #if UNITY_EDITOR
+
         public void SetData(
             string id,
             string modelName,
@@ -224,7 +144,7 @@ namespace SkyOfFreedom.Data
             this.navigation = navigation;
             this.stealth = stealth;
         }
+
 #endif
     }
-
 }

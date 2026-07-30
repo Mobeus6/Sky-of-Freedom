@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-BATTERY-T3
   category: 2
-  componentName: 
-  icon: {fileID: 0}
-  description: Battery component T3 for -class drones.
+  tier: 3
+  componentName: High-Density Battery
+  icon: {fileID: 1866127158, guid: 20dcb665877d7fc4b8e7bfd066031b53, type: 3}
+  description: High-density battery pack optimized for extended flight endurance.
   productionTime: 60
   recipe:
   - material: {fileID: 11400000, guid: 6d3a800d86416bc47b6e373a11127271, type: 2}
