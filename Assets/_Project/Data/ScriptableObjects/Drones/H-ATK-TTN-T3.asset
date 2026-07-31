@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: H-ATK-TTN-T3
   modelName: Titan
-  icon: {fileID: 0}
+  icon: {fileID: 784867885, guid: 4e8a581dc90adc24299c5e89fa39747c, type: 3}
   description: A heavy attack drone delivering devastating firepower against fortified
     positions.
   platform: 3

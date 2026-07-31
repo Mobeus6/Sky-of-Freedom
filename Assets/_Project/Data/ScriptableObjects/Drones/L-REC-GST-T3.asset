@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: L-REC-GST-T3
   modelName: Ghost
-  icon: {fileID: 0}
+  icon: {fileID: 1292022022, guid: 696214082076b2145938aa3e0097ac30, type: 3}
   description: An advanced stealth reconnaissance drone capable of operating deep
     behind enemy lines.
   platform: 2

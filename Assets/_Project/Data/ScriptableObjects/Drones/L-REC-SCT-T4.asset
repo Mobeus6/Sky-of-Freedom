@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: L-REC-SCT-T4
   modelName: Scout
-  icon: {fileID: 0}
+  icon: {fileID: 1167054397, guid: d665c7f03d5317a46bd932e67699f4b0, type: 3}
   description: A lightweight reconnaissance drone designed for fast and reliable
     battlefield surveillance.
   platform: 2

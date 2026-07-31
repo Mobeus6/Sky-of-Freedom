@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: S-EW-SPC-T4
   modelName: Specter
-  icon: {fileID: 0}
+  icon: {fileID: -344152115, guid: 7410a1f4195e7e845a2d6c2d8f39697f, type: 3}
   description: An electronic warfare drone designed to disrupt enemy communications
     and radar systems.
   platform: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: S-REC-SHD-T1
   modelName: Shadow
-  icon: {fileID: 0}
+  icon: {fileID: -734281831, guid: 2374f0d9511850841af05636a38ff19c, type: 3}
   description: A compact stealth reconnaissance drone specialized in covert intelligence
     missions.
   platform: 0

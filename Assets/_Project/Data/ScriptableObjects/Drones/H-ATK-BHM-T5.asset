@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: H-ATK-BHM-T5
   modelName: Behemoth
-  icon: {fileID: 0}
+  icon: {fileID: 1651185507, guid: 277ef67333982134b932d68a1b0de11a, type: 3}
   description: An enormous heavy assault drone capable of carrying the most powerful
     weapon systems.
   platform: 3

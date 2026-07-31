@@ -36,7 +36,9 @@ namespace SkyOfFreedom.UI
 
         public void OpenCategory(ProductionCategory category)
         {
+            currentView = ProductionView.Components;
             currentCategory = category;
+
             Refresh();
         }
 
@@ -73,9 +75,6 @@ namespace SkyOfFreedom.UI
 
                 spawnedCards.Add(card);
             }
-            Debug.Log(content);
-            Debug.Log(cardPrefab);
-            Debug.Log(productionManager);
         }
 
         private void ClearCards()

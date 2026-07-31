@@ -840,6 +840,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProductionCardUI
   visual: {fileID: 2893920616311927213}
   icon: {fileID: 6388140863584894773}
+  produceButtonText: {fileID: 4286876128860572655}
   nameText: {fileID: 6662092251870768643}
   descriptionText: {fileID: 4727411185536593401}
   costText: {fileID: 8259380838866841155}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: H-AA-WDN-T1
   modelName: Warden
-  icon: {fileID: 0}
+  icon: {fileID: -1580172142, guid: 14200d7ced2ba5a49830b605822f8b6c, type: 3}
   description: A heavily armed anti-air platform built to defend critical airspace.
   platform: 3
   type: 2

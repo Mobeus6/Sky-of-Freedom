@@ -39,6 +39,18 @@ namespace SkyOfFreedom.Managers
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeManagers();
+            warehouseManager.AddItem("MAT-PLASTIC", 999);
+            warehouseManager.AddItem("MAT-ALUMINUM", 999);
+            warehouseManager.AddItem("MAT-CARBON", 999);
+            warehouseManager.AddItem("MAT-COPPER", 999);
+            warehouseManager.AddItem("MAT-PCB", 999);
+            warehouseManager.AddItem("MAT-BATTERY", 999);
+            warehouseManager.AddItem("MAT-GLASS", 999);
+            warehouseManager.AddItem("MAT-STEEL", 999);
+            foreach (ComponentSO component in databaseManager.Database.Components)
+            {
+                warehouseManager.AddItem(component.ID, 99);
+            }
         }
 
         private void OnDestroy()

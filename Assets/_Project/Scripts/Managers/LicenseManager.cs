@@ -33,6 +33,11 @@ namespace SkyOfFreedom.Managers
             base.Initialize();
 
             BuildLookup();
+
+            foreach (LicenseSO license in database.Licenses)
+            {
+                Unlock(license);
+            }
         }
 
         public override void Shutdown()

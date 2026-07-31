@@ -1,5 +1,6 @@
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
+using SkyOfFreedom.Warehouse;
 
 namespace SkyOfFreedom.Production
 {
@@ -10,21 +11,19 @@ namespace SkyOfFreedom.Production
             if (item == null || quantity <= 0)
                 return false;
 
+            WarehouseManager warehouse = GameManager.Instance.Warehouse;
+
             if (item is ComponentSO component)
             {
-                return GameManager.Instance.Warehouse.HasMaterials(
-                    component.Recipe,
-                    quantity);
+                return warehouse.HasMaterials(component.Recipe, quantity);
             }
 
             if (item is DroneModelSO drone)
             {
-                return GameManager.Instance.Warehouse.HasComponents(
-                    drone.Components,
-                    quantity);
+                return warehouse.HasComponents(drone.Components, quantity);
             }
 
-            return true;
+            return false;
         }
 
         public static bool Consume(IProducible item, int quantity)
@@ -32,21 +31,19 @@ namespace SkyOfFreedom.Production
             if (item == null || quantity <= 0)
                 return false;
 
+            WarehouseManager warehouse = GameManager.Instance.Warehouse;
+
             if (item is ComponentSO component)
             {
-                return GameManager.Instance.Warehouse.RemoveMaterials(
-                    component.Recipe,
-                    quantity);
+                return warehouse.RemoveMaterials(component.Recipe, quantity);
             }
 
             if (item is DroneModelSO drone)
             {
-                return GameManager.Instance.Warehouse.RemoveComponents(
-                    drone.Components,
-                    quantity);
+                return warehouse.RemoveComponents(drone.Components, quantity);
             }
 
-            return true;
+            return false;
         }
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: M-AA-GDN-T4
   modelName: Guardian
-  icon: {fileID: 0}
+  icon: {fileID: 1695292924, guid: 8114c0f880b6f8243920258e01804b79, type: 3}
   description: A mobile anti-air drone equipped to intercept and eliminate hostile
     aerial threats.
   platform: 1

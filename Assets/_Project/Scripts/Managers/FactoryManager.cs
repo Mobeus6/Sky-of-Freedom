@@ -34,7 +34,22 @@ namespace SkyOfFreedom.Managers
         #endregion
 
         #region Level
-
+        public int GetRequiredFactoryLevelForQueue(int slotIndex)
+        {
+            switch (slotIndex)
+            {
+                case 0: return 1;
+                case 1: return 1;
+                case 2: return 2;
+                case 3: return 3;
+                case 4: return 4;
+                default: return 5;
+            }
+        }
+        public int GetUnlockedQueueSlots()
+        {
+            return Mathf.Clamp(level + 1, 2, 5);
+        }
         public void SetLevel(int value)
         {
             value = Mathf.Max(1, value);

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: S-REC-PHM-T1
   modelName: Phantom
-  icon: {fileID: 0}
+  icon: {fileID: 1493600247, guid: 5788614ba547f8641af51ed1da682e82, type: 3}
   description: An elite stealth drone engineered for silent surveillance and infiltration.
   platform: 0
   type: 0

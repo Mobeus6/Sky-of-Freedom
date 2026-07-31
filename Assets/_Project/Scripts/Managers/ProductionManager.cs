@@ -1,6 +1,7 @@
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SkyOfFreedom.Production
@@ -19,16 +20,7 @@ namespace SkyOfFreedom.Production
                 return;
 
             base.Initialize();
-            databaseManager = GameManager.Instance.Database;
-
-            foreach (ProductionZone zone in productionZones)
-            {
-                if (zone == null)
-                    continue;
-
-                zone.ItemProduced += OnItemProduced;
-                zone.TaskCompleted += OnTaskCompleted;
-            }
+            databaseManager = GameManager.Instance.Database;    
         }
 
         public override void Shutdown()
@@ -43,7 +35,6 @@ namespace SkyOfFreedom.Production
 
                 zone.ItemProduced -= OnItemProduced;
                 zone.TaskCompleted -= OnTaskCompleted;
-                zone.ClearQueue();
             }
 
             base.Shutdown();
@@ -64,15 +55,21 @@ namespace SkyOfFreedom.Production
         }
         private void QueueComponent(ComponentSO component)
         {
-            Debug.Log($"Queue component: {component.Name}");
+            QueueProduction(
+                ProductionZoneType.Production,
+                component,
+                1);
         }
-
         private void QueueDrone(DroneModelSO drone)
         {
-            Debug.Log($"Queue drone: {drone.Name}");
+            QueueProduction(
+                ProductionZoneType.Assembly,
+                drone,
+                1);
         }
         public void QueueProduction(IProducible producible)
         {
+
             if (producible == null)
                 return;
 
@@ -88,8 +85,50 @@ namespace SkyOfFreedom.Production
                 return;
             }
         }
+       
+        public bool QueueProduction(ProductionZoneType zoneType, IProducible item, int quantity)
+        {
+            if (item == null || quantity <= 0)
+            {
+                Debug.Log("1. Invalid item");
+                return false;
+            }
+
+            ProductionZone zone = GetAvailableZone(zoneType);
+
+            if (zone == null)
+            {
+                Debug.Log("2. Zone not found");
+                return false;
+            }
+            if (!GameManager.Instance.License.CanProduce(item))
+            {
+                Debug.Log("3. License failed");
+                return false;
+            }
+
+            if (!ProductionRecipeProcessor.CanProduce(item, quantity))
+            {
+                Debug.Log($"CanProduce failed: {item.ID}");
+                return false;
+            }
+
+            if (!ProductionRecipeProcessor.Consume(item, quantity))
+            {
+                Debug.Log($"Consume failed: {item.ID}");
+                return false;
+            }
+
+            Debug.Log("6. Enqueue");
+            Debug.Log(
+            $"Queue -> {item.ID} | {item.Name} | {item.GetHashCode()}");
+            return zone.Enqueue(new ProductionTask(item, quantity));
+        }
         private ProductionZone GetAvailableZone(ProductionZoneType zoneType)
         {
+            ProductionZone bestZone = null;
+            int bestCount = int.MaxValue;
+
             foreach (ProductionZone zone in productionZones)
             {
                 if (zone == null)
@@ -98,31 +137,19 @@ namespace SkyOfFreedom.Production
                 if (zone.ZoneType != zoneType)
                     continue;
 
-                return zone;
+                int taskCount = zone.Tasks.Count();
+
+                if (taskCount >= zone.QueueCapacity)
+                    continue;
+
+                if (taskCount < bestCount)
+                {
+                    bestCount = taskCount;
+                    bestZone = zone;
+                }
             }
 
-            return null;
-        }
-        public bool QueueProduction(ProductionZoneType zoneType, IProducible item, int quantity)
-        {
-            if (item == null || quantity <= 0)
-                return false;
-
-            ProductionZone zone = GetAvailableZone(zoneType);
-
-            if (zone == null)
-                return false;
-
-            if (!GameManager.Instance.License.CanProduce(item))
-                return false;
-
-            if (!ProductionRecipeProcessor.CanProduce(item, quantity))
-                return false;
-
-            if (!ProductionRecipeProcessor.Consume(item, quantity))
-                return false;
-
-            return zone.Enqueue(new ProductionTask(item, quantity));
+            return bestZone;
         }
 
         public void ClearAll()
@@ -132,7 +159,37 @@ namespace SkyOfFreedom.Production
                 zone?.ClearQueue();
             }
         }
+        public void RegisterZone(ProductionZone zone)
+        {
+            
+            if (zone == null)
+                return;
 
+            if (productionZones.Contains(zone))
+                return;
+
+            productionZones.Add(zone);
+
+            zone.ItemProduced -= OnItemProduced;
+            zone.TaskCompleted -= OnTaskCompleted;
+
+            zone.ItemProduced += OnItemProduced;
+            zone.TaskCompleted += OnTaskCompleted;
+           Debug.Log($"Zones count = {productionZones.Count}");
+
+        }
+        public void UnregisterZone(ProductionZone zone)
+        {
+            if (zone == null)
+                return;
+
+            if (!productionZones.Remove(zone))
+                return;
+
+            zone.ItemProduced -= OnItemProduced;
+            zone.TaskCompleted -= OnTaskCompleted;
+            Debug.Log($"Zones count = {productionZones.Count}");
+        }
         public List<IProducible> GetAvailableItems(
             ProductionView view,
             ProductionCategory category)

@@ -14,6 +14,8 @@ namespace SkyOfFreedom.UI
 
         [Header("UI")]
         [SerializeField] private Image icon;
+
+        [SerializeField] private TMP_Text produceButtonText;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private TMP_Text costText;
@@ -35,7 +37,14 @@ namespace SkyOfFreedom.UI
         public void Setup(IProducible item)
         {
             producible = item;
-
+            if (item is DroneModelSO)
+            {
+                produceButtonText.text = "Assemble";
+            }
+            else
+            {
+                produceButtonText.text = "Produce";
+            }
             nameText.text = item.Name;
             descriptionText.text = item.Description;
 
@@ -44,7 +53,7 @@ namespace SkyOfFreedom.UI
 
             costText.text = $"{item.ProductionCost:N0} ₴";
             timeText.text = $"{item.ProductionTime:0.#} s";
-
+            Debug.Log($"{item.Name} -> Tier = {item.Tier}");
             visual.SetTier(item.Tier);
 
             if (tierText != null)

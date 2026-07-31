@@ -67,7 +67,10 @@ namespace SkyOfFreedom.Production
         {
             State = ProductionState.Cancelled;
         }
-
+        public void CompleteCurrentItem()
+        {
+            CurrentItemProgress = 1f;
+        }
         public void ProduceOne()
         {
             if (State != ProductionState.Working)

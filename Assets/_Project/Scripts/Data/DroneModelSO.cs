@@ -66,7 +66,7 @@ namespace SkyOfFreedom.Data
         public string Description => description;
         public Sprite Icon => icon;
 
-        public int Tier => (int)tier;
+        public int Tier => (int)tier + 1;
 
         public float ProductionTime => assemblyTime;
 

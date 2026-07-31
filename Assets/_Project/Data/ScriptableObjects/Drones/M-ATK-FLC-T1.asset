@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: M-ATK-FLC-T1
   modelName: Falcon
-  icon: {fileID: 0}
+  icon: {fileID: 1186787756, guid: 1a40bf13fcb99f24087a3dfbdf498047, type: 3}
   description: A fast attack drone designed for precision strikes against ground
     targets.
   platform: 1

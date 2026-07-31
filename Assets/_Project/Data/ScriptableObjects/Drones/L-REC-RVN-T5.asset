@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.DroneModelSO
   id: L-REC-RVN-T5
   modelName: Raven
-  icon: {fileID: 0}
+  icon: {fileID: 771408643, guid: 1c681c3ddb2da3b4fbef88cf8ee50f6a, type: 3}
   description: A versatile reconnaissance drone built for extended observation and
     intelligence gathering.
   platform: 2
