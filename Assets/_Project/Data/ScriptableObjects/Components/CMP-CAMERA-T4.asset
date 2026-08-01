@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-CAMERA-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CAMERA-T4
-  category: 5
+  category: 9
   tier: 4
   componentName: Professional Camera System
   icon: {fileID: 698875669, guid: 375fe5e3aaf36054288643670368edfa, type: 3}

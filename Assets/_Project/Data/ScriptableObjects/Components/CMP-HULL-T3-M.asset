@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-HULL-T3-M
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-HULL-T3-M
-  category: 1
+  category: 5
   tier: 3
   componentName: Composite M-Class Frame
   icon: {fileID: 741854073, guid: 0ff7167fb5c87174980e85faf5f13319, type: 3}

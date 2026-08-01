@@ -9,11 +9,14 @@ namespace SkyOfFreedom.Data
     public class ComponentSO : DataSO, IProducible
     {
         [SerializeField]
-        private ProductionCategory category;
+        private CatalogCategory category;
+
+        public override CatalogCategory CatalogCategory =>
+    category;
+
         [SerializeField]
         private int tier;
         public int Tier => tier;
-        public ProductionCategory Category => category;
 
         [Header("General")]
 
@@ -95,7 +98,7 @@ namespace SkyOfFreedom.Data
     string id,
     string componentName,
     string description,
-    ProductionCategory category,
+    CatalogCategory category,
     int tier,
     float productionTime,
     List<MaterialAmount> recipe)
@@ -113,7 +116,7 @@ namespace SkyOfFreedom.Data
         }
         private void OnValidate()
         {
-            if (category == ProductionCategory.All)
+            if (category == CatalogCategory.All)
             {
                 Debug.LogWarning($"{name}: 'All' is a UI filter and should not be assigned to components.");
             }

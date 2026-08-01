@@ -19,7 +19,7 @@ MonoBehaviour:
     intelligence gathering.
   platform: 2
   type: 0
-  tier: 2
+  tier: 3
   assemblyTime: 32
   components:
   - component: {fileID: 11400000, guid: a833dba2ecbc1dd4c8b3d86c7a16e538, type: 2}

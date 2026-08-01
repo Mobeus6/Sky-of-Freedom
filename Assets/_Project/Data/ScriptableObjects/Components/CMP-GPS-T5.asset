@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-GPS-T5
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-GPS-T5
-  category: 4
+  category: 8
   tier: 5
   componentName: Military GPS Module
   icon: {fileID: -733326798, guid: af5bfe48e8bf0c14082011bc80e3bf9b, type: 3}

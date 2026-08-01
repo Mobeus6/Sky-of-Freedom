@@ -19,7 +19,7 @@ MonoBehaviour:
     weapon systems.
   platform: 3
   type: 4
-  tier: 4
+  tier: 5
   assemblyTime: 158
   components:
   - component: {fileID: 11400000, guid: 30bd69ed2b5e53947bcd60759cebdff1, type: 2}

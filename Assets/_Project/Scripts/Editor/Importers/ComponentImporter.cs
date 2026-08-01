@@ -53,7 +53,7 @@ namespace SkyOfFreedom.Editor
                 AddMaterial(recipe, "MAT-MICROCHIP", row.GetInt("MICROCHIP"));
                 AddMaterial(recipe, "MAT-STEEL", row.GetInt("STEEL"));
                 AddMaterial(recipe, "MAT-MAGNET", row.GetInt("MAGNET"));
-                ProductionCategory category = ParseCategory(row["Category"]);
+                CatalogCategory category = ParseCategory(row["Category"]);
                 int tier = ParseTier(id);
                 component.SetData(
      id,
@@ -94,19 +94,19 @@ namespace SkyOfFreedom.Editor
 
             recipe.Add(new MaterialAmount(material, amount));
         }
-        private static ProductionCategory ParseCategory(string value)
+        private static CatalogCategory ParseCategory(string value)
         {
             return value.Trim() switch
             {
-                "Hull" => ProductionCategory.Hulls,
-                "Battery" => ProductionCategory.Batteries,
-                "Controller" => ProductionCategory.Controllers,
-                "GPS" => ProductionCategory.GPS,
-                "Camera" => ProductionCategory.Cameras,
-                "Antenna" => ProductionCategory.Antennas,
-                "Sensor" => ProductionCategory.Sensors,
-                "Propeller" => ProductionCategory.Propellers,
-                "Motor" => ProductionCategory.Motors,
+                "Hulls" => CatalogCategory.Hulls,
+                "Batteries" => CatalogCategory.Batteries,
+                "Controllers" => CatalogCategory.Controllers,
+                "GPS" => CatalogCategory.GPS,
+                "Cameras" => CatalogCategory.Cameras,
+                "Antennas" => CatalogCategory.Antennas,
+                "Sensors" => CatalogCategory.Sensors,
+                "Propellers" => CatalogCategory.Propellers,
+                "Motors" => CatalogCategory.Motors,
 
                 _ => throw new System.Exception($"Unknown category: {value}")
             };

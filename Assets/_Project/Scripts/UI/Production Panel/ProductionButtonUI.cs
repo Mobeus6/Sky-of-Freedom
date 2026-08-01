@@ -7,7 +7,7 @@ namespace SkyOfFreedom.UI
     [RequireComponent(typeof(Button))]
     public class CategoryButtonUI : MonoBehaviour
     {
-        [SerializeField] private ProductionCategory category;
+        [SerializeField] private CatalogCategory category;
 
         private Button button;
         private ProductionPanelUI panel;

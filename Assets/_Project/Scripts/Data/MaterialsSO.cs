@@ -31,5 +31,8 @@ namespace SkyOfFreedom.Data
         public string Description => description;
         public int BasePrice => basePrice;
         public int MaxStack => maxStack;
+
+        public override CatalogCategory CatalogCategory =>
+    CatalogCategory.Materials;
     }
 }

@@ -18,7 +18,7 @@ MonoBehaviour:
   description: An elite stealth drone engineered for silent surveillance and infiltration.
   platform: 0
   type: 0
-  tier: 4
+  tier: 5
   assemblyTime: 180
   components:
   - component: {fileID: 11400000, guid: 88bd885a9a361b94ea80be463c9f4b5e, type: 2}

@@ -192,7 +192,7 @@ namespace SkyOfFreedom.Production
         }
         public List<IProducible> GetAvailableItems(
             ProductionView view,
-            ProductionCategory category)
+            CatalogCategory category)
         {
             List<IProducible> result = new();
 
@@ -206,14 +206,14 @@ namespace SkyOfFreedom.Production
                             continue;
 
                         // All Categories
-                        if (category == ProductionCategory.All)
+                        if (category == CatalogCategory.All)
                         {
                             result.Add(component);
                             continue;
                         }
 
                         // Конкретна категорія
-                        if (component.Category == category)
+                        if (component.CatalogCategory == category)
                         {
                             result.Add(component);
                         }

@@ -10,17 +10,17 @@ namespace SkyOfFreedom.UI
     {
         [Header("References")]
         [SerializeField] private Transform content;
-        [SerializeField] private ProductionCardUI cardPrefab;
+        [SerializeField] private CatalogueCardUI cardPrefab;
 
         [Header("Buttons")]
         [SerializeField] private CategoryButtonUI[] categoryButtons;
 
-        private readonly List<ProductionCardUI> spawnedCards = new();
+        private readonly List<CatalogueCardUI> spawnedCards = new();
 
         private ProductionManager productionManager;
 
         private ProductionView currentView = ProductionView.Components;
-        private ProductionCategory currentCategory = ProductionCategory.All;
+        private CatalogCategory currentCategory = CatalogCategory.All;
 
         private void Start()
         {
@@ -34,7 +34,7 @@ namespace SkyOfFreedom.UI
             Refresh();
         }
 
-        public void OpenCategory(ProductionCategory category)
+        public void OpenCategory(CatalogCategory category)
         {
             currentView = ProductionView.Components;
             currentCategory = category;
@@ -45,7 +45,7 @@ namespace SkyOfFreedom.UI
         public void ShowComponents()
         {
             currentView = ProductionView.Components;
-            currentCategory = ProductionCategory.All;
+            currentCategory = CatalogCategory.All;
 
             Refresh();
         }
@@ -68,7 +68,7 @@ namespace SkyOfFreedom.UI
 
             foreach (IProducible item in items)
             {
-                ProductionCardUI card =
+                CatalogueCardUI card =
                     Instantiate(cardPrefab, content);
 
                 card.Setup(item);
@@ -79,7 +79,7 @@ namespace SkyOfFreedom.UI
 
         private void ClearCards()
         {
-            foreach (ProductionCardUI card in spawnedCards)
+            foreach (CatalogueCardUI card in spawnedCards)
             {
                 if (card != null)
                     Destroy(card.gameObject);

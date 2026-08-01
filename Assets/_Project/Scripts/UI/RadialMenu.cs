@@ -5,6 +5,8 @@ using UnityEngine;
 public class RadialMenu : MonoBehaviour
 {
     [SerializeField] private RectTransform mainButton;
+
+    [SerializeField] private GameObject mainButtonHG;
     [SerializeField] private RectTransform[] menuButtons;
 
     [Header("Animation")]
@@ -33,9 +35,19 @@ public class RadialMenu : MonoBehaviour
     public void ToggleMenu()
     {
         if (isOpen)
-            Close();
+        {
+            mainButtonHG.SetActive(false);
+             Close();
+
+        }
+
+
         else
+        {
+            mainButtonHG.SetActive(true);
             Open();
+        }
+            
 
         isOpen = !isOpen;
     }

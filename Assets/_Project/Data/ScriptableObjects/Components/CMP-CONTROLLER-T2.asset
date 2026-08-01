@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-CONTROLLER-T2
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CONTROLLER-T2
-  category: 3
+  category: 7
   tier: 2
   componentName: Enhanced Flight Controller
   icon: {fileID: -1173607450, guid: 2cfea636d9a70374abc4ee4c5cf4e3cb, type: 3}

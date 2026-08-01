@@ -1,13 +1,14 @@
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Production;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SkyOfFreedom.UI
 {
-    public class ProductionCardUI : MonoBehaviour
+    public class CatalogueCardUI : MonoBehaviour
     {
         [Header("Tier Style")]
         [SerializeField] private CardTierVisual visual;
@@ -60,12 +61,11 @@ namespace SkyOfFreedom.UI
                 tierText.text = $"T{item.Tier}";
         }
 
+        public event Action<IProducible> Clicked;
+
         private void OnProduceClicked()
         {
-            if (producible == null)
-                return;
-
-            productionManager.QueueProduction(producible);
+            Clicked?.Invoke(producible);
         }
     }
 }

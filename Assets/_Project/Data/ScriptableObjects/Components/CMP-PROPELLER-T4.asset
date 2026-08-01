@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-PROPELLER-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-PROPELLER-T4
-  category: 8
+  category: 12
   tier: 4
   componentName: Professional Propeller
   icon: {fileID: -1676960174, guid: 58fc1f8cbad2dbb4ca0c3d4b1c33f882, type: 3}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-ANTENNA-T1
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T1
-  category: 6
+  category: 10
   tier: 1
   componentName: Standard Antenna
   icon: {fileID: -652382839, guid: a2c4bb861fedae5468ad730603eff75a, type: 3}

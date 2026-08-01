@@ -19,7 +19,7 @@ MonoBehaviour:
     aerial threats.
   platform: 1
   type: 2
-  tier: 1
+  tier: 2
   assemblyTime: 30
   components:
   - component: {fileID: 11400000, guid: b8a92f886fd3eac47a722739a6c0108b, type: 2}

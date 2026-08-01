@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-BATTERY-T3
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-BATTERY-T3
-  category: 2
+  category: 6
   tier: 3
   componentName: High-Density Battery
   icon: {fileID: 1866127158, guid: 20dcb665877d7fc4b8e7bfd066031b53, type: 3}

@@ -19,7 +19,7 @@ MonoBehaviour:
     missions.
   platform: 0
   type: 0
-  tier: 2
+  tier: 3
   assemblyTime: 88
   components:
   - component: {fileID: 11400000, guid: 066135b8ad5b787448caeb1ae180964b, type: 2}

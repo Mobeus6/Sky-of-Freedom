@@ -19,7 +19,7 @@ MonoBehaviour:
     targets.
   platform: 1
   type: 1
-  tier: 4
+  tier: 5
   assemblyTime: 90
   components:
   - component: {fileID: 11400000, guid: bf561622112a1f64db2c8ba197fb134e, type: 2}

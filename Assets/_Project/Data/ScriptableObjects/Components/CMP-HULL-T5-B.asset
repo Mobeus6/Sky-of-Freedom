@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-HULL-T5-B
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-HULL-T5-B
-  category: 1
+  category: 5
   tier: 5
   componentName: Adaptive B-Class Frame
   icon: {fileID: 741854073, guid: 0ff7167fb5c87174980e85faf5f13319, type: 3}
