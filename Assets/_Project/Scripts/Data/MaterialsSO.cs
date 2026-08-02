@@ -17,6 +17,8 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         [TextArea]
         private string description;
+        [SerializeField]
+        private string tier;
 
         [Header("Economy")]
         [SerializeField]
@@ -26,13 +28,11 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         private int maxStack = 999;
 
+        public string Tier => tier;
         public string MaterialName => materialName;
         public Sprite Icon => icon;
         public string Description => description;
         public int BasePrice => basePrice;
         public int MaxStack => maxStack;
-
-        public override CatalogCategory CatalogCategory =>
-    CatalogCategory.Materials;
     }
 }

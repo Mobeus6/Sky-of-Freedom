@@ -1,21 +1,19 @@
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Production;
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SkyOfFreedom.UI
 {
-    public class CatalogueCardUI : MonoBehaviour
+    public class ProductionCardUI : MonoBehaviour
     {
         [Header("Tier Style")]
         [SerializeField] private CardTierVisual visual;
 
         [Header("UI")]
         [SerializeField] private Image icon;
-
         [SerializeField] private TMP_Text produceButtonText;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text descriptionText;
@@ -38,14 +36,11 @@ namespace SkyOfFreedom.UI
         public void Setup(IProducible item)
         {
             producible = item;
-            if (item is DroneModelSO)
-            {
-                produceButtonText.text = "Assemble";
-            }
-            else
-            {
-                produceButtonText.text = "Produce";
-            }
+
+            produceButtonText.text = item is DroneModelSO
+                ? "Assemble"
+                : "Produce";
+
             nameText.text = item.Name;
             descriptionText.text = item.Description;
 
@@ -54,18 +49,28 @@ namespace SkyOfFreedom.UI
 
             costText.text = $"{item.ProductionCost:N0} ₴";
             timeText.text = $"{item.ProductionTime:0.#} s";
-            Debug.Log($"{item.Name} -> Tier = {item.Tier}");
+
             visual.SetTier(item.Tier);
 
             if (tierText != null)
                 tierText.text = $"T{item.Tier}";
         }
 
-        public event Action<IProducible> Clicked;
-
         private void OnProduceClicked()
         {
-            Clicked?.Invoke(producible);
+            if (producible == null)
+                return;
+
+            if (producible is ComponentSO component)
+            {
+                productionManager.QueueComponent(component);
+                return;
+            }
+
+            if (producible is DroneModelSO drone)
+            {
+                productionManager.QueueDrone(drone);
+            }
         }
     }
 }

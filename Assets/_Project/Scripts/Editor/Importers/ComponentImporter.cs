@@ -53,18 +53,16 @@ namespace SkyOfFreedom.Editor
                 AddMaterial(recipe, "MAT-MICROCHIP", row.GetInt("MICROCHIP"));
                 AddMaterial(recipe, "MAT-STEEL", row.GetInt("STEEL"));
                 AddMaterial(recipe, "MAT-MAGNET", row.GetInt("MAGNET"));
-                CatalogCategory category = ParseCategory(row["Category"]);
                 int tier = ParseTier(id);
+                ComponentCategory category = ParseCategory(id);
                 component.SetData(
-     id,
-     row["Component Name"],
-     row["Description"],
-     category,
-     tier,
-     row.GetFloat("Production Time"),
-     recipe);
-
-                EditorUtility.SetDirty(component);
+    id,
+    row["Component Name"],
+    row["Description"],
+    category,
+    tier,
+    row.GetFloat("Production Time"),
+    recipe);
             }
 
             AssetUtility.Save();
@@ -94,25 +92,39 @@ namespace SkyOfFreedom.Editor
 
             recipe.Add(new MaterialAmount(material, amount));
         }
-        private static CatalogCategory ParseCategory(string value)
+        private static ComponentCategory ParseCategory(string id)
         {
-            return value.Trim() switch
-            {
-                "Hulls" => CatalogCategory.Hulls,
-                "Batteries" => CatalogCategory.Batteries,
-                "Controllers" => CatalogCategory.Controllers,
-                "GPS" => CatalogCategory.GPS,
-                "Cameras" => CatalogCategory.Cameras,
-                "Antennas" => CatalogCategory.Antennas,
-                "Sensors" => CatalogCategory.Sensors,
-                "Propellers" => CatalogCategory.Propellers,
-                "Motors" => CatalogCategory.Motors,
+            if (id.Contains("HULL"))
+                return ComponentCategory.Hulls;
 
-                _ => throw new System.Exception($"Unknown category: {value}")
-            };
+            if (id.Contains("BATTERY"))
+                return ComponentCategory.Batteries;
+
+            if (id.Contains("CONTROLLER"))
+                return ComponentCategory.Controllers;
+
+            if (id.Contains("GPS"))
+                return ComponentCategory.GPS;
+
+            if (id.Contains("CAMERA"))
+                return ComponentCategory.Cameras;
+
+            if (id.Contains("ANTENNA"))
+                return ComponentCategory.Antennas;
+
+            if (id.Contains("SENSOR"))
+                return ComponentCategory.Sensors;
+
+            if (id.Contains("PROPELLER"))
+                return ComponentCategory.Propellers;
+
+            if (id.Contains("MOTOR"))
+                return ComponentCategory.Motors;
+
+            throw new System.Exception($"Cannot determine category from ID: {id}");
         }
 
-            private static int ParseTier(string id)
+        private static int ParseTier(string id)
         {
             if (id.Contains("-T1"))
                 return 1;

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-ALUMINUM
   materialName: Aluminum Frame
-  icon: {fileID: 0}
+  icon: {fileID: -699279828, guid: 29a138ae481ea9c42b57ae9753edacd6, type: 3}
   description: Lightweight structural metal for frames and mechanical components.
+  tier: T1
   basePrice: 8
   maxStack: 999

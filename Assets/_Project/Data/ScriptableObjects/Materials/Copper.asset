@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-COPPER
   materialName: Copper Wire
-  icon: {fileID: 0}
+  icon: {fileID: 708048759, guid: 753619425faa5574c9d1998be35c0d69, type: 3}
   description: Conductive material for electrical systems.
+  tier: T2
   basePrice: 7
   maxStack: 999

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-MOTOR-T5
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-MOTOR-T5
-  category: 13
+  category: 9
   tier: 5
   componentName: Elite Brushless Motor
   icon: {fileID: 712404596, guid: e965dd6dc06c22d4bb673c505248999f, type: 3}

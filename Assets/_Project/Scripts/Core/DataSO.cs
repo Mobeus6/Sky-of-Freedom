@@ -16,7 +16,5 @@ namespace SkyOfFreedom.Data
 
         public string ID => id;
 
-        // Для каталогу
-        public virtual CatalogCategory CatalogCategory => CatalogCategory.None;
     }
 }

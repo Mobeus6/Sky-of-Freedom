@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-BATTERY-CELL
   materialName: Battery Cell
-  icon: {fileID: 0}
+  icon: {fileID: 652739634, guid: ffd609521b1a90c499c8aafe51f94d0f, type: 3}
   description: Battery cell for energy storage.
+  tier: T3
   basePrice: 12
   maxStack: 999

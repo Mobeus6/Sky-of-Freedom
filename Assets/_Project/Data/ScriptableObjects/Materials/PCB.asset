@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-PCB
   materialName: PCB
-  icon: {fileID: 0}
+  icon: {fileID: -1737112898, guid: 023e18024e2dc6347a2f8a83d805c0cd, type: 3}
   description: Printed circuit board for electronic systems.
+  tier: T5
   basePrice: 15
   maxStack: 999

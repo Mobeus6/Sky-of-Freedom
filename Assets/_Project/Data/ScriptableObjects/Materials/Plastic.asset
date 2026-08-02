@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-PLASTIC
   materialName: Plastic Housing
-  icon: {fileID: 0}
+  icon: {fileID: 1685695223, guid: 42a9955902e529645b7aedd888ecb866, type: 3}
   description: Plastic material for electronic component housings.
+  tier: T1
   basePrice: 5
   maxStack: 999

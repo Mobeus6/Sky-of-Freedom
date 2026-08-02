@@ -8,7 +8,6 @@ namespace SkyOfFreedom.Production
 {
     /// <summary>
     /// Generic production zone capable of producing any IProducible.
-    /// Designed as the replacement for ProductionZone/AssemblyZone hierarchy.
     /// </summary>
     public class ProductionZone : MonoBehaviour
     {
@@ -16,9 +15,8 @@ namespace SkyOfFreedom.Production
         [SerializeField] private int queueCapacity = 5;
         [SerializeField] private int level = 1;
 
-        private readonly List<ProductionTask> queue = new List<ProductionTask>();
+        private readonly List<ProductionTask> queue = new();
         private ProductionTask currentTask;
-        public IReadOnlyCollection<ProductionTask> Queue => queue;
         private float currentProgress;
 
         public event Action<ProductionZone, IProducible> ItemProduced;
@@ -30,6 +28,9 @@ namespace SkyOfFreedom.Production
         public int Level => level;
         public ProductionTask CurrentTask => currentTask;
         public bool IsBusy => currentTask != null;
+
+        public IReadOnlyCollection<ProductionTask> Queue => queue;
+
         public IEnumerable<ProductionTask> Tasks
         {
             get
@@ -37,49 +38,46 @@ namespace SkyOfFreedom.Production
                 if (currentTask != null)
                     yield return currentTask;
 
-                foreach (ProductionTask task in queue)
+                foreach (var task in queue)
                     yield return task;
             }
         }
+
         public bool Enqueue(ProductionTask task)
         {
             if (task == null)
                 return false;
 
-            if (zoneType == ProductionZoneType.Production &&
-                task.Target is DroneModelSO)
+            if (zoneType == ProductionZoneType.Production && task.Target is DroneModelSO)
             {
                 Debug.LogError("Drone cannot be produced in Production Zone.");
                 return false;
             }
 
-            if (zoneType == ProductionZoneType.Assembly &&
-                task.Target is ComponentSO)
+            if (zoneType == ProductionZoneType.Assembly && task.Target is ComponentSO)
             {
                 Debug.LogError("Component cannot be assembled in Assembly Zone.");
                 return false;
             }
-            Debug.Log(
-             $"CurrentTask={(currentTask != null ? 1 : 0)} Queue={queue.Count} Capacity={queueCapacity}");
-            if ((currentTask != null ? 1 : 0) + queue.Count >= QueueCapacity)
+
+            int taskCount = (currentTask != null ? 1 : 0) + queue.Count;
+
+            if (taskCount >= queueCapacity)
             {
                 Debug.Log("Queue Full");
                 return false;
             }
-            if (task == null)
-                return false;
-
-            if (queue.Count >= queueCapacity)
-                return false;
 
             queue.Add(task);
-            QueueChanged?.Invoke(this);
 
             if (currentTask == null)
                 StartNextTask();
 
+            QueueChanged?.Invoke(this);
+
             return true;
         }
+
         public bool SpeedUpTask(ProductionTask task)
         {
             if (task == null)
@@ -89,9 +87,9 @@ namespace SkyOfFreedom.Production
                 return false;
 
             currentProgress = task.Target.ProductionTime;
-
             return true;
         }
+
         public bool CancelTask(ProductionTask task)
         {
             if (task == null)
@@ -119,21 +117,14 @@ namespace SkyOfFreedom.Production
             return false;
         }
 
-        private void AddProducedItem(IProducible item)
-        {
-            GameManager.Instance?.Warehouse?.AddItem(item.ID, 1);
-        }
-
         public void ClearQueue()
         {
             currentTask?.Cancel();
             currentTask = null;
             currentProgress = 0f;
 
-            foreach (ProductionTask task in queue)
-            {
+            foreach (var task in queue)
                 task.Cancel();
-            }
 
             queue.Clear();
 
@@ -148,12 +139,16 @@ namespace SkyOfFreedom.Production
 
                 if (currentTask == null)
                     return;
+
+                QueueChanged?.Invoke(this);
             }
 
             float speedMultiplier = ProductionSpeedCalculator.GetMultiplier(this);
+
             currentProgress += deltaTime * speedMultiplier;
 
-            currentTask.CurrentItemProgress = currentProgress / currentTask.Target.ProductionTime;
+            currentTask.CurrentItemProgress =
+                currentProgress / currentTask.Target.ProductionTime;
 
             if (currentProgress < currentTask.Target.ProductionTime)
                 return;
@@ -161,6 +156,7 @@ namespace SkyOfFreedom.Production
             currentProgress = 0f;
 
             currentTask.ProduceOne();
+
             ItemProduced?.Invoke(this, currentTask.Target);
 
             if (currentTask.RemainingQuantity > 0)
@@ -175,7 +171,6 @@ namespace SkyOfFreedom.Production
             StartNextTask();
 
             QueueChanged?.Invoke(this);
-
         }
 
         private void StartNextTask()
@@ -188,11 +183,15 @@ namespace SkyOfFreedom.Production
 
             currentTask = queue[0];
             queue.RemoveAt(0);
+
             currentTask.Start();
+
             currentProgress = 0f;
 
-            QueueChanged?.Invoke(this);
-
+            // ВАЖЛИВО:
+            // QueueChanged тут НЕ викликається.
+            // Він викликається лише після завершення логічної операції
+            // (Enqueue, Cancel, Tick, ClearQueue).
         }
     }
 }

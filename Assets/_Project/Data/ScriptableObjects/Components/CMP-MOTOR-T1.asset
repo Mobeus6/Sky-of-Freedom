@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-MOTOR-T1
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-MOTOR-T1
-  category: 13
+  category: 9
   tier: 1
   componentName: Standard Brushless Motor
   icon: {fileID: 712404596, guid: e965dd6dc06c22d4bb673c505248999f, type: 3}

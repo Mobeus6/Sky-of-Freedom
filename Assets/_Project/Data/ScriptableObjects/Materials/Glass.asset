@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-GLASS
   materialName: Glass Lens
-  icon: {fileID: 0}
+  icon: {fileID: -287637227, guid: a59e6bdfd51c3a34cb9258202d6851fd, type: 3}
   description: Optical glass for cameras and sensors.
+  tier: T4
   basePrice: 10
   maxStack: 999

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-MICROCHIP
   materialName: Microchips
-  icon: {fileID: 0}
+  icon: {fileID: -1434830789, guid: ee6e666b82c2a004ebfa0d605c64cf33, type: 3}
   description: Microchip for computing, control, and data processing.
+  tier: T5
   basePrice: 30
   maxStack: 999

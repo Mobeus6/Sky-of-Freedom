@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-SENSORS-T4
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-SENSORS-T4
-  category: 11
+  category: 7
   tier: 4
   componentName: Professional Sensor Suite
   icon: {fileID: 1830775136, guid: 050427344fe75b341949101777136256, type: 3}

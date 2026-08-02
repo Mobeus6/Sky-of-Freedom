@@ -7,7 +7,7 @@ namespace SkyOfFreedom.UI
     [RequireComponent(typeof(Button))]
     public class WarehouseCategoryButtonUI : MonoBehaviour
     {
-        [SerializeField] private CatalogCategory category;
+        [SerializeField] private ComponentCategory category;
 
         private Button button;
         private WarehousePanelUI panel;
@@ -24,8 +24,6 @@ namespace SkyOfFreedom.UI
 
         private void OnClick()
         {
-            Debug.Log($"Category: {category}");
-
             panel.OpenCategory(category);
         }
     }

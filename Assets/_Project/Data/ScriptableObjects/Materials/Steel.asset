@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-STEEL
   materialName: Steel Shaft
-  icon: {fileID: 0}
+  icon: {fileID: -946501504, guid: 0afb99906690fb4468c91a5d01dd0999, type: 3}
   description: High-strength metal for mechanical components.
+  tier: T1
   basePrice: 6
   maxStack: 999

@@ -14,6 +14,7 @@ namespace SkyOfFreedom.UI
 
         private void OnEnable()
         {
+            Debug.Log($"{name} Enable");
             if (zone != null)
                 zone.QueueChanged += RefreshQueue;
 
@@ -22,6 +23,8 @@ namespace SkyOfFreedom.UI
 
         private void OnDisable()
         {
+            Debug.Log($"{name} Disable");
+
             if (zone != null)
                 zone.QueueChanged -= RefreshQueue;
 
@@ -32,7 +35,19 @@ namespace SkyOfFreedom.UI
         private void Start()
         {
             if (zone != null)
-                RefreshQueue(zone);
+                zone.QueueChanged += RefreshQueue;
+
+            GameManager.Instance.Factory.OnFactoryLevelChanged += OnFactoryLevelChanged;
+
+            RefreshQueue(zone);
+        }
+        private void OnDestroy()
+        {
+            if (zone != null)
+                zone.QueueChanged -= RefreshQueue;
+
+            if (GameManager.Instance != null)
+                GameManager.Instance.Factory.OnFactoryLevelChanged -= OnFactoryLevelChanged;
         }
         private void OnFactoryLevelChanged(int level)
         {
@@ -41,6 +56,7 @@ namespace SkyOfFreedom.UI
         }
         private void RefreshQueue(ProductionZone productionZone)
         {
+            Debug.Log($"RefreshQueue {productionZone.ZoneType} Tasks={productionZone.Tasks.Count()}");
             List<ProductionTask> tasks = productionZone.Tasks.ToList();
 
             int unlockedSlots = GameManager.Instance.Factory.GetUnlockedQueueSlots();
@@ -48,7 +64,7 @@ namespace SkyOfFreedom.UI
             for (int i = 0; i < queueSlots.Length; i++)
             {
                 QueueItemUI slot = queueSlots[i];
-
+                Debug.Log($"Slot {i}");
                 if (i >= unlockedSlots)
                 {
                     int requiredLevel =

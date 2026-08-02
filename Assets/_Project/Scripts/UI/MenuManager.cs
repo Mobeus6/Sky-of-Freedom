@@ -12,18 +12,61 @@ public class MenuManager : MonoBehaviour
         {
             button.Initialize(this);
 
-            button.Panel.SetActive(false);
+            Hide(button.Panel);
+
+            if (button.ExtraPanel != null)
+                Hide(button.ExtraPanel);
 
             if (button.Highlight != null)
                 button.Highlight.SetActive(false);
         }
     }
 
+    private void Show(GameObject panel)
+    {
+        if (panel == null)
+            return;
+
+        CanvasGroup group = panel.GetComponent<CanvasGroup>();
+
+        if (group == null)
+        {
+            Debug.LogError($"{panel.name} doesn't have CanvasGroup.");
+            return;
+        }
+
+        group.alpha = 1f;
+        group.interactable = true;
+        group.blocksRaycasts = true;
+    }
+
+    private void Hide(GameObject panel)
+    {
+        if (panel == null)
+            return;
+
+        CanvasGroup group = panel.GetComponent<CanvasGroup>();
+
+        if (group == null)
+        {
+            Debug.LogError($"{panel.name} doesn't have CanvasGroup.");
+            return;
+        }
+
+        group.alpha = 0f;
+        group.interactable = false;
+        group.blocksRaycasts = false;
+    }
+
     public void Toggle(MenuButton selectedButton)
     {
+        // Закриття поточної вкладки
         if (currentButton == selectedButton)
         {
-            selectedButton.Panel.SetActive(false);
+            Hide(selectedButton.Panel);
+
+            if (selectedButton.ExtraPanel != null)
+                Hide(selectedButton.ExtraPanel);
 
             if (selectedButton.Highlight != null)
                 selectedButton.Highlight.SetActive(false);
@@ -32,15 +75,23 @@ public class MenuManager : MonoBehaviour
             return;
         }
 
+        // Ховаємо всі панелі
         foreach (MenuButton button in buttons)
         {
-            button.Panel.SetActive(false);
+            Hide(button.Panel);
+
+            if (button.ExtraPanel != null)
+                Hide(button.ExtraPanel);
 
             if (button.Highlight != null)
                 button.Highlight.SetActive(false);
         }
 
-        selectedButton.Panel.SetActive(true);
+        // Показуємо потрібні
+        Show(selectedButton.Panel);
+
+        if (selectedButton.ExtraPanel != null)
+            Show(selectedButton.ExtraPanel);
 
         if (selectedButton.Highlight != null)
             selectedButton.Highlight.SetActive(true);

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-ANTENNA-T3
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-ANTENNA-T3
-  category: 10
+  category: 6
   tier: 3
   componentName: High-Gain Antenna
   icon: {fileID: -652382839, guid: a2c4bb861fedae5468ad730603eff75a, type: 3}

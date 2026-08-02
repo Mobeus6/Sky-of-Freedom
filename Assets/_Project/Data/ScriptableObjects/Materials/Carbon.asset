@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
   id: MAT-CARBON
   materialName: Carbon Plates
-  icon: {fileID: 0}
+  icon: {fileID: -936466392, guid: 3c23fa64e2297284eb33fe4a99f4a825, type: 3}
   description: Lightweight, high-strength composite material for high-performance
     structures.
+  tier: T3
   basePrice: 18
   maxStack: 999

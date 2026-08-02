@@ -53,14 +53,16 @@ namespace SkyOfFreedom.Production
                     zone.Tick(deltaTime);
             }
         }
-        private void QueueComponent(ComponentSO component)
+        public void QueueComponent(ComponentSO component)
         {
+            UnityEngine.Debug.Log($"QueueComponent: {component.ID}");
             QueueProduction(
                 ProductionZoneType.Production,
                 component,
                 1);
+            UnityEngine.Debug.Log("QueueProduction returned");
         }
-        private void QueueDrone(DroneModelSO drone)
+        public void QueueDrone(DroneModelSO drone)
         {
             QueueProduction(
                 ProductionZoneType.Assembly,
@@ -69,7 +71,7 @@ namespace SkyOfFreedom.Production
         }
         public void QueueProduction(IProducible producible)
         {
-
+            UnityEngine.Debug.Log("QueueProduction START");
             if (producible == null)
                 return;
 
@@ -126,6 +128,14 @@ namespace SkyOfFreedom.Production
         }
         private ProductionZone GetAvailableZone(ProductionZoneType zoneType)
         {
+            productionZones.RemoveAll(z => z == null);
+
+            Debug.Log($"Zones registered = {productionZones.Count}");
+
+            foreach (var zone in productionZones)
+            {
+                Debug.Log($"{zone.ZoneType} | Queue={zone.Tasks.Count()} | Capacity={zone.QueueCapacity}");
+            }
             ProductionZone bestZone = null;
             int bestCount = int.MaxValue;
 
@@ -191,8 +201,8 @@ namespace SkyOfFreedom.Production
             Debug.Log($"Zones count = {productionZones.Count}");
         }
         public List<IProducible> GetAvailableItems(
-            ProductionView view,
-            CatalogCategory category)
+     ProductionView view,
+     ComponentCategory category)
         {
             List<IProducible> result = new();
 
@@ -205,15 +215,13 @@ namespace SkyOfFreedom.Production
                         if (component == null)
                             continue;
 
-                        // All Categories
-                        if (category == CatalogCategory.All)
+                        if (category == ComponentCategory.All)
                         {
                             result.Add(component);
                             continue;
                         }
 
-                        // Конкретна категорія
-                        if (component.CatalogCategory == category)
+                        if (component.Category == category)
                         {
                             result.Add(component);
                         }

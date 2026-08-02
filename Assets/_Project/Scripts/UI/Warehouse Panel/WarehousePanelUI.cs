@@ -12,15 +12,22 @@ namespace SkyOfFreedom.UI
         [SerializeField] private Transform content;
         [SerializeField] private WarehouseCardUI cardPrefab;
 
-        [Header("Categories")]
+        [Header("View Buttons")]
+        [SerializeField] private WarehouseViewButtonUI[] viewButtons;
+
+        [Header("Category Buttons")]
         [SerializeField] private WarehouseCategoryButtonUI[] categoryButtons;
+
+        [Header("UI")]
+        [SerializeField] private GameObject categoryPanel;
 
         private readonly List<WarehouseCardUI> cards = new();
 
         private WarehouseManager warehouse;
         private DatabaseManager database;
 
-        private CatalogCategory currentCategory = CatalogCategory.All;
+        private WarehouseView currentView = WarehouseView.Materials;
+        private ComponentCategory currentCategory = ComponentCategory.All;
 
         private void Start()
         {
@@ -29,18 +36,55 @@ namespace SkyOfFreedom.UI
 
             warehouse.OnItemChanged += OnItemChanged;
 
+            foreach (WarehouseViewButtonUI button in viewButtons)
+            {
+                if (button != null)
+                    button.Initialize(this);
+            }
+
             foreach (WarehouseCategoryButtonUI button in categoryButtons)
             {
-                button.Initialize(this);
+                if (button != null)
+                    button.Initialize(this);
             }
+
+            ShowMaterials();
+        }
+
+        public void ShowMaterials()
+        {
+            currentView = WarehouseView.Materials;
+
+            if (categoryPanel != null)
+                categoryPanel.SetActive(false);
 
             Refresh();
         }
 
-        public void OpenCategory(CatalogCategory category)
+        public void ShowComponents()
         {
-            Debug.Log($"OpenCategory: {category}");
+            currentView = WarehouseView.Components;
+            currentCategory = ComponentCategory.All;
 
+            if (categoryPanel != null)
+                categoryPanel.SetActive(true);
+
+            Refresh();
+        }
+
+        public void ShowDrones()
+        {
+            currentView = WarehouseView.Drones;
+
+            if (categoryPanel != null)
+                categoryPanel.SetActive(false);
+
+            Refresh();
+        }
+
+        public void OpenCategory(ComponentCategory category)
+        {
+            currentView = WarehouseView.Components;
             currentCategory = category;
 
             Refresh();
@@ -51,7 +95,7 @@ namespace SkyOfFreedom.UI
             Refresh();
         }
 
-        public void Refresh()
+        private void Refresh()
         {
             Clear();
 
@@ -62,11 +106,10 @@ namespace SkyOfFreedom.UI
                 if (data == null)
                     continue;
 
-                if (!MatchesCategory(data))
+                if (!Matches(data))
                     continue;
 
-                WarehouseCardUI card =
-                    Instantiate(cardPrefab, content);
+                WarehouseCardUI card = Instantiate(cardPrefab, content);
 
                 card.Setup(data, item.Quantity);
 
@@ -74,26 +117,30 @@ namespace SkyOfFreedom.UI
             }
         }
 
-        private bool MatchesCategory(DataSO data)
+        private bool Matches(DataSO data)
         {
-            if (currentCategory == CatalogCategory.All)
-                return true;
-
-            if (currentCategory == CatalogCategory.Components)
-                return data is ComponentSO;
-
-            return data.CatalogCategory == currentCategory;
-        }
-
-        private void Clear()
-        {
-            foreach (WarehouseCardUI card in cards)
+            switch (currentView)
             {
-                if (card != null)
-                    Destroy(card.gameObject);
+                case WarehouseView.Materials:
+
+                    return data is MaterialSO;
+
+                case WarehouseView.Components:
+
+                    if (data is not ComponentSO component)
+                        return false;
+
+                    if (currentCategory == ComponentCategory.All)
+                        return true;
+
+                    return component.Category == currentCategory;
+
+                case WarehouseView.Drones:
+
+                    return data is DroneModelSO;
             }
 
-            cards.Clear();
+            return false;
         }
 
         private DataSO FindData(string id)
@@ -117,6 +164,17 @@ namespace SkyOfFreedom.UI
             }
 
             return null;
+        }
+
+        private void Clear()
+        {
+            foreach (WarehouseCardUI card in cards)
+            {
+                if (card != null)
+                    Destroy(card.gameObject);
+            }
+
+            cards.Clear();
         }
 
         private void OnDestroy()

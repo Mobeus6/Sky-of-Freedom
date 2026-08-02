@@ -108,8 +108,6 @@ namespace SkyOfFreedom.Data
         public int Navigation => navigation;
 
         public int Stealth => stealth;
-        public override CatalogCategory CatalogCategory =>
-    CatalogCategory.Drones;
 
 #if UNITY_EDITOR
 

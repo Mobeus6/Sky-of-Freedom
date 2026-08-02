@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CMP-CAMERA-T5
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ComponentSO
   id: CMP-CAMERA-T5
-  category: 9
+  category: 5
   tier: 5
   componentName: Advanced Recon Camera
   icon: {fileID: 698875669, guid: 375fe5e3aaf36054288643670368edfa, type: 3}
