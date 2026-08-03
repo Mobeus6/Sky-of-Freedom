@@ -53,37 +53,37 @@ namespace SkyOfFreedom.UI
 
         public void ShowMaterials()
         {
-            currentView = WarehouseView.Materials;
+            Debug.Log("ShowMaterials");
 
-            if (categoryPanel != null)
-                categoryPanel.SetActive(false);
-
-            Refresh();
+            SetView(WarehouseView.Materials);
         }
 
         public void ShowComponents()
         {
-            currentView = WarehouseView.Components;
-            currentCategory = ComponentCategory.All;
+            Debug.Log("ShowComponents");
 
-            if (categoryPanel != null)
-                categoryPanel.SetActive(true);
-
-            Refresh();
+            SetView(WarehouseView.Components);
         }
 
         public void ShowDrones()
         {
-            currentView = WarehouseView.Drones;
+            Debug.Log("ShowDrones");
 
-            if (categoryPanel != null)
-                categoryPanel.SetActive(false);
+            SetView(WarehouseView.Drones);
+        }
+        private void SetView(WarehouseView view)
+        {
+            currentView = view;
+
+            if (view == WarehouseView.Components)
+                currentCategory = ComponentCategory.All;
 
             Refresh();
         }
-
         public void OpenCategory(ComponentCategory category)
         {
+            Debug.Log(category);
+
             currentView = WarehouseView.Components;
             currentCategory = category;
 
@@ -97,12 +97,13 @@ namespace SkyOfFreedom.UI
 
         private void Refresh()
         {
+            Debug.Log($"Warehouse View = {currentView}");
             Clear();
 
             foreach (WarehouseItem item in warehouse.GetAllItems())
             {
                 DataSO data = FindData(item.ID);
-
+                Debug.Log($"{item.ID} -> {data?.GetType().Name}");
                 if (data == null)
                     continue;
 

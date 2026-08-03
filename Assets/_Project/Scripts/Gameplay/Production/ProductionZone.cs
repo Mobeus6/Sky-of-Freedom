@@ -18,7 +18,7 @@ namespace SkyOfFreedom.Production
         private readonly List<ProductionTask> queue = new();
         private ProductionTask currentTask;
         private float currentProgress;
-
+        public int TaskCount => queue.Count + (currentTask != null ? 1 : 0);
         public event Action<ProductionZone, IProducible> ItemProduced;
         public event Action<ProductionZone, ProductionTask> TaskCompleted;
         public event Action<ProductionZone> QueueChanged;

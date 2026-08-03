@@ -130,34 +130,43 @@ namespace SkyOfFreedom.Production
         {
             productionZones.RemoveAll(z => z == null);
 
-            Debug.Log($"Zones registered = {productionZones.Count}");
-
-            foreach (var zone in productionZones)
-            {
-                Debug.Log($"{zone.ZoneType} | Queue={zone.Tasks.Count()} | Capacity={zone.QueueCapacity}");
-            }
             ProductionZone bestZone = null;
-            int bestCount = int.MaxValue;
 
             foreach (ProductionZone zone in productionZones)
             {
-                if (zone == null)
-                    continue;
+                Debug.Log(
+                    $"Checking {zone.name} " +
+                    $"Type={zone.ZoneType} " +
+                    $"Queue={zone.TaskCount} " +
+                    $"Capacity={zone.QueueCapacity}");
 
                 if (zone.ZoneType != zoneType)
-                    continue;
-
-                int taskCount = zone.Tasks.Count();
-
-                if (taskCount >= zone.QueueCapacity)
-                    continue;
-
-                if (taskCount < bestCount)
                 {
-                    bestCount = taskCount;
+                    Debug.Log("Skip: Wrong type");
+                    continue;
+                }
+
+                if (zone.TaskCount >= zone.QueueCapacity)
+                {
+                    Debug.Log("Skip: Full");
+                    continue;
+                }
+
+                if (bestZone == null)
+                {
+                    bestZone = zone;
+                    continue;
+                }
+
+                if (zone.TaskCount < bestZone.TaskCount)
+                {
                     bestZone = zone;
                 }
             }
+
+            Debug.Log(bestZone == null
+                ? "Selected zone = NULL"
+                : $"Selected zone = {bestZone.name}");
 
             return bestZone;
         }

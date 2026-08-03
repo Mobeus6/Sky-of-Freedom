@@ -18,6 +18,7 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text tierText;
         [SerializeField] private Button removeButton;
         [SerializeField] private Button speedUpButton;
+
         [Header("States")]
         [SerializeField] private GameObject taskRoot;
         [SerializeField] private GameObject lockedRoot;
