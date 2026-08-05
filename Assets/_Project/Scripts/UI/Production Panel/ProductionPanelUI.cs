@@ -60,7 +60,6 @@ namespace SkyOfFreedom.UI
 
         private void Refresh()
         {
-            Debug.Log($"Refresh: {currentView} {currentCategory}");
             ClearCards();
 
             List<IProducible> items =
@@ -85,9 +84,7 @@ namespace SkyOfFreedom.UI
                 if (card != null)
                     Destroy(card.gameObject);
             }
-            Debug.Log($"Spawned = {spawnedCards.Count}");
             spawnedCards.Clear();
-            Debug.Log($"Cards after Clear = {spawnedCards.Count}");
         }
     }
 }

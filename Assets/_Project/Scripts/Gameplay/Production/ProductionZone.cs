@@ -1,5 +1,5 @@
 using SkyOfFreedom.Data;
-using SkyOfFreedom.Managers;
+using SkyOfFreedom.Factory;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +11,7 @@ namespace SkyOfFreedom.Production
     /// </summary>
     public class ProductionZone : MonoBehaviour
     {
-        [SerializeField] private ProductionZoneType zoneType;
+        [SerializeField] private FactoryZoneType zoneType;
         [SerializeField] private int queueCapacity = 5;
         [SerializeField] private int level = 1;
 
@@ -23,7 +23,7 @@ namespace SkyOfFreedom.Production
         public event Action<ProductionZone, ProductionTask> TaskCompleted;
         public event Action<ProductionZone> QueueChanged;
 
-        public ProductionZoneType ZoneType => zoneType;
+        public FactoryZoneType ZoneType => zoneType;
         public int QueueCapacity => queueCapacity;
         public int Level => level;
         public ProductionTask CurrentTask => currentTask;
@@ -48,13 +48,13 @@ namespace SkyOfFreedom.Production
             if (task == null)
                 return false;
 
-            if (zoneType == ProductionZoneType.Production && task.Target is DroneModelSO)
+            if (zoneType == FactoryZoneType.Production && task.Target is DroneModelSO)
             {
                 Debug.LogError("Drone cannot be produced in Production Zone.");
                 return false;
             }
 
-            if (zoneType == ProductionZoneType.Assembly && task.Target is ComponentSO)
+            if (zoneType == FactoryZoneType.Assembly && task.Target is ComponentSO)
             {
                 Debug.LogError("Component cannot be assembled in Assembly Zone.");
                 return false;

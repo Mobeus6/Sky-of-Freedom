@@ -1,4 +1,6 @@
 using SkyOfFreedom.Data;
+using SkyOfFreedom.Factory;
+using SkyOfFreedom.Managers;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,10 +15,52 @@ namespace SkyOfFreedom.Warehouse
         public event Action<string, int> OnItemAdded;
         public event Action<string, int> OnItemRemoved;
         public event Action<string, int> OnItemChanged;
+        private int currentCapacity;
 
+        public int CurrentCapacity => currentCapacity;
+
+        public int MaxCapacity
+        {
+            get
+            {
+                WarehouseConfigSO config =
+                    GameManager.Instance.Database.Database.WarehouseConfig;
+
+                if (config == null)
+                    return 0;
+
+                int level =
+                    GameManager.Instance.Factory.GetLevel(
+                        FactoryZoneType.Warehouse);
+
+                return config.GetCapacity(level);
+            }
+        }
+
+        public float CapacityPercent
+        {
+            get
+            {
+                if (MaxCapacity == 0)
+                    return 0;
+
+                return (float)CurrentCapacity / MaxCapacity;
+            }
+        }
+
+        public bool Contains(string id) => warehouse.ContainsKey(id);
+
+        public void Clear() => warehouse.Clear();
+
+        public IReadOnlyCollection<WarehouseItem> GetAllItems() => warehouse.Values;
+
+        public IReadOnlyDictionary<string, WarehouseItem> GetItems() => warehouse;
+
+        public int StoredItemCount => warehouse.Count;
         public void Initialize()
         {
             warehouse.Clear();
+            currentCapacity = 0; ;
         }
 
         public void Shutdown()
@@ -111,28 +155,30 @@ namespace SkyOfFreedom.Warehouse
         public void SetQuantity(string id, int quantity)
         {
             if (string.IsNullOrWhiteSpace(id))
-            {
-                Debug.LogError("Warehouse item ID is null or empty.");
                 return;
-            }
 
-            if (quantity < 0)
-            {
-                Debug.LogError("Quantity cannot be negative.");
-                return;
-            }
+            int oldQuantity = GetQuantity(id);
 
-            if (quantity == 0)
+            if (quantity <= 0)
             {
                 warehouse.Remove(id);
+
+                UpdateCurrentCapacity(id, oldQuantity, 0);
+
                 OnItemChanged?.Invoke(id, 0);
                 return;
             }
 
             if (warehouse.TryGetValue(id, out WarehouseItem item))
+            {
                 item.SetQuantity(quantity);
+            }
             else
+            {
                 warehouse.Add(id, new WarehouseItem(id, quantity));
+            }
+
+            UpdateCurrentCapacity(id, oldQuantity, quantity);
 
             OnItemChanged?.Invoke(id, quantity);
         }
@@ -142,14 +188,21 @@ namespace SkyOfFreedom.Warehouse
             if (string.IsNullOrWhiteSpace(id) || quantity <= 0)
                 return;
 
-            if (warehouse.TryGetValue(id, out WarehouseItem item))
+            int oldQuantity = GetQuantity(id);
+
+            WarehouseItem item;
+
+            if (warehouse.TryGetValue(id, out item))
+            {
                 item.Add(quantity);
+            }
             else
             {
                 item = new WarehouseItem(id, quantity);
                 warehouse.Add(id, item);
             }
 
+            UpdateCurrentCapacity(id, oldQuantity, item.Quantity);
             OnItemAdded?.Invoke(id, quantity);
             OnItemChanged?.Invoke(id, item.Quantity);
         }
@@ -159,11 +212,15 @@ namespace SkyOfFreedom.Warehouse
             if (!warehouse.TryGetValue(id, out WarehouseItem item))
                 return false;
 
+            int oldQuantity = item.Quantity;
+
             if (!item.Remove(quantity))
                 return false;
 
             if (item.Quantity == 0)
                 warehouse.Remove(id);
+
+            UpdateCurrentCapacity(id, oldQuantity, GetQuantity(id));
 
             OnItemRemoved?.Invoke(id, quantity);
             OnItemChanged?.Invoke(id, GetQuantity(id));
@@ -171,14 +228,37 @@ namespace SkyOfFreedom.Warehouse
             return true;
         }
 
-        public bool Contains(string id) => warehouse.ContainsKey(id);
+        private int GetStorageSize(string id)
+        {
+            DataSO data =
+                GameManager.Instance.Database.Database.GetData(id);
 
-        public void Clear() => warehouse.Clear();
+            if (data == null)
+            {
+                return 0;
+            }
 
-        public IReadOnlyCollection<WarehouseItem> GetAllItems() => warehouse.Values;
+            int size = data switch
+            {
+                MaterialSO material => material.StorageSize,
+                ComponentSO component => component.StorageSize,
+                DroneModelSO drone => drone.StorageSize,
+                _ => 0
+            };
 
-        public IReadOnlyDictionary<string, WarehouseItem> GetItems() => warehouse;
+            return size;
+        }
+        private void UpdateCurrentCapacity(string id, int oldQuantity, int newQuantity)
+        {
+            int storageSize = GetStorageSize(id);
 
-        public int StoredItemCount => warehouse.Count;
+            currentCapacity -= oldQuantity * storageSize;
+            currentCapacity += newQuantity * storageSize;
+
+            if (currentCapacity < 0)
+                currentCapacity = 0;
+        }
     }
+
+    
 }

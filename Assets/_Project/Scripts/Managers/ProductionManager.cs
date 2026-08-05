@@ -1,7 +1,7 @@
 using SkyOfFreedom.Data;
+using SkyOfFreedom.Factory;
 using SkyOfFreedom.Managers;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace SkyOfFreedom.Production
@@ -55,23 +55,20 @@ namespace SkyOfFreedom.Production
         }
         public void QueueComponent(ComponentSO component)
         {
-            UnityEngine.Debug.Log($"QueueComponent: {component.ID}");
             QueueProduction(
-                ProductionZoneType.Production,
+                FactoryZoneType.Production,
                 component,
                 1);
-            UnityEngine.Debug.Log("QueueProduction returned");
         }
         public void QueueDrone(DroneModelSO drone)
         {
             QueueProduction(
-                ProductionZoneType.Assembly,
+                FactoryZoneType.Assembly,
                 drone,
                 1);
         }
         public void QueueProduction(IProducible producible)
         {
-            UnityEngine.Debug.Log("QueueProduction START");
             if (producible == null)
                 return;
 
@@ -88,11 +85,11 @@ namespace SkyOfFreedom.Production
             }
         }
        
-        public bool QueueProduction(ProductionZoneType zoneType, IProducible item, int quantity)
+        public bool QueueProduction(FactoryZoneType zoneType, IProducible item, int quantity)
         {
             if (item == null || quantity <= 0)
             {
-                Debug.Log("1. Invalid item");
+
                 return false;
             }
 
@@ -121,12 +118,9 @@ namespace SkyOfFreedom.Production
                 return false;
             }
 
-            Debug.Log("6. Enqueue");
-            Debug.Log(
-            $"Queue -> {item.ID} | {item.Name} | {item.GetHashCode()}");
             return zone.Enqueue(new ProductionTask(item, quantity));
         }
-        private ProductionZone GetAvailableZone(ProductionZoneType zoneType)
+        private ProductionZone GetAvailableZone(FactoryZoneType zoneType)
         {
             productionZones.RemoveAll(z => z == null);
 
@@ -134,21 +128,14 @@ namespace SkyOfFreedom.Production
 
             foreach (ProductionZone zone in productionZones)
             {
-                Debug.Log(
-                    $"Checking {zone.name} " +
-                    $"Type={zone.ZoneType} " +
-                    $"Queue={zone.TaskCount} " +
-                    $"Capacity={zone.QueueCapacity}");
 
                 if (zone.ZoneType != zoneType)
                 {
-                    Debug.Log("Skip: Wrong type");
                     continue;
                 }
 
                 if (zone.TaskCount >= zone.QueueCapacity)
                 {
-                    Debug.Log("Skip: Full");
                     continue;
                 }
 
@@ -163,10 +150,6 @@ namespace SkyOfFreedom.Production
                     bestZone = zone;
                 }
             }
-
-            Debug.Log(bestZone == null
-                ? "Selected zone = NULL"
-                : $"Selected zone = {bestZone.name}");
 
             return bestZone;
         }
@@ -194,7 +177,6 @@ namespace SkyOfFreedom.Production
 
             zone.ItemProduced += OnItemProduced;
             zone.TaskCompleted += OnTaskCompleted;
-           Debug.Log($"Zones count = {productionZones.Count}");
 
         }
         public void UnregisterZone(ProductionZone zone)
@@ -207,7 +189,6 @@ namespace SkyOfFreedom.Production
 
             zone.ItemProduced -= OnItemProduced;
             zone.TaskCompleted -= OnTaskCompleted;
-            Debug.Log($"Zones count = {productionZones.Count}");
         }
         public List<IProducible> GetAvailableItems(
      ProductionView view,
@@ -256,7 +237,7 @@ namespace SkyOfFreedom.Production
 
         private void OnTaskCompleted(ProductionZone zone, ProductionTask task)
         {
-            Debug.Log($"{task.Target.ID} production completed.");
+            
         }
 
         private void OnItemProduced(ProductionZone zone, IProducible item)

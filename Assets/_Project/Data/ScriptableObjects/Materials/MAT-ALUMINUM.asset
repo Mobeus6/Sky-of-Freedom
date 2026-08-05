@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c684fbd0bf414924596947f6e86ea0f7, type: 3}
-  m_Name: GLASS
+  m_Name: MAT-ALUMINUM
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
-  id: MAT-GLASS
-  materialName: Glass Lens
-  icon: {fileID: -287637227, guid: a59e6bdfd51c3a34cb9258202d6851fd, type: 3}
-  description: Optical glass for cameras and sensors.
-  tier: T4
-  basePrice: 10
+  id: MAT-ALUMINUM
+  materialName: Aluminum Frame
+  icon: {fileID: -699279828, guid: 29a138ae481ea9c42b57ae9753edacd6, type: 3}
+  description: Lightweight structural metal for frames and mechanical components.
+  tier: 2
+  basePrice: 8
   maxStack: 999
+  storageSize: 1

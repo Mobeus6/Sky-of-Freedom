@@ -11,7 +11,7 @@ namespace SkyOfFreedom.UI
         [Header("References")]
         [SerializeField] private Transform content;
         [SerializeField] private WarehouseCardUI cardPrefab;
-
+        [SerializeField] private WarehouseInfoPanelUI infoPanel;
         [Header("View Buttons")]
         [SerializeField] private WarehouseViewButtonUI[] viewButtons;
 
@@ -53,21 +53,18 @@ namespace SkyOfFreedom.UI
 
         public void ShowMaterials()
         {
-            Debug.Log("ShowMaterials");
 
             SetView(WarehouseView.Materials);
         }
 
         public void ShowComponents()
         {
-            Debug.Log("ShowComponents");
 
             SetView(WarehouseView.Components);
         }
 
         public void ShowDrones()
         {
-            Debug.Log("ShowDrones");
 
             SetView(WarehouseView.Drones);
         }
@@ -82,7 +79,6 @@ namespace SkyOfFreedom.UI
         }
         public void OpenCategory(ComponentCategory category)
         {
-            Debug.Log(category);
 
             currentView = WarehouseView.Components;
             currentCategory = category;
@@ -97,22 +93,27 @@ namespace SkyOfFreedom.UI
 
         private void Refresh()
         {
-            Debug.Log($"Warehouse View = {currentView}");
             Clear();
 
             foreach (WarehouseItem item in warehouse.GetAllItems())
             {
-                DataSO data = FindData(item.ID);
-                Debug.Log($"{item.ID} -> {data?.GetType().Name}");
+
+                DataSO data = database.Database.GetData(item.ID);
+
+
                 if (data == null)
                     continue;
 
                 if (!Matches(data))
+                {
                     continue;
+                }
+
 
                 WarehouseCardUI card = Instantiate(cardPrefab, content);
 
                 card.Setup(data, item.Quantity);
+                card.Selected += OnCardSelected;
 
                 cards.Add(card);
             }
@@ -144,29 +145,6 @@ namespace SkyOfFreedom.UI
             return false;
         }
 
-        private DataSO FindData(string id)
-        {
-            foreach (MaterialSO material in database.Database.Materials)
-            {
-                if (material.ID == id)
-                    return material;
-            }
-
-            foreach (ComponentSO component in database.Database.Components)
-            {
-                if (component.ID == id)
-                    return component;
-            }
-
-            foreach (DroneModelSO drone in database.Database.DroneModels)
-            {
-                if (drone.ID == id)
-                    return drone;
-            }
-
-            return null;
-        }
-
         private void Clear()
         {
             foreach (WarehouseCardUI card in cards)
@@ -183,5 +161,14 @@ namespace SkyOfFreedom.UI
             if (warehouse != null)
                 warehouse.OnItemChanged -= OnItemChanged;
         }
+        private void OnCardSelected(DataSO data)
+{
+    if (data == null)
+        return;
+
+    int quantity = warehouse.GetQuantity(data.ID);
+
+    infoPanel.Show(data, quantity);
+}
     }
 }

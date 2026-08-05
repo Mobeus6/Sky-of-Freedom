@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c684fbd0bf414924596947f6e86ea0f7, type: 3}
-  m_Name: STEEL
+  m_Name: MAT-PCB
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
-  id: MAT-STEEL
-  materialName: Steel Shaft
-  icon: {fileID: -946501504, guid: 0afb99906690fb4468c91a5d01dd0999, type: 3}
-  description: High-strength metal for mechanical components.
-  tier: T1
-  basePrice: 6
+  id: MAT-PCB
+  materialName: PCB
+  icon: {fileID: -1737112898, guid: 023e18024e2dc6347a2f8a83d805c0cd, type: 3}
+  description: Printed circuit board for electronic systems.
+  tier: 5
+  basePrice: 15
   maxStack: 999
+  storageSize: 1

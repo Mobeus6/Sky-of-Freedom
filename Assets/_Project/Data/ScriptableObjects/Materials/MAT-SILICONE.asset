@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c684fbd0bf414924596947f6e86ea0f7, type: 3}
-  m_Name: PLASTIC
+  m_Name: MAT-SILICONE
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
-  id: MAT-PLASTIC
-  materialName: Plastic Housing
-  icon: {fileID: 1685695223, guid: 42a9955902e529645b7aedd888ecb866, type: 3}
-  description: Plastic material for electronic component housings.
-  tier: T1
-  basePrice: 5
+  id: MAT-SILICONE
+  materialName: Silicone Cable
+  icon: {fileID: -2079111197, guid: e3a5d8ef2566e0f4986ab0712eda3b22, type: 3}
+  description: Flexible insulating material for electrical cables.
+  tier: 2
+  basePrice: 3
   maxStack: 999
+  storageSize: 1

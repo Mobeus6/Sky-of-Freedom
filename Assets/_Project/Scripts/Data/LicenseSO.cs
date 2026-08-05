@@ -11,7 +11,9 @@ namespace SkyOfFreedom.Data
         [SerializeField] private ResearchSO requiredResearch;
         [SerializeField] private int requiredFactoryLevel;
         [SerializeField] private int purchaseCost;
+        [SerializeField] private int storageSize = 1;
 
+        public int StorageSize => storageSize;
         public string LicenseName => licenseName;
         public string Description => description;
         public ComponentSO UnlockedComponent => unlockedComponent;

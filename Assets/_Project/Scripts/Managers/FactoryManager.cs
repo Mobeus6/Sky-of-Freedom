@@ -1,4 +1,6 @@
+using SkyOfFreedom.Factory;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SkyOfFreedom.Managers
@@ -11,19 +13,22 @@ namespace SkyOfFreedom.Managers
 
         public event Action<int> OnFactoryLevelChanged;
         public event Action<long> OnExperienceChanged;
-
-        #region Properties
+        private readonly Dictionary<FactoryZoneType, int> zoneLevels =
+    new();
+        public event Action<FactoryZoneType, int> OnZoneLevelChanged;
 
         public int Level => level;
         public long Experience => experience;
-
-        #endregion
 
         #region Initialize
 
         public override void Initialize()
         {
             base.Initialize();
+            foreach (FactoryZoneType zone in Enum.GetValues(typeof(FactoryZoneType)))
+            {
+                zoneLevels[zone] = 1;
+            }
         }
 
         public override void Shutdown()
@@ -69,7 +74,40 @@ namespace SkyOfFreedom.Managers
 
             SetLevel(level + amount);
         }
+        public int GetLevel(FactoryZoneType zone)
+        {
+            if (zoneLevels.TryGetValue(zone, out int level))
+                return level;
 
+            return 1;
+        }
+
+        public void SetLevel(FactoryZoneType zone, int level)
+        {
+            level = Mathf.Max(1, level);
+
+            if (zoneLevels.TryGetValue(zone, out int currentLevel))
+            {
+                if (currentLevel == level)
+                    return;
+
+                zoneLevels[zone] = level;
+            }
+            else
+            {
+                zoneLevels.Add(zone, level);
+            }
+
+            OnZoneLevelChanged?.Invoke(zone, level);
+        }
+
+        public void AddLevel(FactoryZoneType zone, int amount)
+        {
+            if (amount <= 0)
+                return;
+
+            SetLevel(zone, GetLevel(zone) + amount);
+        }
         #endregion
 
         #region Experience
@@ -99,7 +137,12 @@ namespace SkyOfFreedom.Managers
         {
             level = 1;
             experience = 0;
+            foreach (FactoryZoneType zone in Enum.GetValues(typeof(FactoryZoneType)))
+            {
+                zoneLevels[zone] = 1;
 
+                OnZoneLevelChanged?.Invoke(zone, 1);
+            }
             OnFactoryLevelChanged?.Invoke(level);
             OnExperienceChanged?.Invoke(experience);
         }

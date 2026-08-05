@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 250106906}
   - component: {fileID: 250106907}
   - component: {fileID: 250106908}
+  - component: {fileID: 250106909}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -226,6 +227,7 @@ MonoBehaviour:
   productionManager: {fileID: 250106908}
   timeManager: {fileID: 250106903}
   economyManager: {fileID: 250106902}
+  marketManager: {fileID: 250106909}
   factoryManager: {fileID: 250106899}
   researchManager: {fileID: 250106900}
   warehouseManager: {fileID: 250106901}
@@ -286,6 +288,18 @@ MonoBehaviour:
   productionZones:
   - {fileID: 0}
   - {fileID: 0}
+--- !u!114 &250106909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250106898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 308dd0f6e5099164abedf984202b891d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.MarketManager
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -15,7 +15,9 @@ namespace SkyOfFreedom.Data
         {
             get { return category; }
         }
+        [SerializeField] private int storageSize = 5;
 
+        public int StorageSize => storageSize;
         [SerializeField]
         private int tier;
         public int Tier => tier;

@@ -18,7 +18,7 @@ namespace SkyOfFreedom.Data
         [TextArea]
         private string description;
         [SerializeField]
-        private string tier;
+        private int tier;
 
         [Header("Economy")]
         [SerializeField]
@@ -27,8 +27,10 @@ namespace SkyOfFreedom.Data
         [Header("Storage")]
         [SerializeField]
         private int maxStack = 999;
+        [SerializeField] private int storageSize = 1;
 
-        public string Tier => tier;
+        public int StorageSize => storageSize;
+        public int Tier => tier;
         public string MaterialName => materialName;
         public Sprite Icon => icon;
         public string Description => description;

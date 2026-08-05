@@ -13,7 +13,9 @@ namespace SkyOfFreedom.Data
 
         [SerializeField]
         private Sprite icon;
+        [SerializeField] private int storageSize = 50;
 
+        public int StorageSize => storageSize;
         [TextArea]
         [SerializeField]
         private string description;
@@ -66,7 +68,7 @@ namespace SkyOfFreedom.Data
         public string Description => description;
         public Sprite Icon => icon;
 
-        public int Tier => (int)tier + 1;
+        public int Tier => (int)tier;
 
         public float ProductionTime => assemblyTime;
 

@@ -10,12 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c684fbd0bf414924596947f6e86ea0f7, type: 3}
-  m_Name: MICROCHIPS
+  m_Name: MAT-CARBON
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
-  id: MAT-MICROCHIP
-  materialName: Microchips
-  icon: {fileID: -1434830789, guid: ee6e666b82c2a004ebfa0d605c64cf33, type: 3}
-  description: Microchip for computing, control, and data processing.
-  tier: T5
-  basePrice: 30
+  id: MAT-CARBON
+  materialName: Carbon Plates
+  icon: {fileID: -936466392, guid: 3c23fa64e2297284eb33fe4a99f4a825, type: 3}
+  description: Lightweight, high-strength composite material for high-performance
+    structures.
+  tier: 3
+  basePrice: 18
   maxStack: 999
+  storageSize: 1

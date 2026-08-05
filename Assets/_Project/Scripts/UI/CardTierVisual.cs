@@ -58,15 +58,20 @@ namespace SkyOfFreedom.UI
                     break;
             }
 
-            border.color = borderColor;
+            if (border != null)
+                border.color = borderColor;
 
-            glowSmall.color = glowSmallColor;
+            if (glowSmall != null)
+                glowSmall.color = glowSmallColor;
 
-            glowBig.color = glowBigColor;
+            if (glowBig != null)
+                glowBig.color = glowBigColor;
 
-            badge.color = borderColor;
+            if (badge != null)
+                badge.color = borderColor;
 
-            title.color = textColor;
+            if (title != null)
+                title.color = textColor;
         }
 
         private Color Hex(string hex)

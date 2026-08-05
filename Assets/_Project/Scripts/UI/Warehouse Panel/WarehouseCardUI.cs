@@ -39,10 +39,15 @@ namespace SkyOfFreedom.UI
                     icon.sprite = material.Icon;
                     nameText.text = material.MaterialName;
                     quantityText.text = quantity.ToString();
-                    _sourceMarket.gameObject.SetActive(true);
-                    _sourceProduction.gameObject.SetActive(false);
-                    _sourceAssemble.gameObject.SetActive(false);
-                    tierText.gameObject.SetActive(false);
+
+                    _sourceMarket.SetActive(true);
+                    _sourceProduction.SetActive(false);
+                    _sourceAssemble.SetActive(false);
+
+                    tierText.gameObject.SetActive(true);
+                    tierText.text = $"T{material.Tier}";
+
+                    visual.SetTier(material.Tier);
 
                     break;
 

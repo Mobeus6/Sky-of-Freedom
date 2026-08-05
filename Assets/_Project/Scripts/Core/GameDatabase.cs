@@ -1,4 +1,5 @@
 using SkyOfFreedom.Contracts;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,12 +24,11 @@ namespace SkyOfFreedom.Data
         private List<ResearchSO> researches = new();
 
         [SerializeField]
-        private bool isInitialized;
-
-        [SerializeField]
         private List<LicenseSO> licenses = new();
         [SerializeField]
         private List<ContractSO> contracts = new();
+        [SerializeField]
+        private WarehouseConfigSO warehouseConfig;
 
         private Dictionary<string, MaterialSO> materialLookup;
         private Dictionary<string, ComponentSO> componentLookup;
@@ -36,6 +36,7 @@ namespace SkyOfFreedom.Data
         private Dictionary<string, ResearchSO> researchLookup;
         private Dictionary<string, LicenseSO> licenseLookup;
 
+        private Dictionary<string, DataSO> dataLookup;
 
         public IReadOnlyList<LicenseSO> Licenses
         {
@@ -83,22 +84,26 @@ namespace SkyOfFreedom.Data
                 return contracts;
             }
         }
-
+        public WarehouseConfigSO WarehouseConfig
+        {
+            get
+            {
+                return warehouseConfig;
+            }
+        }
         public void Initialize()
         {
-            if (isInitialized)
-            {
-                return;
-            }
-
             materialLookup = new Dictionary<string, MaterialSO>();
+            componentLookup = new Dictionary<string, ComponentSO>();
+            droneModelLookup = new Dictionary<string, DroneModelSO>();
+            researchLookup = new Dictionary<string, ResearchSO>();
+            licenseLookup = new Dictionary<string, LicenseSO>();
+            dataLookup = new Dictionary<string, DataSO>();
 
             foreach (MaterialSO material in materials)
             {
                 if (material == null)
-                {
                     continue;
-                }
 
                 if (materialLookup.ContainsKey(material.ID))
                 {
@@ -107,16 +112,13 @@ namespace SkyOfFreedom.Data
                 }
 
                 materialLookup.Add(material.ID, material);
+                dataLookup.Add(material.ID, material);
             }
-
-            componentLookup = new Dictionary<string, ComponentSO>();
 
             foreach (ComponentSO component in components)
             {
                 if (component == null)
-                {
                     continue;
-                }
 
                 if (componentLookup.ContainsKey(component.ID))
                 {
@@ -125,16 +127,13 @@ namespace SkyOfFreedom.Data
                 }
 
                 componentLookup.Add(component.ID, component);
+                dataLookup.Add(component.ID, component);
             }
-
-            droneModelLookup = new Dictionary<string, DroneModelSO>();
 
             foreach (DroneModelSO droneModel in droneModels)
             {
                 if (droneModel == null)
-                {
                     continue;
-                }
 
                 if (droneModelLookup.ContainsKey(droneModel.ID))
                 {
@@ -143,16 +142,13 @@ namespace SkyOfFreedom.Data
                 }
 
                 droneModelLookup.Add(droneModel.ID, droneModel);
+                dataLookup.Add(droneModel.ID, droneModel);
             }
-
-            researchLookup = new Dictionary<string, ResearchSO>();
 
             foreach (ResearchSO research in researches)
             {
                 if (research == null)
-                {
                     continue;
-                }
 
                 if (researchLookup.ContainsKey(research.ID))
                 {
@@ -163,14 +159,10 @@ namespace SkyOfFreedom.Data
                 researchLookup.Add(research.ID, research);
             }
 
-            licenseLookup = new Dictionary<string, LicenseSO>();
-
             foreach (LicenseSO license in licenses)
             {
                 if (license == null)
-                {
                     continue;
-                }
 
                 if (licenseLookup.ContainsKey(license.ID))
                 {
@@ -180,12 +172,9 @@ namespace SkyOfFreedom.Data
 
                 licenseLookup.Add(license.ID, license);
             }
-
-
-            isInitialized = true;
         }
 
- 
+
 
         public MaterialSO GetMaterial(string id)
         {
@@ -229,6 +218,21 @@ namespace SkyOfFreedom.Data
             licenseLookup.TryGetValue(id, out LicenseSO license);
 
             return license;
+        }
+        public DataSO GetData(string id)
+        {
+
+            Initialize();
+
+
+            dataLookup.TryGetValue(id, out DataSO data);
+
+            return data;
+        }
+
+        internal DataSO GetData(object iD)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -15,6 +15,7 @@ namespace SkyOfFreedom.Managers
         [SerializeField] private ProductionManager productionManager;
         [SerializeField] private TimeManager timeManager;
         [SerializeField] private EconomyManager economyManager;
+        [SerializeField] private MarketManager marketManager;
         [SerializeField] private FactoryManager factoryManager;
         [SerializeField] private ResearchManager researchManager;
         [SerializeField] private WarehouseManager warehouseManager;
@@ -24,6 +25,7 @@ namespace SkyOfFreedom.Managers
         public WarehouseManager Warehouse => warehouseManager;
         public TimeManager Time => timeManager;
         public EconomyManager Economy => economyManager;
+        public MarketManager Market => marketManager;
         public FactoryManager Factory => factoryManager;
         public ResearchManager Research => researchManager;
         public LicenseManager License => licenseManager;
@@ -44,9 +46,12 @@ namespace SkyOfFreedom.Managers
             warehouseManager.AddItem("MAT-CARBON", 999);
             warehouseManager.AddItem("MAT-COPPER", 999);
             warehouseManager.AddItem("MAT-PCB", 999);
-            warehouseManager.AddItem("MAT-BATTERY", 999);
+            warehouseManager.AddItem("MAT-BATTERY-CELL", 999);
             warehouseManager.AddItem("MAT-GLASS", 999);
             warehouseManager.AddItem("MAT-STEEL", 999);
+            warehouseManager.AddItem("MAT-MAGNET", 999);
+            warehouseManager.AddItem("MAT-MICROCHIP", 999);
+            warehouseManager.AddItem("MAT-SILICONE", 999);
             foreach (ComponentSO component in databaseManager.Database.Components)
             {
                 warehouseManager.AddItem(component.ID, 99);
@@ -67,6 +72,7 @@ namespace SkyOfFreedom.Managers
             databaseManager?.Initialize();
             productionManager?.Initialize();
             economyManager?.Initialize();
+            marketManager?.Initialize();
             factoryManager?.Initialize();
             researchManager?.Initialize();
             warehouseManager?.Initialize();
@@ -78,6 +84,7 @@ namespace SkyOfFreedom.Managers
             productionManager?.Shutdown();
             factoryManager?.Shutdown();
             economyManager?.Shutdown();
+            marketManager?.Shutdown();
             warehouseManager?.Shutdown();
             licenseManager?.Shutdown();
             databaseManager?.Shutdown();

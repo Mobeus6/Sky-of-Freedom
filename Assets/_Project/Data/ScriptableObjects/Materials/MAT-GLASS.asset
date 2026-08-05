@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c684fbd0bf414924596947f6e86ea0f7, type: 3}
-  m_Name: MAGNETS
+  m_Name: MAT-GLASS
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.MaterialSO
-  id: MAT-MAGNET
-  materialName: Magnet Assembly
-  icon: {fileID: -1148424184, guid: 8adca19819a47db4eb1d38a6ac649317, type: 3}
-  description: Magnetic material for electric motors.
-  tier: T4
-  basePrice: 20
+  id: MAT-GLASS
+  materialName: Glass Lens
+  icon: {fileID: -287637227, guid: a59e6bdfd51c3a34cb9258202d6851fd, type: 3}
+  description: Optical glass for cameras and sensors.
+  tier: 4
+  basePrice: 10
   maxStack: 999
+  storageSize: 1

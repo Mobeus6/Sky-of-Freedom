@@ -196,7 +196,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f393e1353b5e89041a53c4ab47d556bb, type: 2}
   - {fileID: 11400000, guid: 74aa1800ca9d8644a8eeb4564b6b9fc7, type: 2}
   - {fileID: 11400000, guid: f9d7357eacba6b841b737860eb5c931b, type: 2}
-  isInitialized: 1
   licenses:
   - {fileID: 11400000, guid: e855ec189136bd74097eeaedf7090cfc, type: 2}
   - {fileID: 11400000, guid: 62113d6f21cabf343956fc3833fc49f0, type: 2}
@@ -252,3 +251,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5ec0b3dad0b45ab44a986e37a96468f4, type: 2}
   - {fileID: 11400000, guid: 9de00d2bd353b8046894c6551ae88ede, type: 2}
   contracts: []
+  warehouseConfig: {fileID: 11400000, guid: b9dd91f803bf7024baca6d1be31a72f4, type: 2}
