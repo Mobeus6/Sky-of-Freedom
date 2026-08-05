@@ -41,20 +41,20 @@ namespace SkyOfFreedom.Managers
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeManagers();
-            warehouseManager.AddItem("MAT-PLASTIC", 999);
-            warehouseManager.AddItem("MAT-ALUMINUM", 999);
-            warehouseManager.AddItem("MAT-CARBON", 999);
-            warehouseManager.AddItem("MAT-COPPER", 999);
-            warehouseManager.AddItem("MAT-PCB", 999);
-            warehouseManager.AddItem("MAT-BATTERY-CELL", 999);
-            warehouseManager.AddItem("MAT-GLASS", 999);
-            warehouseManager.AddItem("MAT-STEEL", 999);
-            warehouseManager.AddItem("MAT-MAGNET", 999);
-            warehouseManager.AddItem("MAT-MICROCHIP", 999);
-            warehouseManager.AddItem("MAT-SILICONE", 999);
+            warehouseManager.AddItem("MAT-PLASTIC", 15);
+            warehouseManager.AddItem("MAT-ALUMINUM", 15);
+            warehouseManager.AddItem("MAT-CARBON", 15);
+            warehouseManager.AddItem("MAT-COPPER", 15);
+            warehouseManager.AddItem("MAT-PCB", 15);
+            warehouseManager.AddItem("MAT-BATTERY-CELL", 15);
+            warehouseManager.AddItem("MAT-GLASS", 15);
+            warehouseManager.AddItem("MAT-STEEL", 15);
+            warehouseManager.AddItem("MAT-MAGNET", 15);
+            warehouseManager.AddItem("MAT-MICROCHIP", 15);
+            warehouseManager.AddItem("MAT-SILICONE", 15);
             foreach (ComponentSO component in databaseManager.Database.Components)
             {
-                warehouseManager.AddItem(component.ID, 99);
+                warehouseManager.AddItem(component.ID, 10);
             }
         }
 

@@ -11,9 +11,9 @@ namespace SkyOfFreedom.UI
 {
     public class WarehouseInfoPanelUI : MonoBehaviour
     {
+        private MaterialSO currentMaterial;
         [Header("Common")]
         [SerializeField] private GameObject commonPanel;
-
         [SerializeField] private Image iconImage;
         [SerializeField] private TMP_Text itemNameText;
         [SerializeField] private TMP_Text descriptionText;
@@ -28,9 +28,16 @@ namespace SkyOfFreedom.UI
 
         [SerializeField] private TMP_Text marketPriceText;
         [SerializeField] private TMP_Text differencePriceText;
-
         [SerializeField] private Button buyButton;
         [SerializeField] private Button sellButton;
+        [SerializeField] private Button decreaseQuantityButton;
+        [SerializeField] private Button increaseQuantityButton;
+        [SerializeField] private Button maxQuantityButton;
+        [SerializeField] private TMP_Text quantityText;
+
+        private int selectedQuantity = 1;
+        private const int MinQuantity = 1;
+        private const int MaxQuantity = 999;
 
         [Header("Component")]
         [SerializeField] private Transform componentRecipeContent;
@@ -54,6 +61,7 @@ namespace SkyOfFreedom.UI
 
         private WarehouseManager warehouse;
         private MarketManager market;
+        private EconomyManager economy;
         private ProductionManager production;
 
         private DataSO currentData;
@@ -63,7 +71,11 @@ namespace SkyOfFreedom.UI
             warehouse = GameManager.Instance.Warehouse;
             market = GameManager.Instance.Market;
             production = GameManager.Instance.Production;
-
+            economy = GameManager.Instance.Economy;
+            decreaseQuantityButton.onClick.AddListener(DecreaseQuantity);
+            increaseQuantityButton.onClick.AddListener(IncreaseQuantity);
+            maxQuantityButton.onClick.AddListener(SetMaxQuantity);
+            RefreshQuantity();
             HideAll();
         }
 
@@ -210,7 +222,9 @@ namespace SkyOfFreedom.UI
 
             commonPanel.SetActive(true);
             materialPanel.SetActive(true);
-
+            currentMaterial = material;
+            selectedQuantity = 1;
+            RefreshQuantity();
             marketPriceText.text =
                 "$ " + market.GetCurrentPrice(material);
 
@@ -231,13 +245,11 @@ namespace SkyOfFreedom.UI
             buyButton.onClick.RemoveAllListeners();
             sellButton.onClick.RemoveAllListeners();
 
-            buyButton.onClick.AddListener(() =>
-            {
-            });
+            buyButton.onClick.RemoveAllListeners();
 
-            sellButton.onClick.AddListener(() =>
-            {
-            });
+            buyButton.onClick.AddListener(BuyMaterial);
+
+            sellButton.onClick.AddListener(SellMaterial);
         }
         private void ShowComponentRecipe(IReadOnlyList<MaterialAmount> recipe)
         {
@@ -322,6 +334,125 @@ namespace SkyOfFreedom.UI
             foreach (Transform child in parent)
             {
                 Destroy(child.gameObject);
+            }
+        }
+        private void BuyMaterial()
+        {
+            if (currentMaterial == null)
+                return;
+
+            MarketTransactionResult result =
+                market.BuyMaterial(currentMaterial, selectedQuantity);
+
+            switch (result)
+            {
+                case MarketTransactionResult.Success:
+
+                    Show(
+                        currentMaterial,
+                        warehouse.GetQuantity(currentMaterial.ID));
+
+                    break;
+
+                case MarketTransactionResult.NotEnoughMoney:
+
+                    Debug.Log("Not enough money.");
+
+                    break;
+
+                case MarketTransactionResult.WarehouseFull:
+
+                    Debug.Log("Warehouse is full.");
+
+                    break;
+            }
+        }
+        private void IncreaseQuantity()
+        {
+            if (selectedQuantity >= MaxQuantity)
+                return;
+
+            selectedQuantity++;
+
+            RefreshQuantity();
+        }
+
+        private void DecreaseQuantity()
+        {
+            if (selectedQuantity <= MinQuantity)
+                return;
+
+            selectedQuantity--;
+
+            RefreshQuantity();
+        }
+
+        private void RefreshQuantity()
+        {
+            if (currentMaterial != null)
+            {
+                int maxQuantity = Mathf.Max(1,
+                    market.GetMaxBuyQuantity(currentMaterial));
+
+                selectedQuantity = Mathf.Clamp(
+                    selectedQuantity,
+                    1,
+                    maxQuantity);
+            }
+
+            quantityText.text = selectedQuantity.ToString();
+        }
+        private void SetMaxQuantity()
+        {
+            if (currentMaterial == null)
+                return;
+
+            int maxQuantity = 0;
+
+            if (materialPanel.activeSelf)
+            {
+                maxQuantity = market.GetMaxBuyQuantity(currentMaterial);
+            }
+
+            selectedQuantity = Mathf.Max(1, maxQuantity);
+
+            RefreshQuantity();
+        }
+        private void SellMaterial()
+        {
+            if (currentMaterial == null)
+                return;
+
+            MarketTransactionResult result =
+                market.SellMaterial(currentMaterial, selectedQuantity);
+
+            switch (result)
+            {
+                case MarketTransactionResult.Success:
+
+                    Show(
+                        currentMaterial,
+                        warehouse.GetQuantity(currentMaterial.ID));
+
+                    break;
+
+                case MarketTransactionResult.NotEnoughItems:
+
+                    Debug.Log("Not enough items.");
+
+                    break;
+
+                case MarketTransactionResult.InvalidItem:
+
+                    Debug.LogError("Invalid material.");
+
+                    break;
+
+                case MarketTransactionResult.InvalidQuantity:
+
+                    Debug.LogError("Invalid quantity.");
+
+                    break;
             }
         }
     }

@@ -15,8 +15,9 @@ MonoBehaviour:
   id: H-AA-WDN-T2
   modelName: Warden
   icon: {fileID: -1580172142, guid: 14200d7ced2ba5a49830b605822f8b6c, type: 3}
+  storageSize: 50
   description: A heavily armed anti-air platform built to defend critical airspace.
-  platform: 3
+  platform: 0
   type: 2
   tier: 2
   assemblyTime: 53

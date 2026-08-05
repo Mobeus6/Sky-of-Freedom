@@ -187,6 +187,8 @@ namespace SkyOfFreedom.Warehouse
         {
             if (string.IsNullOrWhiteSpace(id) || quantity <= 0)
                 return;
+            if (!CanAdd(id, quantity))
+                return;
 
             int oldQuantity = GetQuantity(id);
 
@@ -247,6 +249,20 @@ namespace SkyOfFreedom.Warehouse
             };
 
             return size;
+        }
+        public bool CanAdd(string id, int quantity = 1)
+        {
+            if (quantity <= 0)
+                return false;
+
+            int storageSize = GetStorageSize(id);
+
+            if (storageSize <= 0)
+                return false;
+
+            int requiredCapacity = storageSize * quantity;
+
+            return currentCapacity + requiredCapacity <= MaxCapacity;
         }
         private void UpdateCurrentCapacity(string id, int oldQuantity, int newQuantity)
         {
