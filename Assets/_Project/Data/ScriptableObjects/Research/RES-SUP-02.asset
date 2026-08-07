@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-SUP-02
   researchName: Supply Chain II
+  icon: {fileID: -109013022, guid: 0233097d13fb50349bf23907420f5cc2, type: 3}
   branch: 1
   category: 7
   tier: 2
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 4
   cost: 1500
   researchTime: 120
   prerequisites:

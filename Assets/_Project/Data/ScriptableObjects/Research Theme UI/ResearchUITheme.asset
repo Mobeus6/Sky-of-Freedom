@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f81f31e70dde8554c977fb85a1236a99, type: 3}
+  m_Name: ResearchUITheme
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.UI.ResearchUIThemeSO
+  lockedNode: {r: 0.2901961, g: 0.33333334, b: 0.38431373, a: 1}
+  unlockedNode: {r: 0.20392157, g: 0.78039217, b: 0.34901962, a: 1}
+  researchingNode: {r: 0.18431373, g: 0.5019608, b: 0.92941177, a: 1}
+  completedNode: {r: 0.14117648, g: 0.5411765, b: 0.23921569, a: 1}
+  lockedConnection: {r: 0.2901961, g: 0.33333334, b: 0.38431373, a: 1}
+  unlockedConnection: {r: 0.18431373, g: 0.5019608, b: 0.92941177, a: 1}
+  completedConnection: {r: 0.14117648, g: 0.5411765, b: 0.23921569, a: 1}
+  selectedOutline: {r: 0.3019608, g: 0.6117647, b: 1, a: 1}

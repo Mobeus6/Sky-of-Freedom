@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-FIN-01
   researchName: Finance I
+  icon: {fileID: -1202327552, guid: 30fe98b896b6e8a4f943c9a59bfdea49, type: 3}
   branch: 1
   category: 6
   tier: 1
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 3
   cost: 700
   researchTime: 45
   prerequisites: []

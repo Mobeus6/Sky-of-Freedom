@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-PRD-02
   researchName: Production II
+  icon: {fileID: -818702793, guid: 4210241b1bd12354a85d2e14aa500eed, type: 3}
   branch: 0
   category: 1
   tier: 2
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 4
   cost: 1200
   researchTime: 60
   prerequisites:

@@ -17,11 +17,10 @@ MonoBehaviour:
   branch: 0
   category: 2
   tier: 2
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 4
   cost: 1200
   researchTime: 60
-  prerequisites:
-  - {fileID: 11400000, guid: 869ecc105ddc47449a330fadd2949635, type: 2}
+  prerequisites: []
   effectDescription: +10% Programming Speed
   unlockDescription: Enhances software development processes, reducing drone programming
     time.

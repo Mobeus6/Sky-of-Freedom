@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-GOV-04
   researchName: Government Relations IV
+  icon: {fileID: 1929695856, guid: 277e2d41398529945939c40ec5798f88, type: 3}
   branch: 1
   category: 8
   tier: 4
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 6
   cost: 6000
   researchTime: 480
   prerequisites:

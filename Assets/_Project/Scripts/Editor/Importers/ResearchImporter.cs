@@ -46,6 +46,7 @@ namespace SkyOfFreedom.Editor
                     row["Name"],
                     ParseBranch(row["Branch"]),
                     ParseCategory(row["Category"]),
+                   
                     row.GetInt("Tier"),
                     row.GetInt("Factory Lv."),
                     row.GetInt("Cost"),

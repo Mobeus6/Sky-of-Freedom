@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-AUT-02
   researchName: Industrial Automation II
+  icon: {fileID: 361725006, guid: 20206ea899b388c4cb450fb75296c995, type: 3}
   branch: 0
   category: 4
   tier: 2
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 4
   cost: 1200
   researchTime: 60
   prerequisites:

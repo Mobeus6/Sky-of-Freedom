@@ -30,7 +30,7 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         private WarehouseConfigSO warehouseConfig;
 
-        private Dictionary<string, MaterialSO> materialLookup;
+       private Dictionary<string, MaterialSO> materialLookup;
         private Dictionary<string, ComponentSO> componentLookup;
         private Dictionary<string, DroneModelSO> droneModelLookup;
         private Dictionary<string, ResearchSO> researchLookup;
@@ -173,8 +173,6 @@ namespace SkyOfFreedom.Data
                 licenseLookup.Add(license.ID, license);
             }
         }
-
-
 
         public MaterialSO GetMaterial(string id)
         {

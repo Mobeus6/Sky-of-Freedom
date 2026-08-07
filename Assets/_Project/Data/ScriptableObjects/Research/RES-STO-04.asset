@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-STO-04
   researchName: Storage IV
+  icon: {fileID: 1591353377, guid: 63a3039a2dc904a46a8ed1af7a4f9494, type: 3}
   branch: 0
   category: 3
   tier: 4
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 6
   cost: 5000
   researchTime: 300
   prerequisites:

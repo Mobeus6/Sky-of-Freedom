@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-ASM-01
   researchName: Assembly I
+  icon: {fileID: -733422701, guid: 4716dd0bc42894242ad93c63ceacb2c9, type: 3}
   branch: 0
   category: 0
   tier: 1
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 3
   cost: 500
   researchTime: 30
   prerequisites: []

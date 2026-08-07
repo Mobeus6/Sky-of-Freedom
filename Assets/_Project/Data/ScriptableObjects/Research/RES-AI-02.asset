@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.ResearchSO
   id: RES-AI-02
   researchName: AI Systems II
+  icon: {fileID: -461688027, guid: e3707587228027b4c8e2988e340c9c42, type: 3}
   branch: 2
   category: 9
   tier: 2
-  requiredFactoryLevel: 0
+  requiredFactoryLevel: 7
   cost: 18000
   researchTime: 1200
   prerequisites:

@@ -7,7 +7,8 @@ namespace SkyOfFreedom.Data
     {
         [Header("General")]
         [SerializeField] private string researchName;
-
+        [SerializeField] Sprite icon;
+        public Sprite Icon => icon;
         [Header("Classification")]
         [SerializeField] private ResearchBranch branch;
         [SerializeField] private ResearchCategory category;
