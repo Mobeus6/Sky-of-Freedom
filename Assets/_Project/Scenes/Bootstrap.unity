@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 250106907}
   - component: {fileID: 250106908}
   - component: {fileID: 250106909}
+  - component: {fileID: 250106910}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -157,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dc57ad37fc53834ea7e83dc42590bad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.FactoryManager
-  level: 1
+  level: 2
   experience: 0
 --- !u!114 &250106900
 MonoBehaviour:
@@ -171,7 +172,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead4d0da1ec38f54ea4b0bd9d38ad35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.ResearchManager
-  gameDatabase: {fileID: 11400000, guid: 4d08e8a6770487f4d85233f219cebd0e, type: 2}
 --- !u!114 &250106901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,6 +300,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 308dd0f6e5099164abedf984202b891d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.MarketManager
+--- !u!114 &250106910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250106898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8be17a992aafaf5428776e29a7bcd0af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.ResearchRunner
+  researchManager: {fileID: 250106900}
+  timeManager: {fileID: 250106903}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

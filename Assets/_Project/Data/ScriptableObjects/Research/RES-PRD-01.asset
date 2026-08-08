@@ -18,9 +18,9 @@ MonoBehaviour:
   branch: 0
   category: 1
   tier: 1
-  requiredFactoryLevel: 3
+  requiredFactoryLevel: 1
   cost: 500
-  researchTime: 30
+  researchTime: 1
   prerequisites: []
   effectDescription: +10% Component Production Speed
   unlockDescription: Increases component manufacturing efficiency, allowing production

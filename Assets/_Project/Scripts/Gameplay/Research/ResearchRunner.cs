@@ -7,20 +7,34 @@ namespace SkyOfFreedom.Managers
     {
         [Header("References")]
         [SerializeField] private ResearchManager researchManager;
+        [SerializeField] private TimeManager timeManager;
 
         private void OnEnable()
         {
-            if (TimeManager.Instance != null)
+            if (timeManager == null)
             {
-                TimeManager.Instance.OnTick += OnTick;
+                if (GameManager.Instance != null)
+                {
+                    timeManager = GameManager.Instance.Time;
+                }
+            }
+
+            if (timeManager != null)
+            {
+                timeManager.OnTick += OnTick;
+            }
+            else
+            {
+                Debug.LogError(
+                    "[ResearchRunner] TimeManager reference is missing.");
             }
         }
 
         private void OnDisable()
         {
-            if (TimeManager.Instance != null)
+            if (timeManager != null)
             {
-                TimeManager.Instance.OnTick -= OnTick;
+                timeManager.OnTick -= OnTick;
             }
         }
 
@@ -32,7 +46,8 @@ namespace SkyOfFreedom.Managers
             if (!researchManager.HasActiveResearch())
                 return;
 
-            ResearchState state = researchManager.ActiveResearch;
+            ResearchState state =
+                researchManager.ActiveResearch;
 
             if (state == null)
                 return;
@@ -46,13 +61,18 @@ namespace SkyOfFreedom.Managers
             state.RemainingTime -= deltaTime;
 
             if (state.RemainingTime < 0f)
+            {
                 state.RemainingTime = 0f;
+            }
 
             state.Progress =
-                1f - (state.RemainingTime / research.ResearchTime);
+                1f -
+                (state.RemainingTime / research.ResearchTime);
 
             if (state.Progress > 1f)
+            {
                 state.Progress = 1f;
+            }
 
             if (state.RemainingTime <= 0f)
             {
@@ -68,7 +88,8 @@ namespace SkyOfFreedom.Managers
             if (!researchManager.HasActiveResearch())
                 return;
 
-            ResearchState state = researchManager.ActiveResearch;
+            ResearchState state =
+                researchManager.ActiveResearch;
 
             state.Progress = 1f;
             state.RemainingTime = 0f;

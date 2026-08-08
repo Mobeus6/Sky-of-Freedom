@@ -18,7 +18,7 @@ MonoBehaviour:
   branch: 0
   category: 1
   tier: 2
-  requiredFactoryLevel: 4
+  requiredFactoryLevel: 2
   cost: 1200
   researchTime: 60
   prerequisites:

@@ -10,7 +10,6 @@ namespace SkyOfFreedom.UI
     {
         [Header("UI")]
         [SerializeField] private Image background;
-        [SerializeField] private Image tierFrame;
         [SerializeField] private Image icon;
 
         [SerializeField] private RectTransform connectionPoint;
@@ -70,7 +69,7 @@ namespace SkyOfFreedom.UI
         }
 
         private void ApplyTierVisual(
-            ResearchState state)
+     ResearchState state)
         {
             ResearchUIThemeSO theme =
                 treeUI.Theme;
@@ -79,14 +78,20 @@ namespace SkyOfFreedom.UI
                 theme.Background;
 
             Color tierColor =
-    theme.GetTierColor(research.Tier);
+                theme.GetTierColor(
+                    research.Tier);
 
-            tierFrame.color = tierColor;
-            titleText.color = tierColor;
+            icon.color =
+                tierColor;
 
-            progressFill.color = tierColor;
+            titleText.color =
+                tierColor;
 
-            progressGlow.GetComponent<Image>().color = tierColor;
+            progressFill.color =
+                tierColor;
+
+            progressGlow.GetComponent<Image>().color =
+                tierColor;
         }
 
         private void ApplyStateVisual(
