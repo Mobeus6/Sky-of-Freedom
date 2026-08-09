@@ -21,8 +21,7 @@ MonoBehaviour:
   requiredFactoryLevel: 6
   cost: 12000
   researchTime: 900
-  prerequisites:
-  - {fileID: 11400000, guid: 28b1085bc6d68674ba268fb78496730f, type: 2}
+  prerequisites: []
   effectDescription: +10% Programming Speed
   unlockDescription: Integrates artificial intelligence into factory operations,
     improving overall efficiency.

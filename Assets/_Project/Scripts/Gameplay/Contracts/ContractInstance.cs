@@ -42,11 +42,26 @@ namespace SkyOfFreedom.Contracts
 
             ExpireAt = CreatedAt.AddHours(deadlineHours);
 
-            State = ContractState.Active;
+            State = ContractState.Available;
+        }
+
+        public void Accept()
+        {
+            if (State != ContractState.Available)
+            {
+                return;
+            }
+
+            State = ContractState.InProgress;
         }
 
         public void Deliver(int amount)
         {
+            if (State != ContractState.InProgress)
+            {
+                return;
+            }
+
             DeliveredQuantity += amount;
 
             if (DeliveredQuantity >= Quantity)
@@ -54,13 +69,24 @@ namespace SkyOfFreedom.Contracts
                 Complete();
             }
         }
+
         public void Complete()
         {
+            if (State != ContractState.InProgress)
+            {
+                return;
+            }
+
             State = ContractState.Completed;
         }
 
         public void Fail()
         {
+            if (State != ContractState.InProgress)
+            {
+                return;
+            }
+
             State = ContractState.Failed;
         }
 

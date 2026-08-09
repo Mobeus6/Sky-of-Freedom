@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a52262542bd3b2c4fba7f035ff82cd56, type: 3}
+  m_Name: CTR-DRN-023
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Contracts.ContractSO
+  id: CTR-DRN-023
+  contractName: Guardian Delivery Contract
+  description: Manufacture and deliver Guardian drones.
+  icon: {fileID: 329167147, guid: f2ece0ffe832d194faeec85e50c293a6, type: 3}
+  targetType: 1
+  component: {fileID: 0}
+  droneModel: {fileID: 11400000, guid: 69d8219bcd4a7ca439e13677b8b66c76, type: 2}
+  requiredResearch: {fileID: 0}
+  requiredLicense: {fileID: 0}
+  requiredReputation: 20
+  reputationReward: 3
+  reputationPenalty: 3
+  minQuantity: 5
+  maxQuantity: 5
+  generationWeight: 100
+  requiredFactoryLevel: 1

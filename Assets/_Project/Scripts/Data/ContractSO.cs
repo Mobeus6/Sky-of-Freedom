@@ -1,5 +1,4 @@
 using SkyOfFreedom.Data;
-using System.Xml;
 using UnityEngine;
 
 namespace SkyOfFreedom.Contracts
@@ -10,6 +9,7 @@ namespace SkyOfFreedom.Contracts
         [Header("General")]
         [SerializeField] private string contractName;
         [SerializeField, TextArea] private string description;
+        [SerializeField] private Sprite icon;
 
         [Header("Target")]
         [SerializeField] private ContractTargetType targetType;
@@ -34,7 +34,11 @@ namespace SkyOfFreedom.Contracts
         private int requiredFactoryLevel = 1;
 
         public int GenerationWeight => generationWeight;
+
         public int RequiredFactoryLevel => requiredFactoryLevel;
+
+        public Sprite Icon => icon;
+
         public string TargetID
         {
             get
@@ -52,21 +56,29 @@ namespace SkyOfFreedom.Contracts
                 }
             }
         }
+
         public int MinQuantity => minQuantity;
+
         public int MaxQuantity => maxQuantity;
 
         public string ContractName => contractName;
+
         public string Description => description;
 
         public ContractTargetType TargetType => targetType;
+
         public ComponentSO Component => component;
+
         public DroneModelSO DroneModel => droneModel;
 
         public ResearchSO RequiredResearch => requiredResearch;
+
         public LicenseSO RequiredLicense => requiredLicense;
+
         public int RequiredReputation => requiredReputation;
 
         public int ReputationReward => reputationReward;
+
         public int ReputationPenalty => reputationPenalty;
 
 #if UNITY_EDITOR

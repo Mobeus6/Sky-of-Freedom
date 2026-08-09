@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 250106908}
   - component: {fileID: 250106909}
   - component: {fileID: 250106910}
+  - component: {fileID: 250106911}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -232,6 +233,7 @@ MonoBehaviour:
   researchManager: {fileID: 250106900}
   warehouseManager: {fileID: 250106901}
   licenseManager: {fileID: 250106907}
+  contractManager: {fileID: 250106911}
 --- !u!4 &250106905
 Transform:
   m_ObjectHideFlags: 0
@@ -314,6 +316,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.ResearchRunner
   researchManager: {fileID: 250106900}
   timeManager: {fileID: 250106903}
+--- !u!114 &250106911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250106898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 881b4544e95a07847a61ca9b1b3160e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Contracts.ContractManager
+  database: {fileID: 11400000, guid: 4d08e8a6770487f4d85233f219cebd0e, type: 2}
+  economyManager: {fileID: 250106902}
+  maxActiveContracts: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

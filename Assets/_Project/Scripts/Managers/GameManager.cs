@@ -1,3 +1,4 @@
+using SkyOfFreedom.Contracts;
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Production;
 using SkyOfFreedom.Warehouse;
@@ -20,6 +21,8 @@ namespace SkyOfFreedom.Managers
         [SerializeField] private ResearchManager researchManager;
         [SerializeField] private WarehouseManager warehouseManager;
         [SerializeField] private LicenseManager licenseManager;
+        [SerializeField] private ContractManager contractManager;
+
         public DatabaseManager Database => databaseManager;
         public ProductionManager Production => productionManager;
         public WarehouseManager Warehouse => warehouseManager;
@@ -29,6 +32,7 @@ namespace SkyOfFreedom.Managers
         public FactoryManager Factory => factoryManager;
         public ResearchManager Research => researchManager;
         public LicenseManager License => licenseManager;
+        public ContractManager Contracts => contractManager;
 
         private void Awake()
         {
@@ -39,8 +43,11 @@ namespace SkyOfFreedom.Managers
             }
 
             Instance = this;
+
             DontDestroyOnLoad(gameObject);
+
             InitializeManagers();
+
             warehouseManager.AddItem("MAT-PLASTIC", 15);
             warehouseManager.AddItem("MAT-ALUMINUM", 15);
             warehouseManager.AddItem("MAT-CARBON", 15);
@@ -52,19 +59,21 @@ namespace SkyOfFreedom.Managers
             warehouseManager.AddItem("MAT-MAGNET", 15);
             warehouseManager.AddItem("MAT-MICROCHIP", 15);
             warehouseManager.AddItem("MAT-SILICONE", 15);
+
             foreach (ComponentSO component in databaseManager.Database.Components)
             {
                 warehouseManager.AddItem(component.ID, 10);
             }
         }
 
-        private void OnDestroy()
-        {
-            ShutdownManagers();
-        }
         private void Start()
         {
             SceneManager.LoadSceneAsync("MainMenu");
+        }
+
+        private void OnDestroy()
+        {
+            ShutdownManagers();
         }
 
         private void InitializeManagers()
@@ -77,10 +86,12 @@ namespace SkyOfFreedom.Managers
             researchManager?.Initialize();
             warehouseManager?.Initialize();
             licenseManager?.Initialize();
+            contractManager?.Initialize();
         }
 
         private void ShutdownManagers()
         {
+            contractManager?.Shutdown();
             productionManager?.Shutdown();
             factoryManager?.Shutdown();
             economyManager?.Shutdown();

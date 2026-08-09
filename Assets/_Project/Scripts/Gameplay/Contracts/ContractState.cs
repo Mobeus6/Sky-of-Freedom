@@ -2,7 +2,8 @@ namespace SkyOfFreedom.Contracts
 {
     public enum ContractState
     {
-        Active,
+        Available,
+        InProgress,
         Completed,
         Failed
     }

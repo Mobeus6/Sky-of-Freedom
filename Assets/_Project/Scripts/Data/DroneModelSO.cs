@@ -14,7 +14,7 @@ namespace SkyOfFreedom.Data
         [SerializeField]
         private Sprite icon;
         [SerializeField] private int storageSize = 50;
-
+        public string ModelName => modelName;
         public int StorageSize => storageSize;
         [TextArea]
         [SerializeField]

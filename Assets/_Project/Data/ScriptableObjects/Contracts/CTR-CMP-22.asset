@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a52262542bd3b2c4fba7f035ff82cd56, type: 3}
+  m_Name: CTR-CMP-22
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Contracts.ContractSO
+  id: CTR-CMP-22
+  contractName: Manufacture Controller T4
+  description: Produce Controller T4.
+  icon: {fileID: -149440483, guid: 2efb8594d60794f41a4ba4f8871311a5, type: 3}
+  targetType: 0
+  component: {fileID: 11400000, guid: df4a06ecb56648f4c8b2ed703a27cab5, type: 2}
+  droneModel: {fileID: 0}
+  requiredResearch: {fileID: 0}
+  requiredLicense: {fileID: 11400000, guid: ab44bd650069da348a8fdf2b57a736ea, type: 2}
+  requiredReputation: 30
+  reputationReward: 4
+  reputationPenalty: 4
+  minQuantity: 10
+  maxQuantity: 10
+  generationWeight: 100
+  requiredFactoryLevel: 1
