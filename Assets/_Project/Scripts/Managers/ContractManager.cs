@@ -90,12 +90,60 @@ namespace SkyOfFreedom.Contracts
 
         private bool CanGenerate(ContractSO contract)
         {
-            // TODO:
-            // Research
-            // License
-            // Reputation
+            if (contract == null)
+            {
+                return false;
+            }
 
-            return true;
+            FactoryManager factoryManager =
+                GameManager.Instance != null
+                    ? GameManager.Instance.Factory
+                    : null;
+
+            if (factoryManager == null)
+            {
+                Debug.LogError(
+                    "ContractManager: FactoryManager is missing.",
+                    this);
+
+                return false;
+            }
+
+            int factoryLevel = factoryManager.Level;
+
+            int requiredTier = GetContractTier(contract);
+
+            if (requiredTier <= 0)
+            {
+                return false;
+            }
+
+            return factoryLevel >= requiredTier;
+        }
+
+        private int GetContractTier(ContractSO contract)
+        {
+            switch (contract.TargetType)
+            {
+                case ContractTargetType.Drone:
+                    if (contract.DroneModel == null)
+                    {
+                        return 0;
+                    }
+
+                    return (int)contract.DroneModel.Tier;
+
+                case ContractTargetType.Component:
+                    if (contract.Component == null)
+                    {
+                        return 0;
+                    }
+
+                    return contract.Component.Tier;
+
+                default:
+                    return 0;
+            }
         }
 
         public void AcceptContract(ContractInstance contract)

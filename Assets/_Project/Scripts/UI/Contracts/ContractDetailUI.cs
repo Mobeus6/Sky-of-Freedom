@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using SkyOfFreedom.Contracts;
 using SkyOfFreedom.Data;
 using TMPro;
@@ -23,6 +22,7 @@ namespace SkyOfFreedom.UI.Contracts
         [SerializeField] private TMP_Text droneTargetNameText;
         [SerializeField] private TMP_Text droneTierText;
         [SerializeField] private TMP_Text droneQuantityText;
+        [SerializeField] private CardTierVisual droneTargetTierVisual;
 
         [Header("Drone Contract - Specifications")]
         [SerializeField] private TMP_Text flightDistanceText;
@@ -53,14 +53,14 @@ namespace SkyOfFreedom.UI.Contracts
         [SerializeField] private TMP_Text componentFinanceRewardText;
         [SerializeField] private TMP_Text componentReputationRewardText;
 
-        [Header("Recipe Item")]
+        [Header("Contract Component Prefab")]
         [SerializeField] private ContractComponentUI contractComponentPrefab;
-        private ContractInstance currentContract;
+
         [Header("Contract Icon Tier Visual")]
         [SerializeField] private CardTierVisual droneContractTierVisual;
         [SerializeField] private CardTierVisual componentContractTierVisual;
-        [Header("Recipe Item - Materials")]
-        [SerializeField] private RecipeItemUI recipeItemPrefab;
+
+        private ContractInstance currentContract;
 
         private void Awake()
         {
@@ -115,7 +115,8 @@ namespace SkyOfFreedom.UI.Contracts
             droneContractInfoCard.SetActive(true);
             componentContractInfoCard.SetActive(false);
 
-            ClearContent(droneRequiredComponentsContent);
+            ClearContent(
+                droneRequiredComponentsContent);
 
             if (droneContractNameText != null)
             {
@@ -136,6 +137,12 @@ namespace SkyOfFreedom.UI.Contracts
 
                 droneContractImage.enabled =
                     template.Icon != null;
+            }
+
+            if (droneContractTierVisual != null)
+            {
+                droneContractTierVisual.SetTier(
+                    drone.Tier);
             }
 
             if (droneTargetIcon != null)
@@ -165,7 +172,14 @@ namespace SkyOfFreedom.UI.Contracts
                     contract.Quantity.ToString();
             }
 
-            UpdateDroneSpecifications(drone);
+            if (droneTargetTierVisual != null)
+            {
+                droneTargetTierVisual.SetTier(
+                    drone.Tier);
+            }
+
+            UpdateDroneSpecifications(
+                drone);
 
             CreateDroneRequiredComponents(
                 drone,
@@ -192,8 +206,11 @@ namespace SkyOfFreedom.UI.Contracts
             droneContractInfoCard.SetActive(false);
             componentContractInfoCard.SetActive(true);
 
-            ClearContent(componentRequiredComponentsContent);
-            ClearContent(componentRequiredMaterialsContent);
+            ClearContent(
+                componentRequiredComponentsContent);
+
+            ClearContent(
+                componentRequiredMaterialsContent);
 
             if (componentContractNameText != null)
             {
@@ -216,12 +233,17 @@ namespace SkyOfFreedom.UI.Contracts
                     template.Icon != null;
             }
 
+            if (componentContractTierVisual != null)
+            {
+                componentContractTierVisual.SetTier(
+                    component.Tier);
+            }
 
-            CreateComponentRequiredComponents(
+            CreateComponentRequiredComponent(
                 component,
                 contract.Quantity);
 
-            CreateRequiredMaterials(
+            CreateComponentRequiredMaterials(
                 component,
                 contract.Quantity);
 
@@ -266,11 +288,15 @@ namespace SkyOfFreedom.UI.Contracts
         }
 
         private void CreateDroneRequiredComponents(
-     DroneModelSO drone,
-     int contractQuantity)
+            DroneModelSO drone,
+            int contractQuantity)
         {
             if (droneRequiredComponentsContent == null)
             {
+                Debug.LogError(
+                    "ContractDetailUI: Drone Required Components Content is missing.",
+                    this);
+
                 return;
             }
 
@@ -283,9 +309,17 @@ namespace SkyOfFreedom.UI.Contracts
                 return;
             }
 
-            ClearContent(droneRequiredComponentsContent);
+            ClearContent(
+                droneRequiredComponentsContent);
 
-            foreach (DroneComponent droneComponent in drone.Components)
+            if (drone.Components == null)
+            {
+                return;
+            }
+
+            foreach (
+                DroneComponent droneComponent
+                in drone.Components)
             {
                 if (droneComponent == null)
                 {
@@ -312,12 +346,16 @@ namespace SkyOfFreedom.UI.Contracts
             }
         }
 
-        private void CreateComponentRequiredComponents(
-     ComponentSO component,
-     int contractQuantity)
+        private void CreateComponentRequiredComponent(
+            ComponentSO component,
+            int contractQuantity)
         {
             if (componentRequiredComponentsContent == null)
             {
+                Debug.LogError(
+                    "ContractDetailUI: Component Required Components Content is missing.",
+                    this);
+
                 return;
             }
 
@@ -330,7 +368,8 @@ namespace SkyOfFreedom.UI.Contracts
                 return;
             }
 
-            ClearContent(componentRequiredComponentsContent);
+            ClearContent(
+                componentRequiredComponentsContent);
 
             ContractComponentUI item =
                 Instantiate(
@@ -342,28 +381,43 @@ namespace SkyOfFreedom.UI.Contracts
                 contractQuantity);
         }
 
-        private void CreateRequiredMaterials(
+        private void CreateComponentRequiredMaterials(
             ComponentSO component,
             int contractQuantity)
         {
             if (componentRequiredMaterialsContent == null)
             {
-                return;
-            }
-
-            if (recipeItemPrefab == null)
-            {
                 Debug.LogError(
-                    "ContractDetailUI: RecipeItemUI prefab is missing.",
+                    "ContractDetailUI: Component Required Materials Content is missing.",
                     this);
 
                 return;
             }
 
-            Dictionary<MaterialSO, int> requiredMaterials =
-                new Dictionary<MaterialSO, int>();
+            if (contractComponentPrefab == null)
+            {
+                Debug.LogError(
+                    "ContractDetailUI: Contract Component Prefab is missing.",
+                    this);
 
-            foreach (MaterialAmount materialAmount in component.Recipe)
+                return;
+            }
+
+            ClearContent(
+                componentRequiredMaterialsContent);
+
+            if (component.Recipe == null)
+            {
+                Debug.LogWarning(
+                    $"ContractDetailUI: Recipe is missing for component {component.Name}.",
+                    this);
+
+                return;
+            }
+
+            foreach (
+                MaterialAmount materialAmount
+                in component.Recipe)
             {
                 if (materialAmount == null)
                 {
@@ -372,6 +426,10 @@ namespace SkyOfFreedom.UI.Contracts
 
                 if (materialAmount.Material == null)
                 {
+                    Debug.LogWarning(
+                        $"ContractDetailUI: Material is missing in recipe of {component.Name}.",
+                        this);
+
                     continue;
                 }
 
@@ -382,32 +440,14 @@ namespace SkyOfFreedom.UI.Contracts
                     materialAmount.Amount *
                     contractQuantity;
 
-                if (requiredMaterials.ContainsKey(material))
-                {
-                    requiredMaterials[material] +=
-                        requiredAmount;
-                }
-                else
-                {
-                    requiredMaterials.Add(
-                        material,
-                        requiredAmount);
-                }
-            }
-
-            foreach (
-                KeyValuePair<MaterialSO, int> entry
-                in requiredMaterials)
-            {
-                RecipeItemUI item =
+                ContractComponentUI item =
                     Instantiate(
-                        recipeItemPrefab,
+                        contractComponentPrefab,
                         componentRequiredMaterialsContent);
 
                 item.Setup(
-                    entry.Key.Icon,
-                    entry.Key.Tier,
-                    entry.Value);
+                    material,
+                    requiredAmount);
             }
         }
 

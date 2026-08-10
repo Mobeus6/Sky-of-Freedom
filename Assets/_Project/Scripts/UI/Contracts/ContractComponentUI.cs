@@ -25,15 +25,44 @@ namespace SkyOfFreedom.UI.Contracts
                 return;
             }
 
+            SetCommonData(
+                component.Icon,
+                component.Name,
+                component.Tier,
+                quantity);
+        }
+
+        public void Setup(
+            MaterialSO material,
+            int quantity)
+        {
+            if (material == null)
+            {
+                return;
+            }
+
+            SetCommonData(
+                material.Icon,
+                material.MaterialName,
+                material.Tier,
+                quantity);
+        }
+
+        private void SetCommonData(
+            Sprite sprite,
+            string itemName,
+            int tier,
+            int quantity)
+        {
             if (icon != null)
             {
-                icon.sprite = component.Icon;
-                icon.enabled = component.Icon != null;
+                icon.sprite = sprite;
+                icon.enabled = sprite != null;
             }
 
             if (nameText != null)
             {
-                nameText.text = component.Name;
+                nameText.text = itemName;
             }
 
             if (quantityText != null)
@@ -45,12 +74,12 @@ namespace SkyOfFreedom.UI.Contracts
             if (tierText != null)
             {
                 tierText.text =
-                    $"T{component.Tier}";
+                    $"T{tier}";
             }
 
             if (tierVisual != null)
             {
-                tierVisual.SetTier(component.Tier);
+                tierVisual.SetTier(tier);
             }
         }
     }
