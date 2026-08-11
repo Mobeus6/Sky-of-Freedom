@@ -7,55 +7,65 @@ namespace SkyOfFreedom.Managers
 {
     public class LicenseManager : BaseManager
     {
-
         [Header("References")]
         [SerializeField]
         private GameDatabase database;
 
-        private readonly HashSet<string> unlockedLicenses = new();
+        private readonly HashSet<string> unlockedLicenses =
+            new HashSet<string>();
 
-        private readonly Dictionary<string, LicenseSO> componentLicenses = new();
+        private readonly Dictionary<string, LicenseSO> componentLicenses =
+            new Dictionary<string, LicenseSO>();
+
         public bool CanProduce(IProducible item)
         {
             if (item == null)
+            {
                 return false;
+            }
 
             if (item is ComponentSO component)
+            {
                 return CanProduce(component.ID);
+            }
 
             return true;
         }
+
         public override void Initialize()
         {
             if (IsInitialized)
+            {
                 return;
+            }
 
             base.Initialize();
 
             BuildLookup();
-
-            foreach (LicenseSO license in database.Licenses)
-            {
-                Unlock(license);
-            }
         }
 
         public override void Shutdown()
         {
             if (!IsInitialized)
+            {
                 return;
+            }
 
             componentLicenses.Clear();
 
             base.Shutdown();
         }
+
         private void BuildLookup()
         {
             componentLicenses.Clear();
 
             if (database == null)
             {
-                Debug.LogError("GameDatabase is not assigned.", this);
+                Debug.LogError(
+                    "GameDatabase is not assigned.",
+                    this);
+
                 return;
             }
 
@@ -71,7 +81,8 @@ namespace SkyOfFreedom.Managers
                     continue;
                 }
 
-                componentLicenses[license.UnlockedComponent.ID] = license; 
+                componentLicenses[
+                    license.UnlockedComponent.ID] = license;
             }
         }
 
@@ -79,19 +90,76 @@ namespace SkyOfFreedom.Managers
         {
             if (license == null)
             {
-                return true;
+                return false;
             }
 
             return unlockedLicenses.Contains(license.ID);
         }
 
+        public bool IsFactoryLevelRequired(LicenseSO license)
+        {
+            if (license == null)
+            {
+                return false;
+            }
+
+            if (GameManager.Instance == null)
+            {
+                return false;
+            }
+
+            if (GameManager.Instance.Factory == null)
+            {
+                return false;
+            }
+
+            return GameManager.Instance.Factory.Level >=
+                   license.RequiredFactoryLevel;
+        }
+
+        public bool IsLocked(LicenseSO license)
+        {
+            if (license == null)
+            {
+                return true;
+            }
+
+            if (IsUnlocked(license))
+            {
+                return false;
+            }
+
+            return !IsFactoryLevelRequired(license);
+        }
+
+        public bool IsAvailable(LicenseSO license)
+        {
+            if (license == null)
+            {
+                return false;
+            }
+
+            if (IsUnlocked(license))
+            {
+                return false;
+            }
+
+            return IsFactoryLevelRequired(license);
+        }
+
         public bool CanProduce(string componentId)
         {
             if (string.IsNullOrEmpty(componentId))
+            {
                 return false;
+            }
 
-            if (!componentLicenses.TryGetValue(componentId, out LicenseSO license))
+            if (!componentLicenses.TryGetValue(
+                    componentId,
+                    out LicenseSO license))
+            {
                 return true;
+            }
 
             return IsUnlocked(license);
         }
@@ -108,9 +176,10 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            // TODO:
-            // Перевірити рівень фабрики.
-            // Перевірити кількість грошей.
+            if (!IsFactoryLevelRequired(license))
+            {
+                return false;
+            }
 
             return true;
         }
@@ -123,7 +192,8 @@ namespace SkyOfFreedom.Managers
             }
 
             // TODO:
-            // EconomyManager.Instance.SpendMoney(license.PurchaseCost);
+            // EconomyManager.Instance.SpendMoney(
+            //     license.PurchaseCost);
 
             Unlock(license);
 
@@ -160,12 +230,23 @@ namespace SkyOfFreedom.Managers
             return unlockedLicenses;
         }
 
-        public void LoadUnlockedLicenses(IEnumerable<string> ids)
+        public void LoadUnlockedLicenses(
+            IEnumerable<string> ids)
         {
             unlockedLicenses.Clear();
 
+            if (ids == null)
+            {
+                return;
+            }
+
             foreach (string id in ids)
             {
+                if (string.IsNullOrEmpty(id))
+                {
+                    continue;
+                }
+
                 unlockedLicenses.Add(id);
             }
         }
