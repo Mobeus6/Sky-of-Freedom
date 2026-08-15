@@ -1440,8 +1440,7 @@ MonoBehaviour:
   description: {fileID: 2483847244595422251}
   factoryLevelText: {fileID: 7507077220994966685}
   costText: {fileID: 9057630177474572098}
-  cardButton: {fileID: 2725199433284102421}
-  buyButton: {fileID: 7514919028643160627}
+  button: {fileID: 7514919028643160627}
   locked: {fileID: 1319785850964326837}
   bought: {fileID: 3751982753683688569}
 --- !u!114 &3674957916588957993

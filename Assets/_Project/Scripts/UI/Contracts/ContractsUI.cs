@@ -74,6 +74,8 @@ namespace SkyOfFreedom.UI.Contracts
             Invoke(
                 nameof(Initialize),
                 0f);
+            contractDetailUI.SetAcceptCallback(
+    AcceptContract);
         }
 
         private void OnDestroy()
@@ -94,6 +96,11 @@ namespace SkyOfFreedom.UI.Contracts
             {
                 completedButton.onClick.RemoveListener(
                     ShowCompleted);
+            }
+            if (contractDetailUI != null)
+            {
+                contractDetailUI.SetAcceptCallback(
+                    null);
             }
         }
 
@@ -118,7 +125,22 @@ namespace SkyOfFreedom.UI.Contracts
             ShowFirstContract(
                 contractManager.AvailableContracts);
         }
+        private void AcceptContract(
+    ContractInstance contract)
+        {
+            if (contract == null ||
+                contractManager == null)
+            {
+                return;
+            }
 
+            contractManager.AcceptContract(
+                contract);
+
+            RefreshContracts();
+
+            ShowInProgress();
+        }
         private void ShowInProgress()
         {
             availableView.SetActive(false);

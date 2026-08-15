@@ -17,8 +17,7 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text costText;
 
         [Header("Interaction")]
-        [SerializeField] private Button cardButton;
-        [SerializeField] private Button buyButton;
+        [SerializeField] private Button button;
 
         [Header("Status")]
         [SerializeField] private GameObject locked;
@@ -38,6 +37,7 @@ namespace SkyOfFreedom.UI
         }
 
         public event Action<LicenseSO> Selected;
+        public event Action<LicenseSO> Purchased;
 
         private void Awake()
         {
@@ -51,29 +51,24 @@ namespace SkyOfFreedom.UI
                     this);
             }
 
-            if (cardButton == null)
+            if (button == null)
             {
                 Debug.LogError(
-                    $"LicenseCardItem on '{gameObject.name}' has no Card Button assigned.",
+                    $"LicenseCardItem on '{gameObject.name}' has no Button assigned.",
                     this);
-            }
-            else
-            {
-                cardButton.onClick.AddListener(
-                    OnCardClicked);
+
+                return;
             }
 
-            if (buyButton == null)
-            {
-                Debug.LogWarning(
-                    $"LicenseCardItem on '{gameObject.name}' has no Buy Button assigned.",
-                    this);
-            }
+            button.onClick.AddListener(
+                OnClicked);
         }
 
-        public void Setup(LicenseSO data)
+        public void Setup(
+            LicenseSO data)
         {
-            license = data;
+            license =
+                data;
 
             if (data == null)
             {
@@ -100,7 +95,6 @@ namespace SkyOfFreedom.UI
                     data);
 
                 ClearVisuals();
-
                 return;
             }
 
@@ -201,16 +195,10 @@ namespace SkyOfFreedom.UI
 
         private void SetAvailableStatus()
         {
-            if (cardButton != null)
+            if (button != null)
             {
-                cardButton.gameObject.SetActive(true);
-                cardButton.interactable = true;
-            }
-
-            if (buyButton != null)
-            {
-                buyButton.gameObject.SetActive(true);
-                buyButton.interactable = true;
+                button.gameObject.SetActive(true);
+                button.interactable = true;
             }
 
             if (locked != null)
@@ -226,15 +214,9 @@ namespace SkyOfFreedom.UI
 
         private void SetLockedStatus()
         {
-            if (cardButton != null)
+            if (button != null)
             {
-                cardButton.gameObject.SetActive(true);
-                cardButton.interactable = true;
-            }
-
-            if (buyButton != null)
-            {
-                buyButton.gameObject.SetActive(false);
+                button.gameObject.SetActive(false);
             }
 
             if (locked != null)
@@ -250,15 +232,9 @@ namespace SkyOfFreedom.UI
 
         private void SetBoughtStatus()
         {
-            if (cardButton != null)
+            if (button != null)
             {
-                cardButton.gameObject.SetActive(true);
-                cardButton.interactable = true;
-            }
-
-            if (buyButton != null)
-            {
-                buyButton.gameObject.SetActive(false);
+                button.gameObject.SetActive(false);
             }
 
             if (locked != null)
@@ -284,9 +260,9 @@ namespace SkyOfFreedom.UI
                 bought.SetActive(false);
             }
 
-            if (buyButton != null)
+            if (button != null)
             {
-                buyButton.gameObject.SetActive(false);
+                button.gameObject.SetActive(false);
             }
         }
 
@@ -300,43 +276,102 @@ namespace SkyOfFreedom.UI
 
             if (licenseName != null)
             {
-                licenseName.text = string.Empty;
+                licenseName.text =
+                    string.Empty;
             }
 
             if (description != null)
             {
-                description.text = string.Empty;
+                description.text =
+                    string.Empty;
             }
 
             if (factoryLevelText != null)
             {
-                factoryLevelText.text = string.Empty;
+                factoryLevelText.text =
+                    string.Empty;
             }
 
             if (costText != null)
             {
-                costText.text = string.Empty;
+                costText.text =
+                    string.Empty;
             }
 
             HideAllStatuses();
         }
 
-        private void OnCardClicked()
+        private void OnClicked()
         {
             if (license == null)
             {
                 return;
             }
 
+            if (licenseManager == null &&
+                GameManager.Instance != null)
+            {
+                licenseManager =
+                    GameManager.Instance.License;
+            }
+
+            /*
+             * First select the license.
+             * This keeps the Info Card synchronized
+             * with the clicked card.
+             */
             Selected?.Invoke(license);
+
+            /*
+             * If the license is already bought,
+             * there is nothing else to do.
+             */
+            if (licenseManager == null)
+            {
+                return;
+            }
+
+            if (licenseManager.IsUnlocked(license))
+            {
+                return;
+            }
+
+            /*
+             * Locked licenses cannot be purchased.
+             */
+            if (!licenseManager.CanPurchase(license))
+            {
+                return;
+            }
+
+            bool purchased =
+                licenseManager.Purchase(
+                    license);
+
+            if (!purchased)
+            {
+                return;
+            }
+
+            /*
+             * Update this card immediately.
+             */
+            SetupStatus(
+                license);
+
+            /*
+             * Notify LicensesPanelUI.
+             */
+            Purchased?.Invoke(
+                license);
         }
 
         private void OnDestroy()
         {
-            if (cardButton != null)
+            if (button != null)
             {
-                cardButton.onClick.RemoveListener(
-                    OnCardClicked);
+                button.onClick.RemoveListener(
+                    OnClicked);
             }
         }
     }

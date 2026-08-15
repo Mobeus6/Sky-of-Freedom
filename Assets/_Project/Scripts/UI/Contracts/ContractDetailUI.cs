@@ -1,5 +1,6 @@
 using SkyOfFreedom.Contracts;
 using SkyOfFreedom.Data;
+using SkyOfFreedom.Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,10 @@ namespace SkyOfFreedom.UI.Contracts
         [Header("Info Cards")]
         [SerializeField] private GameObject droneContractInfoCard;
         [SerializeField] private GameObject componentContractInfoCard;
+
+        [Header("Accept Contract Buttons")]
+        [SerializeField] private Button droneAcceptContractButton;
+        [SerializeField] private Button componentAcceptContractButton;
 
         [Header("Drone Contract - Contract")]
         [SerializeField] private TMP_Text droneContractNameText;
@@ -61,17 +66,64 @@ namespace SkyOfFreedom.UI.Contracts
         [SerializeField] private CardTierVisual componentContractTierVisual;
 
         private ContractInstance currentContract;
+        private ContractManager contractManager;
+
+        private System.Action<ContractInstance> acceptCallback;
 
         private void Awake()
         {
+            if (droneAcceptContractButton != null)
+            {
+                droneAcceptContractButton.onClick.AddListener(
+                    OnAcceptContractClicked);
+            }
+
+            if (componentAcceptContractButton != null)
+            {
+                componentAcceptContractButton.onClick.AddListener(
+                    OnAcceptContractClicked);
+            }
+
             HideCards();
         }
 
-        public void Show(ContractInstance contract)
+        private void Start()
         {
-            if (contract == null || contract.Template == null)
+            if (GameManager.Instance != null)
             {
-                HideCards();
+                contractManager =
+                    GameManager.Instance.Contracts;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (droneAcceptContractButton != null)
+            {
+                droneAcceptContractButton.onClick.RemoveListener(
+                    OnAcceptContractClicked);
+            }
+
+            if (componentAcceptContractButton != null)
+            {
+                componentAcceptContractButton.onClick.RemoveListener(
+                    OnAcceptContractClicked);
+            }
+        }
+
+        public void SetAcceptCallback(
+            System.Action<ContractInstance> callback)
+        {
+            acceptCallback = callback;
+        }
+
+        public void Show(
+            ContractInstance contract)
+        {
+            if (contract == null ||
+                contract.Template == null)
+            {
+                Hide();
                 return;
             }
 
@@ -88,7 +140,7 @@ namespace SkyOfFreedom.UI.Contracts
                     break;
 
                 default:
-                    HideCards();
+                    Hide();
                     break;
             }
         }
@@ -97,23 +149,107 @@ namespace SkyOfFreedom.UI.Contracts
         {
             currentContract = null;
 
+            HideAcceptButtons();
             HideCards();
+        }
+
+        private void OnAcceptContractClicked()
+        {
+            if (currentContract == null)
+            {
+                return;
+            }
+
+            if (currentContract.State !=
+                ContractState.Available)
+            {
+                return;
+            }
+
+            if (contractManager == null &&
+                GameManager.Instance != null)
+            {
+                contractManager =
+                    GameManager.Instance.Contracts;
+            }
+
+            if (contractManager == null)
+            {
+                Debug.LogError(
+                    "ContractDetailUI: ContractManager was not found.",
+                    this);
+
+                return;
+            }
+
+            acceptCallback?.Invoke(
+                currentContract);
+        }
+
+        private void UpdateAcceptButtons(
+            ContractTargetType targetType)
+        {
+            bool isAvailable =
+                currentContract != null &&
+                currentContract.State ==
+                ContractState.Available;
+
+            if (droneAcceptContractButton != null)
+            {
+                droneAcceptContractButton.gameObject.SetActive(
+                    isAvailable &&
+                    targetType == ContractTargetType.Drone);
+
+                droneAcceptContractButton.interactable =
+                    isAvailable &&
+                    targetType == ContractTargetType.Drone;
+            }
+
+            if (componentAcceptContractButton != null)
+            {
+                componentAcceptContractButton.gameObject.SetActive(
+                    isAvailable &&
+                    targetType == ContractTargetType.Component);
+
+                componentAcceptContractButton.interactable =
+                    isAvailable &&
+                    targetType == ContractTargetType.Component;
+            }
+        }
+
+        private void HideAcceptButtons()
+        {
+            if (droneAcceptContractButton != null)
+            {
+                droneAcceptContractButton.gameObject.SetActive(false);
+            }
+
+            if (componentAcceptContractButton != null)
+            {
+                componentAcceptContractButton.gameObject.SetActive(false);
+            }
         }
 
         private void ShowDroneContract(
             ContractInstance contract)
         {
-            ContractSO template = contract.Template;
-            DroneModelSO drone = template.DroneModel;
+            ContractSO template =
+                contract.Template;
+
+            DroneModelSO drone =
+                template.DroneModel;
 
             if (drone == null)
             {
-                HideCards();
+                Hide();
                 return;
             }
 
             droneContractInfoCard.SetActive(true);
             componentContractInfoCard.SetActive(false);
+
+            UpdateAcceptButtons(
+                ContractTargetType.Drone);
 
             ClearContent(
                 droneRequiredComponentsContent);
@@ -194,17 +330,23 @@ namespace SkyOfFreedom.UI.Contracts
         private void ShowComponentContract(
             ContractInstance contract)
         {
-            ContractSO template = contract.Template;
-            ComponentSO component = template.Component;
+            ContractSO template =
+                contract.Template;
+
+            ComponentSO component =
+                template.Component;
 
             if (component == null)
             {
-                HideCards();
+                Hide();
                 return;
             }
 
             droneContractInfoCard.SetActive(false);
             componentContractInfoCard.SetActive(true);
+
+            UpdateAcceptButtons(
+                ContractTargetType.Component);
 
             ClearContent(
                 componentRequiredComponentsContent);
@@ -321,12 +463,8 @@ namespace SkyOfFreedom.UI.Contracts
                 DroneComponent droneComponent
                 in drone.Components)
             {
-                if (droneComponent == null)
-                {
-                    continue;
-                }
-
-                if (droneComponent.Component == null)
+                if (droneComponent == null ||
+                    droneComponent.Component == null)
                 {
                     continue;
                 }
@@ -408,10 +546,6 @@ namespace SkyOfFreedom.UI.Contracts
 
             if (component.Recipe == null)
             {
-                Debug.LogWarning(
-                    $"ContractDetailUI: Recipe is missing for component {component.Name}.",
-                    this);
-
                 return;
             }
 
@@ -419,22 +553,11 @@ namespace SkyOfFreedom.UI.Contracts
                 MaterialAmount materialAmount
                 in component.Recipe)
             {
-                if (materialAmount == null)
+                if (materialAmount == null ||
+                    materialAmount.Material == null)
                 {
                     continue;
                 }
-
-                if (materialAmount.Material == null)
-                {
-                    Debug.LogWarning(
-                        $"ContractDetailUI: Material is missing in recipe of {component.Name}.",
-                        this);
-
-                    continue;
-                }
-
-                MaterialSO material =
-                    materialAmount.Material;
 
                 int requiredAmount =
                     materialAmount.Amount *
@@ -446,7 +569,7 @@ namespace SkyOfFreedom.UI.Contracts
                         componentRequiredMaterialsContent);
 
                 item.Setup(
-                    material,
+                    materialAmount.Material,
                     requiredAmount);
             }
         }

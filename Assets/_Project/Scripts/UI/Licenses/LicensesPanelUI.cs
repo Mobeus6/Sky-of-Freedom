@@ -20,15 +20,19 @@ namespace SkyOfFreedom.UI
 
         [Header("Category Buttons")]
         [SerializeField] private Transform categoryButtonsRoot;
+
         [Header("License Total")]
         [SerializeField] private TMP_Text totalLicenseText;
+
         private GameDatabase database;
+        private LicenseManager licenseManager;
 
         private readonly List<LicenseCardItem> cards =
             new List<LicenseCardItem>();
 
-        private readonly Dictionary<Button, ComponentCategory> buttonCategories =
-            new Dictionary<Button, ComponentCategory>();
+        private readonly Dictionary<Button, ComponentCategory>
+            buttonCategories =
+                new Dictionary<Button, ComponentCategory>();
 
         private ComponentCategory currentCategory =
             ComponentCategory.Hulls;
@@ -36,13 +40,17 @@ namespace SkyOfFreedom.UI
         private void Awake()
         {
             InitializeDatabase();
+            InitializeLicenseManager();
         }
 
         private void Start()
         {
             InitializeCategoryButtons();
-            SelectFirstAvailableCategory();
+
+            UpdateAllCategoryButtonCounts();
             UpdateTotalLicenseText();
+
+            SelectFirstAvailableCategory();
         }
 
         private void InitializeDatabase()
@@ -74,6 +82,17 @@ namespace SkyOfFreedom.UI
                     "LicensesPanelUI: GameDatabase is missing.",
                     this);
             }
+        }
+
+        private void InitializeLicenseManager()
+        {
+            if (GameManager.Instance == null)
+            {
+                return;
+            }
+
+            licenseManager =
+                GameManager.Instance.License;
         }
 
         private void InitializeCategoryButtons()
@@ -109,104 +128,76 @@ namespace SkyOfFreedom.UI
                     continue;
                 }
 
-                buttonCategories[button] = category;
+                buttonCategories[button] =
+                    category;
 
                 ComponentCategory capturedCategory =
                     category;
 
                 button.onClick.AddListener(
-                    () => SelectCategory(capturedCategory));
+                    () =>
+                        SelectCategory(
+                            capturedCategory));
 
-                SetCategoryButtonText(
+                UpdateCategoryButton(
                     button,
                     category);
             }
         }
-        private void UpdateTotalLicenseText()
-        {
-            if (totalLicenseText == null)
-            {
-                return;
-            }
 
-            if (database == null ||
-                database.Licenses == null)
-            {
-                totalLicenseText.text = "TOTAL LICENSE BOUGHT 0/0";
-                return;
-            }
-
-            LicenseManager licenseManager = null;
-
-            if (GameManager.Instance != null)
-            {
-                licenseManager =
-                    GameManager.Instance.License;
-            }
-
-            int totalLicenses = 0;
-            int purchasedLicenses = 0;
-
-            foreach (LicenseSO license in database.Licenses)
-            {
-                if (license == null)
-                {
-                    continue;
-                }
-
-                totalLicenses++;
-
-                if (licenseManager != null &&
-                    licenseManager.IsUnlocked(license))
-                {
-                    purchasedLicenses++;
-                }
-            }
-
-            totalLicenseText.text =
-                $"TOTAL LICENSE BOUGHT {purchasedLicenses}/{totalLicenses}";
-        }
         private bool TryGetCategoryFromButton(
             Button button,
             out ComponentCategory category)
         {
-            category = ComponentCategory.All;
+            category =
+                ComponentCategory.All;
 
-            TMP_Text text =
-                button.GetComponentInChildren<TMP_Text>(
+            TMP_Text[] texts =
+                button.GetComponentsInChildren<TMP_Text>(
                     true);
 
-            string source = string.Empty;
+            string source =
+                string.Empty;
 
-            if (text != null)
+            if (texts.Length > 0 &&
+                texts[0] != null)
             {
-                source = text.text;
+                source =
+                    texts[0].text;
             }
 
             if (string.IsNullOrWhiteSpace(source))
             {
-                source = button.gameObject.name;
+                source =
+                    button.gameObject.name;
             }
 
-            source = NormalizeCategoryName(source);
+            source =
+                NormalizeCategoryName(
+                    source);
 
             foreach (ComponentCategory value
-                     in Enum.GetValues(typeof(ComponentCategory)))
+                     in Enum.GetValues(
+                         typeof(ComponentCategory)))
             {
-                if (value == ComponentCategory.All)
+                if (value ==
+                    ComponentCategory.All)
                 {
                     continue;
                 }
 
                 string enumName =
-                    NormalizeCategoryName(value.ToString());
+                    NormalizeCategoryName(
+                        value.ToString());
 
                 if (string.Equals(
                         source,
                         enumName,
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    category = value;
+                    category =
+                        value;
+
                     return true;
                 }
             }
@@ -214,14 +205,16 @@ namespace SkyOfFreedom.UI
             return false;
         }
 
-        private string NormalizeCategoryName(string value)
+        private string NormalizeCategoryName(
+            string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 return string.Empty;
             }
 
-            value = value.Trim();
+            value =
+                value.Trim();
 
             int buttonIndex =
                 value.IndexOf(
@@ -238,9 +231,15 @@ namespace SkyOfFreedom.UI
 
             value =
                 value
-                    .Replace(" ", string.Empty)
-                    .Replace("_", string.Empty)
-                    .Replace("-", string.Empty)
+                    .Replace(
+                        " ",
+                        string.Empty)
+                    .Replace(
+                        "_",
+                        string.Empty)
+                    .Replace(
+                        "-",
+                        string.Empty)
                     .Trim();
 
             value =
@@ -265,21 +264,238 @@ namespace SkyOfFreedom.UI
             return value;
         }
 
-        private void SetCategoryButtonText(
+        private void UpdateAllCategoryButtonCounts()
+        {
+            foreach (
+                KeyValuePair<Button, ComponentCategory> pair
+                in buttonCategories)
+            {
+                if (pair.Key == null)
+                {
+                    continue;
+                }
+
+                UpdateCategoryButton(
+                    pair.Key,
+                    pair.Value);
+            }
+        }
+
+        private void UpdateCategoryButton(
             Button button,
             ComponentCategory category)
         {
-            TMP_Text text =
-                button.GetComponentInChildren<TMP_Text>(
-                    true);
-
-            if (text == null)
+            if (button == null)
             {
                 return;
             }
 
-            text.text =
-                GetCategoryDisplayName(category);
+            TMP_Text[] texts =
+                button.GetComponentsInChildren<TMP_Text>(
+                    true);
+
+            if (texts.Length == 0)
+            {
+                return;
+            }
+
+            TMP_Text categoryText =
+                FindCategoryText(
+                    texts);
+
+            TMP_Text countText =
+                FindCountText(
+                    texts,
+                    categoryText);
+
+            if (categoryText != null)
+            {
+                categoryText.text =
+                    GetCategoryDisplayName(
+                        category);
+            }
+
+            int purchased =
+                GetPurchasedLicenseCount(
+                    category);
+
+            int total =
+                GetTotalLicenseCount(
+                    category);
+
+            if (countText != null)
+            {
+                countText.text =
+                    $"{purchased}/{total}";
+            }
+        }
+
+        private TMP_Text FindCategoryText(
+            TMP_Text[] texts)
+        {
+            foreach (TMP_Text text in texts)
+            {
+                if (text == null)
+                {
+                    continue;
+                }
+
+                string name =
+                    text.gameObject.name.ToLowerInvariant();
+
+                if (name.Contains("category") ||
+                    name.Contains("name") ||
+                    name.Contains("title"))
+                {
+                    return text;
+                }
+            }
+
+            return texts[0];
+        }
+
+        private TMP_Text FindCountText(
+            TMP_Text[] texts,
+            TMP_Text categoryText)
+        {
+            foreach (TMP_Text text in texts)
+            {
+                if (text == null ||
+                    text == categoryText)
+                {
+                    continue;
+                }
+
+                string name =
+                    text.gameObject.name.ToLowerInvariant();
+
+                if (name.Contains("count") ||
+                    name.Contains("amount") ||
+                    name.Contains("number") ||
+                    name.Contains("total"))
+                {
+                    return text;
+                }
+            }
+
+            foreach (TMP_Text text in texts)
+            {
+                if (text != null &&
+                    text != categoryText)
+                {
+                    return text;
+                }
+            }
+
+            return null;
+        }
+
+        private int GetTotalLicenseCount(
+            ComponentCategory category)
+        {
+            if (database == null ||
+                database.Licenses == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+
+            foreach (LicenseSO license
+                     in database.Licenses)
+            {
+                if (license == null ||
+                    license.UnlockedComponent == null)
+                {
+                    continue;
+                }
+
+                if (license.UnlockedComponent.Category ==
+                    category)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private int GetPurchasedLicenseCount(
+            ComponentCategory category)
+        {
+            if (database == null ||
+                database.Licenses == null ||
+                licenseManager == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+
+            foreach (LicenseSO license
+                     in database.Licenses)
+            {
+                if (license == null ||
+                    license.UnlockedComponent == null)
+                {
+                    continue;
+                }
+
+                if (license.UnlockedComponent.Category !=
+                    category)
+                {
+                    continue;
+                }
+
+                if (licenseManager.IsUnlocked(
+                        license))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private void UpdateTotalLicenseText()
+        {
+            if (totalLicenseText == null)
+            {
+                return;
+            }
+
+            if (database == null ||
+                database.Licenses == null)
+            {
+                totalLicenseText.text =
+                    "TOTAL LICENSE BOUGHT 0/0";
+
+                return;
+            }
+
+            int totalLicenses = 0;
+            int purchasedLicenses = 0;
+
+            foreach (LicenseSO license
+                     in database.Licenses)
+            {
+                if (license == null)
+                {
+                    continue;
+                }
+
+                totalLicenses++;
+
+                if (licenseManager != null &&
+                    licenseManager.IsUnlocked(
+                        license))
+                {
+                    purchasedLicenses++;
+                }
+            }
+
+            totalLicenseText.text =
+                $"TOTAL LICENSE BOUGHT {purchasedLicenses}/{totalLicenses}";
         }
 
         private string GetCategoryDisplayName(
@@ -315,26 +531,35 @@ namespace SkyOfFreedom.UI
                     return "MOTORS";
 
                 default:
-                    return category.ToString().ToUpperInvariant();
+                    return category
+                        .ToString()
+                        .ToUpperInvariant();
             }
         }
 
         private void SelectFirstAvailableCategory()
         {
-            foreach (KeyValuePair<Button, ComponentCategory> pair
-                     in buttonCategories)
+            foreach (
+                KeyValuePair<Button, ComponentCategory> pair
+                in buttonCategories)
             {
-                if (HasLicenses(pair.Value))
+                if (HasLicenses(
+                        pair.Value))
                 {
-                    SelectCategory(pair.Value);
+                    SelectCategory(
+                        pair.Value);
+
                     return;
                 }
             }
 
-            foreach (KeyValuePair<Button, ComponentCategory> pair
-                     in buttonCategories)
+            foreach (
+                KeyValuePair<Button, ComponentCategory> pair
+                in buttonCategories)
             {
-                SelectCategory(pair.Value);
+                SelectCategory(
+                    pair.Value);
+
                 return;
             }
         }
@@ -342,7 +567,8 @@ namespace SkyOfFreedom.UI
         public void SelectCategory(
             ComponentCategory category)
         {
-            currentCategory = category;
+            currentCategory =
+                category;
 
             RefreshLicenseList();
         }
@@ -350,6 +576,8 @@ namespace SkyOfFreedom.UI
         private void RefreshLicenseList()
         {
             ClearContent();
+
+            UpdateAllCategoryButtonCounts();
             UpdateTotalLicenseText();
 
             if (database == null)
@@ -378,7 +606,8 @@ namespace SkyOfFreedom.UI
             List<LicenseSO> filteredLicenses =
                 new List<LicenseSO>();
 
-            foreach (LicenseSO license in database.Licenses)
+            foreach (LicenseSO license
+                     in database.Licenses)
             {
                 if (license == null)
                 {
@@ -396,7 +625,8 @@ namespace SkyOfFreedom.UI
                     continue;
                 }
 
-                filteredLicenses.Add(license);
+                filteredLicenses.Add(
+                    license);
             }
 
             filteredLicenses =
@@ -409,9 +639,11 @@ namespace SkyOfFreedom.UI
                             license.RequiredFactoryLevel)
                     .ToList();
 
-            foreach (LicenseSO license in filteredLicenses)
+            foreach (LicenseSO license
+                     in filteredLicenses)
             {
-                CreateCard(license);
+                CreateCard(
+                    license);
             }
 
             Canvas.ForceUpdateCanvases();
@@ -419,7 +651,8 @@ namespace SkyOfFreedom.UI
             SelectFirstLicense();
         }
 
-        private void CreateCard(LicenseSO license)
+        private void CreateCard(
+            LicenseSO license)
         {
             LicenseCardItem card =
                 Instantiate(
@@ -431,11 +664,17 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
-            card.Setup(license);
+            card.Setup(
+                license);
 
-            card.Selected += OnLicenseSelected;
+            card.Selected +=
+                OnLicenseSelected;
 
-            cards.Add(card);
+            card.Purchased +=
+                OnLicensePurchased;
+
+            cards.Add(
+                card);
         }
 
         private void OnLicenseSelected(
@@ -455,7 +694,31 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
-            licenseInfoCard.Show(license);
+            licenseInfoCard.Show(
+                license);
+        }
+
+        private void OnLicensePurchased(
+            LicenseSO license)
+        {
+            if (license == null)
+            {
+                return;
+            }
+
+            /*
+             * The manager has already unlocked the license.
+             * We only refresh UI here.
+             */
+
+            UpdateAllCategoryButtonCounts();
+            UpdateTotalLicenseText();
+
+            /*
+             * Update the selected Info Card immediately.
+             */
+            OnLicenseSelected(
+                license);
         }
 
         private void SelectFirstLicense()
@@ -464,13 +727,15 @@ namespace SkyOfFreedom.UI
             {
                 if (licenseInfoCard != null)
                 {
-                    licenseInfoCard.Show(null);
+                    licenseInfoCard.Show(
+                        null);
                 }
 
                 return;
             }
 
-            LicenseCardItem firstCard = cards[0];
+            LicenseCardItem firstCard =
+                cards[0];
 
             if (firstCard == null ||
                 firstCard.License == null)
@@ -478,7 +743,8 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
-            OnLicenseSelected(firstCard.License);
+            OnLicenseSelected(
+                firstCard.License);
         }
 
         private bool HasLicenses(
@@ -490,7 +756,8 @@ namespace SkyOfFreedom.UI
                 return false;
             }
 
-            foreach (LicenseSO license in database.Licenses)
+            foreach (LicenseSO license
+                     in database.Licenses)
             {
                 if (license == null ||
                     license.UnlockedComponent == null)
@@ -510,12 +777,20 @@ namespace SkyOfFreedom.UI
 
         private void ClearContent()
         {
-            for (int i = cards.Count - 1; i >= 0; i--)
+            for (int i = cards.Count - 1;
+                 i >= 0;
+                 i--)
             {
                 if (cards[i] != null)
                 {
-                    cards[i].Selected -= OnLicenseSelected;
-                    Destroy(cards[i].gameObject);
+                    cards[i].Selected -=
+                        OnLicenseSelected;
+
+                    cards[i].Purchased -=
+                        OnLicensePurchased;
+
+                    Destroy(
+                        cards[i].gameObject);
                 }
             }
 
@@ -526,16 +801,20 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
-            for (int i = content.childCount - 1; i >= 0; i--)
+            for (int i = content.childCount - 1;
+                 i >= 0;
+                 i--)
             {
-                Destroy(content.GetChild(i).gameObject);
+                Destroy(
+                    content.GetChild(i).gameObject);
             }
         }
 
         private void OnDestroy()
         {
-            foreach (KeyValuePair<Button, ComponentCategory> pair
-                     in buttonCategories)
+            foreach (
+                KeyValuePair<Button, ComponentCategory> pair
+                in buttonCategories)
             {
                 if (pair.Key != null)
                 {
@@ -543,12 +822,19 @@ namespace SkyOfFreedom.UI
                 }
             }
 
-            foreach (LicenseCardItem card in cards)
+            foreach (LicenseCardItem card
+                     in cards)
             {
-                if (card != null)
+                if (card == null)
                 {
-                    card.Selected -= OnLicenseSelected;
+                    continue;
                 }
+
+                card.Selected -=
+                    OnLicenseSelected;
+
+                card.Purchased -=
+                    OnLicensePurchased;
             }
 
             buttonCategories.Clear();

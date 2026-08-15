@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11280dd2d4e4fe8458069ecc48582a91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.EconomyManager
-  money: 1000
+  money: 100000
   reputation: 10
 --- !u!114 &250106903
 MonoBehaviour:

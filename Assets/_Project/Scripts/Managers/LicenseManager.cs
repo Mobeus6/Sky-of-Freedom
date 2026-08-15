@@ -93,10 +93,12 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            return unlockedLicenses.Contains(license.ID);
+            return unlockedLicenses.Contains(
+                license.ID);
         }
 
-        public bool IsFactoryLevelRequired(LicenseSO license)
+        public bool IsFactoryLevelRequired(
+            LicenseSO license)
         {
             if (license == null)
             {
@@ -117,7 +119,8 @@ namespace SkyOfFreedom.Managers
                    license.RequiredFactoryLevel;
         }
 
-        public bool IsLocked(LicenseSO license)
+        public bool IsLocked(
+            LicenseSO license)
         {
             if (license == null)
             {
@@ -129,10 +132,12 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            return !IsFactoryLevelRequired(license);
+            return !IsFactoryLevelRequired(
+                license);
         }
 
-        public bool IsAvailable(LicenseSO license)
+        public bool IsAvailable(
+            LicenseSO license)
         {
             if (license == null)
             {
@@ -144,10 +149,12 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            return IsFactoryLevelRequired(license);
+            return IsFactoryLevelRequired(
+                license);
         }
 
-        public bool CanProduce(string componentId)
+        public bool CanProduce(
+            string componentId)
         {
             if (string.IsNullOrEmpty(componentId))
             {
@@ -161,10 +168,12 @@ namespace SkyOfFreedom.Managers
                 return true;
             }
 
-            return IsUnlocked(license);
+            return IsUnlocked(
+                license);
         }
 
-        public bool CanPurchase(LicenseSO license)
+        public bool CanPurchase(
+            LicenseSO license)
         {
             if (license == null)
             {
@@ -176,7 +185,33 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            if (!IsFactoryLevelRequired(license))
+            /*
+             * Factory level must be sufficient.
+             */
+            if (!IsFactoryLevelRequired(
+                    license))
+            {
+                return false;
+            }
+
+            /*
+             * EconomyManager must exist.
+             */
+            if (GameManager.Instance == null)
+            {
+                return false;
+            }
+
+            if (GameManager.Instance.Economy == null)
+            {
+                return false;
+            }
+
+            /*
+             * Player must have enough money.
+             */
+            if (!GameManager.Instance.Economy.HasMoney(
+                    license.PurchaseCost))
             {
                 return false;
             }
@@ -184,40 +219,63 @@ namespace SkyOfFreedom.Managers
             return true;
         }
 
-        public bool Purchase(LicenseSO license)
+        public bool Purchase(
+            LicenseSO license)
         {
-            if (!CanPurchase(license))
+            if (!CanPurchase(
+                    license))
             {
                 return false;
             }
 
-            // TODO:
-            // EconomyManager.Instance.SpendMoney(
-            //     license.PurchaseCost);
+            EconomyManager economyManager =
+                GameManager.Instance.Economy;
 
+            /*
+             * Spend money first.
+             *
+             * If the transaction fails,
+             * the license must NOT be unlocked.
+             */
+            bool moneySpent =
+                economyManager.SpendMoney(
+                    license.PurchaseCost);
+
+            if (!moneySpent)
+            {
+                return false;
+            }
+
+            /*
+             * Only unlock after successful payment.
+             */
             Unlock(license);
 
             return true;
         }
 
-        public void Unlock(LicenseSO license)
+        public void Unlock(
+            LicenseSO license)
         {
             if (license == null)
             {
                 return;
             }
 
-            unlockedLicenses.Add(license.ID);
+            unlockedLicenses.Add(
+                license.ID);
         }
 
-        public void Lock(LicenseSO license)
+        public void Lock(
+            LicenseSO license)
         {
             if (license == null)
             {
                 return;
             }
 
-            unlockedLicenses.Remove(license.ID);
+            unlockedLicenses.Remove(
+                license.ID);
         }
 
         public void ResetLicenses()
@@ -225,7 +283,8 @@ namespace SkyOfFreedom.Managers
             unlockedLicenses.Clear();
         }
 
-        public IReadOnlyCollection<string> GetUnlockedLicenses()
+        public IReadOnlyCollection<string>
+            GetUnlockedLicenses()
         {
             return unlockedLicenses;
         }
