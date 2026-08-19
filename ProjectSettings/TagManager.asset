@@ -12,13 +12,13 @@ TagManager:
   - Water
   - UI
   - FactoryGround
+  - FactoryInteraction
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Research
+  - Production
+  - Assembly
+  - Warehouse
   - 
   - 
   - 
@@ -50,4 +50,5 @@ TagManager:
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
+  - Zone Permanent Border
   m_MigratedRenderPipelines: []

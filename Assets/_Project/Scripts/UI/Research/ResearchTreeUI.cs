@@ -180,13 +180,8 @@ namespace SkyOfFreedom.UI
             foreach (ResearchSO research in database.Researches)
             {
                 if (research == null)
-                    continue;
-                Debug.Log(
-    "ResearchTreeUI BuildTree: " +
-    research.name +
-    " | ID = [" +
-    research.ID +
-    "]");
+                    continue; 
+
                 if (string.IsNullOrEmpty(research.ID))
                 {
                     Debug.LogError(

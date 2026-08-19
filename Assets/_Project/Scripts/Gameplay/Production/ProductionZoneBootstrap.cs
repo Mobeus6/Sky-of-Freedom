@@ -1,18 +1,13 @@
 using UnityEngine;
-using SkyOfFreedom.Managers;
 
 namespace SkyOfFreedom.Production
 {
+    /// <summary>
+    /// Kept for scene compatibility.
+    /// ProductionZone registers itself with ProductionManager,
+    /// so this component no longer controls zone availability.
+    /// </summary>
     public class ProductionZoneBootstrap : MonoBehaviour
     {
-        [SerializeField] private ProductionZone[] zones;
-
-        private void Start()
-        {
-            foreach (var zone in zones)
-            {
-                GameManager.Instance.Production.RegisterZone(zone);
-            }
-        }
     }
 }

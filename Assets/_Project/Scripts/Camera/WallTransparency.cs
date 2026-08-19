@@ -1,8 +1,11 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Renderer))]
 public class WallTransparency : MonoBehaviour
 {
+    [Header("Renderers")]
+    [SerializeField]
+    private Renderer[] wallRenderers;
+
     [Header("Transparency")]
     [SerializeField, Range(0f, 1f)]
     private float transparentOpacity = 0.25f;
@@ -13,7 +16,6 @@ public class WallTransparency : MonoBehaviour
     private float currentOpacity = 1f;
     private float targetOpacity = 1f;
 
-    private Renderer wallRenderer;
     private MaterialPropertyBlock propertyBlock;
 
     private static readonly int OpacityProperty =
@@ -21,9 +23,16 @@ public class WallTransparency : MonoBehaviour
 
     private void Awake()
     {
-        wallRenderer = GetComponent<Renderer>();
+        propertyBlock =
+            new MaterialPropertyBlock();
 
-        propertyBlock = new MaterialPropertyBlock();
+        if (wallRenderers == null ||
+            wallRenderers.Length == 0)
+        {
+            wallRenderers =
+                GetComponentsInChildren<Renderer>(
+                    true);
+        }
 
         currentOpacity = 1f;
         targetOpacity = 1f;
@@ -33,8 +42,12 @@ public class WallTransparency : MonoBehaviour
 
     private void Update()
     {
-        if (Mathf.Approximately(currentOpacity, targetOpacity))
+        if (Mathf.Approximately(
+                currentOpacity,
+                targetOpacity))
+        {
             return;
+        }
 
         currentOpacity = Mathf.MoveTowards(
             currentOpacity,
@@ -44,15 +57,31 @@ public class WallTransparency : MonoBehaviour
         ApplyOpacity(currentOpacity);
     }
 
-    private void ApplyOpacity(float opacity)
+    private void ApplyOpacity(
+        float opacity)
     {
-        wallRenderer.GetPropertyBlock(propertyBlock);
+        if (wallRenderers == null)
+        {
+            return;
+        }
 
-        propertyBlock.SetFloat(
-            OpacityProperty,
-            opacity);
+        foreach (Renderer renderer in wallRenderers)
+        {
+            if (renderer == null)
+            {
+                continue;
+            }
 
-        wallRenderer.SetPropertyBlock(propertyBlock);
+            renderer.GetPropertyBlock(
+                propertyBlock);
+
+            propertyBlock.SetFloat(
+                OpacityProperty,
+                opacity);
+
+            renderer.SetPropertyBlock(
+                propertyBlock);
+        }
     }
 
     public void SetTransparent(
@@ -62,10 +91,12 @@ public class WallTransparency : MonoBehaviour
         transparentOpacity = opacity;
         fadeSpeed = speed;
 
-        targetOpacity = transparentOpacity;
+        targetOpacity =
+            transparentOpacity;
     }
 
-    public void SetOpaque(float speed)
+    public void SetOpaque(
+        float speed)
     {
         fadeSpeed = speed;
 

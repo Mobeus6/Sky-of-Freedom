@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +21,7 @@ public class GameplayCameraController : MonoBehaviour
     [SerializeField] private InputActionReference touch0PressAction;
     [SerializeField] private InputActionReference touch1PressAction;
     [SerializeField] private float touchPanSpeed = 0.01f;
+
     private Vector2 lastTouchPosition;
 
     [Header("Zoom")]
@@ -34,6 +36,9 @@ public class GameplayCameraController : MonoBehaviour
     [Header("Pinch Zoom")]
     [SerializeField] private float pinchSensitivity = 0.01f;
 
+    [Header("Zone Camera Movement")]
+    [SerializeField] private float zoneMoveDuration = 0.8f;
+
     private float lastPinchDistance;
     private bool isPinching;
 
@@ -41,12 +46,23 @@ public class GameplayCameraController : MonoBehaviour
     private Vector3 initialCameraDirection;
 
     private Vector3 currentVelocity;
-    private bool isDragging;
+
+    private bool isMovingToZone;
+    private Vector3 zoneMoveStartPosition;
+    private Vector3 zoneMoveTargetPosition;
+    private float zoneMoveTimer;
+
+    public event Action UserStartedCameraMovement;
+
     private void Start()
     {
-        targetZoom = gameplayCamera.localPosition.magnitude;
-        initialCameraDirection = gameplayCamera.localPosition.normalized;
+        targetZoom =
+            gameplayCamera.localPosition.magnitude;
+
+        initialCameraDirection =
+            gameplayCamera.localPosition.normalized;
     }
+
     private void OnEnable()
     {
         panAction.action.Enable();
@@ -73,6 +89,12 @@ public class GameplayCameraController : MonoBehaviour
 
     private void Update()
     {
+        if (isMovingToZone)
+        {
+            HandleZoneCameraMovement();
+            return;
+        }
+
         HandleKeyboardPan();
         HandleTouchPan();
         HandleZoom();
@@ -83,54 +105,72 @@ public class GameplayCameraController : MonoBehaviour
 
     private void HandleKeyboardPan()
     {
-        
-        Vector2 input = panAction.action.ReadValue<Vector2>();
+        Vector2 input =
+            panAction.action.ReadValue<Vector2>();
 
-        Vector3 targetVelocity = new Vector3(
-            input.x,
-            0f,
-            input.y
-        ) * panSpeed;
+        if (input.sqrMagnitude > 0.01f)
+        {
+            NotifyUserStartedCameraMovement();
+        }
 
-        float smoothSpeed = input.sqrMagnitude > 0.01f
-            ? acceleration
-            : deceleration;
+        Vector3 targetVelocity =
+            new Vector3(
+                input.x,
+                0f,
+                input.y
+            ) * panSpeed;
 
-        currentVelocity = Vector3.MoveTowards(
-            currentVelocity,
-            targetVelocity,
-            smoothSpeed * Time.deltaTime
-        );
+        float smoothSpeed =
+            input.sqrMagnitude > 0.01f
+                ? acceleration
+                : deceleration;
 
-        transform.position += currentVelocity * Time.deltaTime;
+        currentVelocity =
+            Vector3.MoveTowards(
+                currentVelocity,
+                targetVelocity,
+                smoothSpeed * Time.deltaTime
+            );
+
+        transform.position +=
+            currentVelocity * Time.deltaTime;
     }
 
-   
     private void HandleZoom()
     {
-        float input = zoomAction.action.ReadValue<float>();
+        float input =
+            zoomAction.action.ReadValue<float>();
 
         if (Mathf.Abs(input) > 0.01f)
         {
-            targetZoom -= input * zoomSpeed;
-            targetZoom = Mathf.Clamp(
-                targetZoom,
-                minZoom,
-                maxZoom
-            );
+            NotifyUserStartedCameraMovement();
+
+            targetZoom -=
+                input * zoomSpeed;
+
+            targetZoom =
+                Mathf.Clamp(
+                    targetZoom,
+                    minZoom,
+                    maxZoom
+                );
         }
 
-        float currentZoom = gameplayCamera.localPosition.magnitude;
+        float currentZoom =
+            gameplayCamera.localPosition.magnitude;
 
-        currentZoom = Mathf.Lerp(
-            currentZoom,
-            targetZoom,
-            zoomSmoothness * Time.deltaTime
-        );
+        currentZoom =
+            Mathf.Lerp(
+                currentZoom,
+                targetZoom,
+                zoomSmoothness * Time.deltaTime
+            );
 
         gameplayCamera.localPosition =
-            initialCameraDirection * currentZoom;
+            initialCameraDirection *
+            currentZoom;
     }
+
     private void HandlePinchZoom()
     {
         bool touch0Pressed =
@@ -146,11 +186,13 @@ public class GameplayCameraController : MonoBehaviour
             touch1PositionAction.action.ReadValue<Vector2>();
 
         float currentDistance =
-            Vector2.Distance(touch0, touch1);
+            Vector2.Distance(
+                touch0,
+                touch1
+            );
 
         float pinchDelta = 0f;
 
-        // Діагностична інформація
         if (debugText != null)
         {
             debugText.text =
@@ -163,27 +205,30 @@ public class GameplayCameraController : MonoBehaviour
                 "\nTarget Zoom: " + targetZoom;
         }
 
-        // Для Pinch потрібні два пальці
-        if (!touch0Pressed || !touch1Pressed)
+        if (!touch0Pressed ||
+            !touch1Pressed)
         {
             isPinching = false;
             return;
         }
 
-        // Перший кадр Pinch
         if (!isPinching)
         {
             isPinching = true;
-            lastPinchDistance = currentDistance;
+
+            lastPinchDistance =
+                currentDistance;
+
             return;
         }
 
         pinchDelta =
-            currentDistance - lastPinchDistance;
+            currentDistance -
+            lastPinchDistance;
 
-        lastPinchDistance = currentDistance;
+        lastPinchDistance =
+            currentDistance;
 
-        // Оновлюємо діагностику
         if (debugText != null)
         {
             debugText.text =
@@ -196,91 +241,186 @@ public class GameplayCameraController : MonoBehaviour
                 "\nTarget Zoom: " + targetZoom;
         }
 
-        // Розводимо пальці → наближаємо
-        // Зводимо пальці → віддаляємо
-        targetZoom -=
-            pinchDelta * pinchSensitivity;
+        if (Mathf.Abs(pinchDelta) > 0.001f)
+        {
+            NotifyUserStartedCameraMovement();
+        }
 
-        targetZoom = Mathf.Clamp(
-            targetZoom,
-            minZoom,
-            maxZoom
-        );
+        targetZoom -=
+            pinchDelta *
+            pinchSensitivity;
+
+        targetZoom =
+            Mathf.Clamp(
+                targetZoom,
+                minZoom,
+                maxZoom
+            );
     }
+
     private void HandleTouchPan()
     {
-        // Якщо два пальці на екрані — Pan не працює,
-        // бо зараз використовується Pinch Zoom
         if (touch0PressAction.action.IsPressed() &&
             touch1PressAction.action.IsPressed())
         {
-            lastTouchPosition = Vector2.zero;
+            lastTouchPosition =
+                Vector2.zero;
+
             return;
         }
 
-        // Якщо перший палець не натиснутий — скидаємо позицію
         if (!touch0PressAction.action.IsPressed())
         {
-            lastTouchPosition = Vector2.zero;
+            lastTouchPosition =
+                Vector2.zero;
+
             return;
         }
 
-        // Отримуємо позицію першого пальця
         Vector2 currentTouchPosition =
             touch0PositionAction.action.ReadValue<Vector2>();
 
-        // Перший кадр дотику
-        if (lastTouchPosition == Vector2.zero)
+        if (lastTouchPosition ==
+            Vector2.zero)
         {
-            lastTouchPosition = currentTouchPosition;
+            lastTouchPosition =
+                currentTouchPosition;
+
             return;
         }
 
-        // Різниця позиції пальця між кадрами
         Vector2 delta =
-            currentTouchPosition - lastTouchPosition;
+            currentTouchPosition -
+            lastTouchPosition;
 
-        lastTouchPosition = currentTouchPosition;
+        lastTouchPosition =
+            currentTouchPosition;
 
-        // Напрямки камери
+        if (delta.sqrMagnitude > 0.01f)
+        {
+            NotifyUserStartedCameraMovement();
+        }
+
         Vector3 cameraRight =
             gameplayCamera.transform.right;
 
         Vector3 cameraForward =
             gameplayCamera.transform.forward;
 
-        // Ігноруємо вертикаль
         cameraRight.y = 0f;
         cameraForward.y = 0f;
 
         cameraRight.Normalize();
         cameraForward.Normalize();
 
-        // Рух камери
         Vector3 movement =
             (-cameraRight * delta.x) +
             (-cameraForward * delta.y);
 
         transform.position +=
-            movement * touchPanSpeed;
+            movement *
+            touchPanSpeed;
+    }
+
+    private void HandleZoneCameraMovement()
+    {
+        zoneMoveTimer +=
+            Time.deltaTime;
+
+        float normalizedTime =
+            zoneMoveTimer /
+            zoneMoveDuration;
+
+        normalizedTime =
+            Mathf.Clamp01(
+                normalizedTime
+            );
+
+        float smoothTime =
+            Mathf.SmoothStep(
+                0f,
+                1f,
+                normalizedTime
+            );
+
+        transform.position =
+            Vector3.Lerp(
+                zoneMoveStartPosition,
+                zoneMoveTargetPosition,
+                smoothTime
+            );
+
+        if (normalizedTime >= 1f)
+        {
+            transform.position =
+                zoneMoveTargetPosition;
+
+            isMovingToZone = false;
+            currentVelocity = Vector3.zero;
+
+            ApplyBounds();
+        }
+    }
+
+    public void MoveToZone(
+        Transform zoneArea)
+    {
+        if (zoneArea == null)
+        {
+            return;
+        }
+
+        zoneMoveStartPosition =
+            transform.position;
+
+        zoneMoveTargetPosition =
+            zoneArea.position;
+
+        zoneMoveTimer = 0f;
+        isMovingToZone = true;
+
+        currentVelocity =
+            Vector3.zero;
+    }
+
+    private void NotifyUserStartedCameraMovement()
+    {
+        if (isMovingToZone)
+        {
+            return;
+        }
+
+        UserStartedCameraMovement?.Invoke();
+    }
+
+    public bool IsMovingToZone
+    {
+        get
+        {
+            return isMovingToZone;
+        }
     }
 
     private void ApplyBounds()
     {
-        Vector3 position = transform.position;
+        Vector3 position =
+            transform.position;
 
-        position.x = Mathf.Clamp(
-            position.x,
-            xBounds.x,
-            xBounds.y
-        );
+        position.x =
+            Mathf.Clamp(
+                position.x,
+                xBounds.x,
+                xBounds.y
+            );
 
-        position.z = Mathf.Clamp(
-            position.z,
-            zBounds.x,
-            zBounds.y
-        );
+        position.z =
+            Mathf.Clamp(
+                position.z,
+                zBounds.x,
+                zBounds.y
+            );
 
-        transform.position = position;
+        transform.position =
+            position;
     }
 }

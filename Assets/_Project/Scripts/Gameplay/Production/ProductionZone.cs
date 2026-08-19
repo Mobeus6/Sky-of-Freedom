@@ -1,5 +1,6 @@
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Factory;
+using SkyOfFreedom.Managers;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace SkyOfFreedom.Production
 {
     /// <summary>
     /// Generic production zone capable of producing any IProducible.
+    /// The zone registers itself with ProductionManager while it exists
+    /// in the Gameplay scene. No external bootstrap object is required.
     /// </summary>
     public class ProductionZone : MonoBehaviour
     {
@@ -15,10 +18,16 @@ namespace SkyOfFreedom.Production
         [SerializeField] private int queueCapacity = 5;
         [SerializeField] private int level = 1;
 
-        private readonly List<ProductionTask> queue = new();
+        private readonly List<ProductionTask> queue =
+            new List<ProductionTask>();
+
         private ProductionTask currentTask;
         private float currentProgress;
-        public int TaskCount => queue.Count + (currentTask != null ? 1 : 0);
+        private bool registered;
+
+        public int TaskCount =>
+            queue.Count + (currentTask != null ? 1 : 0);
+
         public event Action<ProductionZone, IProducible> ItemProduced;
         public event Action<ProductionZone, ProductionTask> TaskCompleted;
         public event Action<ProductionZone> QueueChanged;
@@ -38,9 +47,68 @@ namespace SkyOfFreedom.Production
                 if (currentTask != null)
                     yield return currentTask;
 
-                foreach (var task in queue)
+                foreach (ProductionTask task in queue)
                     yield return task;
             }
+        }
+
+        private void Awake()
+        {
+            queueCapacity = Mathf.Max(1, queueCapacity);
+            level = Mathf.Max(1, level);
+
+            RegisterWithProductionManager();
+        }
+
+        private void OnEnable()
+        {
+            RegisterWithProductionManager();
+        }
+
+        private void OnDisable()
+        {
+            UnregisterFromProductionManager();
+        }
+
+        private void OnDestroy()
+        {
+            UnregisterFromProductionManager();
+        }
+
+        private void RegisterWithProductionManager()
+        {
+            if (registered)
+                return;
+
+            GameManager gameManager = GameManager.Instance;
+
+            if (gameManager == null)
+                return;
+
+            ProductionManager productionManager =
+                gameManager.Production;
+
+            if (productionManager == null)
+                return;
+
+            productionManager.RegisterZone(this);
+            registered = true;
+        }
+
+        private void UnregisterFromProductionManager()
+        {
+            if (!registered)
+                return;
+
+            GameManager gameManager = GameManager.Instance;
+
+            if (gameManager != null &&
+                gameManager.Production != null)
+            {
+                gameManager.Production.UnregisterZone(this);
+            }
+
+            registered = false;
         }
 
         public bool Enqueue(ProductionTask task)
@@ -48,23 +116,34 @@ namespace SkyOfFreedom.Production
             if (task == null)
                 return false;
 
-            if (zoneType == FactoryZoneType.Production && task.Target is DroneModelSO)
+            if (!isActiveAndEnabled)
+                return false;
+
+            if (zoneType == FactoryZoneType.Production &&
+                task.Target is DroneModelSO)
             {
-                Debug.LogError("Drone cannot be produced in Production Zone.");
+                Debug.LogError(
+                    "Drone cannot be produced in Production Zone.",
+                    this);
                 return false;
             }
 
-            if (zoneType == FactoryZoneType.Assembly && task.Target is ComponentSO)
+            if (zoneType == FactoryZoneType.Assembly &&
+                task.Target is ComponentSO)
             {
-                Debug.LogError("Component cannot be assembled in Assembly Zone.");
+                Debug.LogError(
+                    "Component cannot be assembled in Assembly Zone.",
+                    this);
                 return false;
             }
 
-            int taskCount = (currentTask != null ? 1 : 0) + queue.Count;
+            int taskCount = TaskCount;
 
             if (taskCount >= queueCapacity)
             {
-                Debug.Log("Queue Full");
+                Debug.Log(
+                    $"Production queue is full: {name}",
+                    this);
                 return false;
             }
 
@@ -87,6 +166,7 @@ namespace SkyOfFreedom.Production
                 return false;
 
             currentProgress = task.Target.ProductionTime;
+
             return true;
         }
 
@@ -99,10 +179,12 @@ namespace SkyOfFreedom.Production
             {
                 currentTask.Cancel();
                 currentTask = null;
+                currentProgress = 0f;
 
                 StartNextTask();
 
                 QueueChanged?.Invoke(this);
+
                 return true;
             }
 
@@ -111,6 +193,7 @@ namespace SkyOfFreedom.Production
                 task.Cancel();
 
                 QueueChanged?.Invoke(this);
+
                 return true;
             }
 
@@ -119,11 +202,15 @@ namespace SkyOfFreedom.Production
 
         public void ClearQueue()
         {
-            currentTask?.Cancel();
-            currentTask = null;
+            if (currentTask != null)
+            {
+                currentTask.Cancel();
+                currentTask = null;
+            }
+
             currentProgress = 0f;
 
-            foreach (var task in queue)
+            foreach (ProductionTask task in queue)
                 task.Cancel();
 
             queue.Clear();
@@ -133,6 +220,9 @@ namespace SkyOfFreedom.Production
 
         public void Tick(float deltaTime)
         {
+            if (!isActiveAndEnabled)
+                return;
+
             if (currentTask == null)
             {
                 StartNextTask();
@@ -143,28 +233,54 @@ namespace SkyOfFreedom.Production
                 QueueChanged?.Invoke(this);
             }
 
-            float speedMultiplier = ProductionSpeedCalculator.GetMultiplier(this);
+            if (currentTask.Target == null)
+            {
+                Debug.LogError(
+                    $"Production task has no target: {name}",
+                    this);
 
-            currentProgress += deltaTime * speedMultiplier;
+                currentTask.Cancel();
+                currentTask = null;
+                currentProgress = 0f;
+
+                StartNextTask();
+                QueueChanged?.Invoke(this);
+
+                return;
+            }
+
+            float productionTime =
+                Mathf.Max(0.01f, currentTask.Target.ProductionTime);
+
+            float speedMultiplier =
+                ProductionSpeedCalculator.GetMultiplier(this);
+
+            currentProgress +=
+                deltaTime * speedMultiplier;
 
             currentTask.CurrentItemProgress =
-                currentProgress / currentTask.Target.ProductionTime;
+                Mathf.Clamp01(
+                    currentProgress / productionTime);
 
-            if (currentProgress < currentTask.Target.ProductionTime)
+            if (currentProgress < productionTime)
                 return;
 
             currentProgress = 0f;
 
             currentTask.ProduceOne();
 
-            ItemProduced?.Invoke(this, currentTask.Target);
+            ItemProduced?.Invoke(
+                this,
+                currentTask.Target);
 
             if (currentTask.RemainingQuantity > 0)
                 return;
 
             ProductionTask completed = currentTask;
 
-            TaskCompleted?.Invoke(this, completed);
+            TaskCompleted?.Invoke(
+                this,
+                completed);
 
             currentTask = null;
 
@@ -187,11 +303,6 @@ namespace SkyOfFreedom.Production
             currentTask.Start();
 
             currentProgress = 0f;
-
-            // ВАЖЛИВО:
-            // QueueChanged тут НЕ викликається.
-            // Він викликається лише після завершення логічної операції
-            // (Enqueue, Cancel, Tick, ClearQueue).
         }
     }
 }
