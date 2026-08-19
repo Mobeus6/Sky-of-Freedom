@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class GameplayCameraController : MonoBehaviour
@@ -52,6 +53,12 @@ public class GameplayCameraController : MonoBehaviour
     private Vector3 zoneMoveTargetPosition;
     private float zoneMoveTimer;
 
+    private bool touch0WasPressed;
+    private bool touch1WasPressed;
+
+    private bool touch0BlockedByUI;
+    private bool touch1BlockedByUI;
+
     public event Action UserStartedCameraMovement;
 
     private void Start()
@@ -89,6 +96,8 @@ public class GameplayCameraController : MonoBehaviour
 
     private void Update()
     {
+        UpdateTouchUIState();
+
         if (isMovingToZone)
         {
             HandleZoneCameraMovement();
@@ -101,6 +110,76 @@ public class GameplayCameraController : MonoBehaviour
         HandlePinchZoom();
 
         ApplyBounds();
+    }
+
+    private void UpdateTouchUIState()
+    {
+        bool touch0Pressed =
+            touch0PressAction.action.IsPressed();
+
+        bool touch1Pressed =
+            touch1PressAction.action.IsPressed();
+
+        Vector2 touch0Position =
+            touch0PositionAction.action.ReadValue<Vector2>();
+
+        Vector2 touch1Position =
+            touch1PositionAction.action.ReadValue<Vector2>();
+
+        if (touch0Pressed && !touch0WasPressed)
+        {
+            touch0BlockedByUI =
+                IsScreenPositionOverUI(
+                    touch0Position);
+        }
+
+        if (touch1Pressed && !touch1WasPressed)
+        {
+            touch1BlockedByUI =
+                IsScreenPositionOverUI(
+                    touch1Position);
+        }
+
+        if (!touch0Pressed)
+        {
+            touch0BlockedByUI = false;
+        }
+
+        if (!touch1Pressed)
+        {
+            touch1BlockedByUI = false;
+        }
+
+        touch0WasPressed =
+            touch0Pressed;
+
+        touch1WasPressed =
+            touch1Pressed;
+    }
+
+    private bool IsScreenPositionOverUI(
+        Vector2 screenPosition)
+    {
+        if (EventSystem.current == null)
+        {
+            return false;
+        }
+
+        PointerEventData pointerData =
+            new PointerEventData(
+                EventSystem.current);
+
+        pointerData.position =
+            screenPosition;
+
+        var results =
+            new System.Collections.Generic.List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(
+            pointerData,
+            results);
+
+        return results.Count > 0;
     }
 
     private void HandleKeyboardPan()
@@ -212,6 +291,13 @@ public class GameplayCameraController : MonoBehaviour
             return;
         }
 
+        if (touch0BlockedByUI ||
+            touch1BlockedByUI)
+        {
+            isPinching = false;
+            return;
+        }
+
         if (!isPinching)
         {
             isPinching = true;
@@ -270,6 +356,14 @@ public class GameplayCameraController : MonoBehaviour
         }
 
         if (!touch0PressAction.action.IsPressed())
+        {
+            lastTouchPosition =
+                Vector2.zero;
+
+            return;
+        }
+
+        if (touch0BlockedByUI)
         {
             lastTouchPosition =
                 Vector2.zero;
