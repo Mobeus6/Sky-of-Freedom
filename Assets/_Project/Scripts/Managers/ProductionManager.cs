@@ -1,6 +1,7 @@
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Factory;
 using SkyOfFreedom.Managers;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ namespace SkyOfFreedom.Production
             new List<ProductionZone>();
 
         public IReadOnlyList<ProductionZone> Zones => productionZones;
+
+        public event Action<IProducible> OnItemProduced;
 
         public override void Initialize()
         {
@@ -41,6 +44,8 @@ namespace SkyOfFreedom.Production
             }
 
             productionZones.Clear();
+
+            OnItemProduced = null;
 
             base.Shutdown();
         }
@@ -113,6 +118,7 @@ namespace SkyOfFreedom.Production
             {
                 Debug.LogWarning(
                     $"No registered production zone available for type: {zoneType}");
+
                 return false;
             }
 
@@ -121,6 +127,7 @@ namespace SkyOfFreedom.Production
             {
                 Debug.LogError(
                     "ProductionManager: GameManager or LicenseManager is not available.");
+
                 return false;
             }
 
@@ -205,6 +212,7 @@ namespace SkyOfFreedom.Production
                 Debug.LogWarning(
                     "ProductionManager: RegisterZone called before manager initialization.",
                     this);
+
                 return;
             }
 
@@ -237,16 +245,16 @@ namespace SkyOfFreedom.Production
 
         private void SubscribeToZone(ProductionZone zone)
         {
-            zone.ItemProduced -= OnItemProduced;
+            zone.ItemProduced -= OnItemProducedInternal;
             zone.TaskCompleted -= OnTaskCompleted;
 
-            zone.ItemProduced += OnItemProduced;
+            zone.ItemProduced += OnItemProducedInternal;
             zone.TaskCompleted += OnTaskCompleted;
         }
 
         private void UnsubscribeFromZone(ProductionZone zone)
         {
-            zone.ItemProduced -= OnItemProduced;
+            zone.ItemProduced -= OnItemProducedInternal;
             zone.TaskCompleted -= OnTaskCompleted;
         }
 
@@ -299,7 +307,7 @@ namespace SkyOfFreedom.Production
         {
         }
 
-        private void OnItemProduced(
+        private void OnItemProducedInternal(
             ProductionZone zone,
             IProducible item)
         {
@@ -309,6 +317,8 @@ namespace SkyOfFreedom.Production
             GameManager.Instance?.Warehouse?.AddItem(
                 item.ID,
                 1);
+
+            OnItemProduced?.Invoke(item);
         }
     }
 }

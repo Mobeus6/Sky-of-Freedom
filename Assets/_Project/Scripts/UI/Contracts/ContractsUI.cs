@@ -71,11 +71,21 @@ namespace SkyOfFreedom.UI.Contracts
                 return;
             }
 
+            contractManager.OnContractsChanged -=
+                OnContractsChanged;
+
+            contractManager.OnContractsChanged +=
+                OnContractsChanged;
+
             Invoke(
                 nameof(Initialize),
                 0f);
-            contractDetailUI.SetAcceptCallback(
-    AcceptContract);
+
+            if (contractDetailUI != null)
+            {
+                contractDetailUI.SetAcceptCallback(
+                    AcceptContract);
+            }
         }
 
         private void OnDestroy()
@@ -97,6 +107,13 @@ namespace SkyOfFreedom.UI.Contracts
                 completedButton.onClick.RemoveListener(
                     ShowCompleted);
             }
+
+            if (contractManager != null)
+            {
+                contractManager.OnContractsChanged -=
+                    OnContractsChanged;
+            }
+
             if (contractDetailUI != null)
             {
                 contractDetailUI.SetAcceptCallback(
@@ -107,9 +124,23 @@ namespace SkyOfFreedom.UI.Contracts
         private void Initialize()
         {
             RefreshContracts();
+
             ShowAvailable();
+
             ShowFirstContract(
                 contractManager.AvailableContracts);
+        }
+
+        private void OnContractsChanged()
+        {
+            RefreshContracts();
+
+            if (inProgressView != null &&
+                inProgressView.activeSelf)
+            {
+                ShowFirstContract(
+                    contractManager.ActiveContracts);
+            }
         }
 
         private void ShowAvailable()
@@ -125,8 +156,9 @@ namespace SkyOfFreedom.UI.Contracts
             ShowFirstContract(
                 contractManager.AvailableContracts);
         }
+
         private void AcceptContract(
-    ContractInstance contract)
+            ContractInstance contract)
         {
             if (contract == null ||
                 contractManager == null)
@@ -137,10 +169,9 @@ namespace SkyOfFreedom.UI.Contracts
             contractManager.AcceptContract(
                 contract);
 
-            RefreshContracts();
-
             ShowInProgress();
         }
+
         private void ShowInProgress()
         {
             availableView.SetActive(false);
@@ -172,9 +203,7 @@ namespace SkyOfFreedom.UI.Contracts
         public void RefreshContracts()
         {
             if (contractManager == null)
-            {
                 return;
-            }
 
             ClearContent(
                 availableContent);
@@ -220,9 +249,7 @@ namespace SkyOfFreedom.UI.Contracts
             foreach (ContractInstance contract in contracts)
             {
                 if (contract == null)
-                {
                     continue;
-                }
 
                 ContractCardUI card =
                     Instantiate(
@@ -239,9 +266,7 @@ namespace SkyOfFreedom.UI.Contracts
             ContractInstance contract)
         {
             if (contract == null)
-            {
                 return;
-            }
 
             if (contractDetailUI == null)
             {
@@ -260,9 +285,7 @@ namespace SkyOfFreedom.UI.Contracts
             IReadOnlyList<ContractInstance> contracts)
         {
             if (contractDetailUI == null)
-            {
                 return;
-            }
 
             if (contracts == null ||
                 contracts.Count == 0)
@@ -288,9 +311,7 @@ namespace SkyOfFreedom.UI.Contracts
             Transform content)
         {
             if (content == null)
-            {
                 return;
-            }
 
             for (int i = content.childCount - 1;
                  i >= 0;

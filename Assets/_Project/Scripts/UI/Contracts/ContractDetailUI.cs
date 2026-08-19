@@ -17,6 +17,10 @@ namespace SkyOfFreedom.UI.Contracts
         [SerializeField] private Button droneAcceptContractButton;
         [SerializeField] private Button componentAcceptContractButton;
 
+        [Header("Submit Contract Buttons")]
+        [SerializeField] private Button droneSubmitContractButton;
+        [SerializeField] private Button componentSubmitContractButton;
+
         [Header("Drone Contract - Contract")]
         [SerializeField] private TMP_Text droneContractNameText;
         [SerializeField] private TMP_Text droneDescriptionText;
@@ -84,6 +88,18 @@ namespace SkyOfFreedom.UI.Contracts
                     OnAcceptContractClicked);
             }
 
+            if (droneSubmitContractButton != null)
+            {
+                droneSubmitContractButton.onClick.AddListener(
+                    OnSubmitContractClicked);
+            }
+
+            if (componentSubmitContractButton != null)
+            {
+                componentSubmitContractButton.onClick.AddListener(
+                    OnSubmitContractClicked);
+            }
+
             HideCards();
         }
 
@@ -93,6 +109,15 @@ namespace SkyOfFreedom.UI.Contracts
             {
                 contractManager =
                     GameManager.Instance.Contracts;
+
+                if (contractManager != null)
+                {
+                    contractManager.OnContractReadyForSubmission -=
+                        OnContractReadyForSubmission;
+
+                    contractManager.OnContractReadyForSubmission +=
+                        OnContractReadyForSubmission;
+                }
             }
         }
 
@@ -108,6 +133,24 @@ namespace SkyOfFreedom.UI.Contracts
             {
                 componentAcceptContractButton.onClick.RemoveListener(
                     OnAcceptContractClicked);
+            }
+
+            if (droneSubmitContractButton != null)
+            {
+                droneSubmitContractButton.onClick.RemoveListener(
+                    OnSubmitContractClicked);
+            }
+
+            if (componentSubmitContractButton != null)
+            {
+                componentSubmitContractButton.onClick.RemoveListener(
+                    OnSubmitContractClicked);
+            }
+
+            if (contractManager != null)
+            {
+                contractManager.OnContractReadyForSubmission -=
+                    OnContractReadyForSubmission;
             }
         }
 
@@ -149,16 +192,14 @@ namespace SkyOfFreedom.UI.Contracts
         {
             currentContract = null;
 
-            HideAcceptButtons();
+            HideActionButtons();
             HideCards();
         }
 
         private void OnAcceptContractClicked()
         {
             if (currentContract == null)
-            {
                 return;
-            }
 
             if (currentContract.State !=
                 ContractState.Available)
@@ -186,7 +227,35 @@ namespace SkyOfFreedom.UI.Contracts
                 currentContract);
         }
 
-        private void UpdateAcceptButtons(
+        private void OnSubmitContractClicked()
+        {
+            if (currentContract == null)
+                return;
+
+            if (contractManager == null &&
+                GameManager.Instance != null)
+            {
+                contractManager =
+                    GameManager.Instance.Contracts;
+            }
+
+            if (contractManager == null)
+                return;
+
+            contractManager.TrySubmitContract(
+                currentContract);
+        }
+
+        private void OnContractReadyForSubmission(
+            ContractInstance contract)
+        {
+            if (currentContract != contract)
+                return;
+
+            UpdateSubmitButtons();
+        }
+
+        private void UpdateActionButtons(
             ContractTargetType targetType)
         {
             bool isAvailable =
@@ -194,30 +263,103 @@ namespace SkyOfFreedom.UI.Contracts
                 currentContract.State ==
                 ContractState.Available;
 
+            bool isInProgress =
+                currentContract != null &&
+                currentContract.State ==
+                ContractState.InProgress;
+
+            bool canSubmit =
+                isInProgress &&
+                contractManager != null &&
+                contractManager.CanSubmitContract(
+                    currentContract);
+
             if (droneAcceptContractButton != null)
             {
                 droneAcceptContractButton.gameObject.SetActive(
                     isAvailable &&
-                    targetType == ContractTargetType.Drone);
+                    targetType ==
+                    ContractTargetType.Drone);
 
                 droneAcceptContractButton.interactable =
                     isAvailable &&
-                    targetType == ContractTargetType.Drone;
+                    targetType ==
+                    ContractTargetType.Drone;
             }
 
             if (componentAcceptContractButton != null)
             {
                 componentAcceptContractButton.gameObject.SetActive(
                     isAvailable &&
-                    targetType == ContractTargetType.Component);
+                    targetType ==
+                    ContractTargetType.Component);
 
                 componentAcceptContractButton.interactable =
                     isAvailable &&
-                    targetType == ContractTargetType.Component;
+                    targetType ==
+                    ContractTargetType.Component;
+            }
+
+            if (droneSubmitContractButton != null)
+            {
+                droneSubmitContractButton.gameObject.SetActive(
+                    isInProgress &&
+                    targetType ==
+                    ContractTargetType.Drone);
+
+                droneSubmitContractButton.interactable =
+                    canSubmit &&
+                    targetType ==
+                    ContractTargetType.Drone;
+            }
+
+            if (componentSubmitContractButton != null)
+            {
+                componentSubmitContractButton.gameObject.SetActive(
+                    isInProgress &&
+                    targetType ==
+                    ContractTargetType.Component);
+
+                componentSubmitContractButton.interactable =
+                    canSubmit &&
+                    targetType ==
+                    ContractTargetType.Component;
             }
         }
 
-        private void HideAcceptButtons()
+        private void UpdateSubmitButtons()
+        {
+            if (currentContract == null)
+                return;
+
+            bool isInProgress =
+                currentContract.State ==
+                ContractState.InProgress;
+
+            bool canSubmit =
+                isInProgress &&
+                contractManager != null &&
+                contractManager.CanSubmitContract(
+                    currentContract);
+
+            if (droneSubmitContractButton != null)
+            {
+                droneSubmitContractButton.interactable =
+                    canSubmit &&
+                    currentContract.Template.TargetType ==
+                    ContractTargetType.Drone;
+            }
+
+            if (componentSubmitContractButton != null)
+            {
+                componentSubmitContractButton.interactable =
+                    canSubmit &&
+                    currentContract.Template.TargetType ==
+                    ContractTargetType.Component;
+            }
+        }
+
+        private void HideActionButtons()
         {
             if (droneAcceptContractButton != null)
             {
@@ -227,6 +369,16 @@ namespace SkyOfFreedom.UI.Contracts
             if (componentAcceptContractButton != null)
             {
                 componentAcceptContractButton.gameObject.SetActive(false);
+            }
+
+            if (droneSubmitContractButton != null)
+            {
+                droneSubmitContractButton.gameObject.SetActive(false);
+            }
+
+            if (componentSubmitContractButton != null)
+            {
+                componentSubmitContractButton.gameObject.SetActive(false);
             }
         }
 
@@ -248,7 +400,7 @@ namespace SkyOfFreedom.UI.Contracts
             droneContractInfoCard.SetActive(true);
             componentContractInfoCard.SetActive(false);
 
-            UpdateAcceptButtons(
+            UpdateActionButtons(
                 ContractTargetType.Drone);
 
             ClearContent(
@@ -345,7 +497,7 @@ namespace SkyOfFreedom.UI.Contracts
             droneContractInfoCard.SetActive(false);
             componentContractInfoCard.SetActive(true);
 
-            UpdateAcceptButtons(
+            UpdateActionButtons(
                 ContractTargetType.Component);
 
             ClearContent(
@@ -455,9 +607,7 @@ namespace SkyOfFreedom.UI.Contracts
                 droneRequiredComponentsContent);
 
             if (drone.Components == null)
-            {
                 return;
-            }
 
             foreach (
                 DroneComponent droneComponent
@@ -545,9 +695,7 @@ namespace SkyOfFreedom.UI.Contracts
                 componentRequiredMaterialsContent);
 
             if (component.Recipe == null)
-            {
                 return;
-            }
 
             foreach (
                 MaterialAmount materialAmount
@@ -596,9 +744,7 @@ namespace SkyOfFreedom.UI.Contracts
             Transform content)
         {
             if (content == null)
-            {
                 return;
-            }
 
             for (int i = content.childCount - 1;
                  i >= 0;
