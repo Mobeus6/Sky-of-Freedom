@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SkyOfFreedom.Data;
+using SkyOfFreedom.Gameplay.Factory;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Warehouse;
 using TMPro;
@@ -11,6 +12,10 @@ namespace SkyOfFreedom.UI
     [RequireComponent(typeof(CanvasGroup))]
     public class WarehouseMiniPanelUI : MonoBehaviour
     {
+        [Header("Zone References")]
+        [SerializeField]
+        private FactoryZoneInteraction warehouseZoneInteraction;
+
         [Header("UI")]
         [SerializeField]
         private CanvasGroup canvasGroup;
@@ -103,6 +108,15 @@ namespace SkyOfFreedom.UI
                     GameManager.Instance.Database;
             }
 
+            if (warehouseZoneInteraction != null)
+            {
+                warehouseZoneInteraction.ZoneSelected +=
+                    OnZoneSelected;
+
+                warehouseZoneInteraction.ZoneDeselected +=
+                    OnZoneDeselected;
+            }
+
             if (warehouse != null)
             {
                 warehouse.OnItemAdded +=
@@ -116,23 +130,59 @@ namespace SkyOfFreedom.UI
             }
 
             Refresh();
+
+            if (FactoryZoneInteraction.SelectedZone ==
+                warehouseZoneInteraction)
+            {
+                Open();
+            }
         }
 
         private void OnDisable()
         {
-            if (warehouse == null)
+            if (warehouseZoneInteraction != null)
+            {
+                warehouseZoneInteraction.ZoneSelected -=
+                    OnZoneSelected;
+
+                warehouseZoneInteraction.ZoneDeselected -=
+                    OnZoneDeselected;
+            }
+
+            if (warehouse != null)
+            {
+                warehouse.OnItemAdded -=
+                    OnItemAdded;
+
+                warehouse.OnItemRemoved -=
+                    OnWarehouseChanged;
+
+                warehouse.OnItemChanged -=
+                    OnWarehouseChanged;
+            }
+        }
+
+        private void OnZoneSelected(
+            FactoryZoneInteraction zone)
+        {
+            if (zone != warehouseZoneInteraction)
             {
                 return;
             }
 
-            warehouse.OnItemAdded -=
-                OnItemAdded;
+            Refresh();
+            Open();
+        }
 
-            warehouse.OnItemRemoved -=
-                OnWarehouseChanged;
+        private void OnZoneDeselected(
+            FactoryZoneInteraction zone)
+        {
+            if (zone != warehouseZoneInteraction)
+            {
+                return;
+            }
 
-            warehouse.OnItemChanged -=
-                OnWarehouseChanged;
+            Hide();
         }
 
         private void OnItemAdded(
@@ -145,7 +195,6 @@ namespace SkyOfFreedom.UI
             }
 
             AddRecentItem(id);
-
             Refresh();
         }
 
@@ -316,13 +365,13 @@ namespace SkyOfFreedom.UI
             SetRecentItemText(
                 recentItem1Text,
                 items.Length > 0
-                    ? GetDisplayName(items[0])
+                    ? items[0]
                     : "-");
 
             SetRecentItemText(
                 recentItem2Text,
                 items.Length > 1
-                    ? GetDisplayName(items[1])
+                    ? items[1]
                     : "-");
         }
 
@@ -337,41 +386,6 @@ namespace SkyOfFreedom.UI
 
             text.text =
                 value;
-        }
-
-        private string GetDisplayName(
-            string id)
-        {
-            if (database == null ||
-                database.Database == null)
-            {
-                return id;
-            }
-
-            DataSO data =
-                database.Database.GetData(id);
-
-            if (data == null)
-            {
-                return id;
-            }
-
-            if (data is MaterialSO material)
-            {
-                return material.MaterialName;
-            }
-
-            if (data is ComponentSO component)
-            {
-                return component.Name;
-            }
-
-            if (data is DroneModelSO drone)
-            {
-                return drone.Name;
-            }
-
-            return id;
         }
 
         public void Open()

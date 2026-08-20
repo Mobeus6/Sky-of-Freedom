@@ -15,16 +15,23 @@ namespace SkyOfFreedom.UI
         [Header("Category Buttons")]
         [SerializeField] private CategoryButtonUI[] categoryButtons;
 
-        private readonly List<ProductionCardUI> spawnedCards = new();
+        private readonly List<ProductionCardUI> spawnedCards =
+            new List<ProductionCardUI>();
 
         private ProductionManager productionManager;
 
-        private ProductionView currentView = ProductionView.Components;
-        private ComponentCategory currentCategory = ComponentCategory.All;
+        private ProductionView currentView =
+            ProductionView.Components;
+
+        private ComponentCategory currentCategory =
+            ComponentCategory.All;
+
+        private bool hasPendingView;
 
         private void Start()
         {
-            productionManager = GameManager.Instance.Production;
+            productionManager =
+                GameManager.Instance.Production;
 
             foreach (CategoryButtonUI button in categoryButtons)
             {
@@ -35,31 +42,89 @@ namespace SkyOfFreedom.UI
             Refresh();
         }
 
+        private void OnEnable()
+        {
+            if (!hasPendingView)
+                return;
+
+            hasPendingView = false;
+
+            Refresh();
+        }
+
+        public void OpenProductionFromMiniPanel()
+        {
+            currentView =
+                ProductionView.Components;
+
+            currentCategory =
+                ComponentCategory.All;
+
+            hasPendingView = true;
+
+            if (isActiveAndEnabled)
+                Refresh();
+        }
+
+        public void OpenAssemblyFromMiniPanel()
+        {
+            currentView =
+                ProductionView.Drones;
+
+            currentCategory =
+                ComponentCategory.All;
+
+            hasPendingView = true;
+
+            if (isActiveAndEnabled)
+                Refresh();
+        }
+
         public void ShowComponents()
         {
-            currentView = ProductionView.Components;
-            currentCategory = ComponentCategory.All;
+            currentView =
+                ProductionView.Components;
+
+            currentCategory =
+                ComponentCategory.All;
 
             Refresh();
         }
 
         public void ShowDrones()
         {
-            currentView = ProductionView.Drones;
+            currentView =
+                ProductionView.Drones;
 
             Refresh();
         }
 
-        public void OpenCategory(ComponentCategory category)
+        public void OpenCategory(
+            ComponentCategory category)
         {
-            currentView = ProductionView.Components;
-            currentCategory = category;
+            currentView =
+                ProductionView.Components;
+
+            currentCategory =
+                category;
 
             Refresh();
         }
 
         private void Refresh()
         {
+            if (productionManager == null)
+            {
+                if (GameManager.Instance == null)
+                    return;
+
+                productionManager =
+                    GameManager.Instance.Production;
+
+                if (productionManager == null)
+                    return;
+            }
+
             ClearCards();
 
             List<IProducible> items =
@@ -69,7 +134,10 @@ namespace SkyOfFreedom.UI
 
             foreach (IProducible item in items)
             {
-                ProductionCardUI card = Instantiate(cardPrefab, content);
+                ProductionCardUI card =
+                    Instantiate(
+                        cardPrefab,
+                        content);
 
                 card.Setup(item);
 
@@ -84,6 +152,7 @@ namespace SkyOfFreedom.UI
                 if (card != null)
                     Destroy(card.gameObject);
             }
+
             spawnedCards.Clear();
         }
     }

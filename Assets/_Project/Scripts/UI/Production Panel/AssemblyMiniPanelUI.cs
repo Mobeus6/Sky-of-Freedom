@@ -9,14 +9,14 @@ using UnityEngine.UI;
 namespace SkyOfFreedom.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
-    public class ProductionMiniPanelUI : MonoBehaviour
+    public class AssemblyMiniPanelUI : MonoBehaviour
     {
         [Header("Zone References")]
         [SerializeField]
-        private FactoryZoneInteraction productionZoneInteraction;
+        private FactoryZoneInteraction assemblyZoneInteraction;
 
         [SerializeField]
-        private ProductionZone productionZone;
+        private ProductionZone assemblyZone;
 
         [Header("UI")]
         [SerializeField]
@@ -62,31 +62,31 @@ namespace SkyOfFreedom.UI
             {
                 openProductionButton.onClick.RemoveAllListeners();
                 openProductionButton.onClick.AddListener(
-                    OpenProductionPanel);
+                    OpenAssemblyPanel);
             }
         }
 
         private void OnEnable()
         {
-            if (productionZoneInteraction != null)
+            if (assemblyZoneInteraction != null)
             {
-                productionZoneInteraction.ZoneSelected +=
+                assemblyZoneInteraction.ZoneSelected +=
                     OnZoneSelected;
 
-                productionZoneInteraction.ZoneDeselected +=
+                assemblyZoneInteraction.ZoneDeselected +=
                     OnZoneDeselected;
             }
 
-            if (productionZone != null)
+            if (assemblyZone != null)
             {
-                productionZone.QueueChanged +=
+                assemblyZone.QueueChanged +=
                     RefreshQueue;
             }
 
-            RefreshQueue(productionZone);
+            RefreshQueue(assemblyZone);
 
             if (FactoryZoneInteraction.SelectedZone ==
-                productionZoneInteraction)
+                assemblyZoneInteraction)
             {
                 Open();
             }
@@ -94,18 +94,18 @@ namespace SkyOfFreedom.UI
 
         private void OnDisable()
         {
-            if (productionZoneInteraction != null)
+            if (assemblyZoneInteraction != null)
             {
-                productionZoneInteraction.ZoneSelected -=
+                assemblyZoneInteraction.ZoneSelected -=
                     OnZoneSelected;
 
-                productionZoneInteraction.ZoneDeselected -=
+                assemblyZoneInteraction.ZoneDeselected -=
                     OnZoneDeselected;
             }
 
-            if (productionZone != null)
+            if (assemblyZone != null)
             {
-                productionZone.QueueChanged -=
+                assemblyZone.QueueChanged -=
                     RefreshQueue;
             }
         }
@@ -113,19 +113,19 @@ namespace SkyOfFreedom.UI
         private void OnZoneSelected(
             FactoryZoneInteraction zone)
         {
-            if (zone != productionZoneInteraction)
+            if (zone != assemblyZoneInteraction)
             {
                 return;
             }
 
-            RefreshQueue(productionZone);
+            RefreshQueue(assemblyZone);
             Open();
         }
 
         private void OnZoneDeselected(
             FactoryZoneInteraction zone)
         {
-            if (zone != productionZoneInteraction)
+            if (zone != assemblyZoneInteraction)
             {
                 return;
             }
@@ -182,7 +182,7 @@ namespace SkyOfFreedom.UI
                 {
                     slot.Setup(
                         tasks[i],
-                        productionZone);
+                        assemblyZone);
                 }
                 else
                 {
@@ -231,12 +231,12 @@ namespace SkyOfFreedom.UI
             canvasGroup.blocksRaycasts = false;
         }
 
-        public void OpenProductionPanel()
+        public void OpenAssemblyPanel()
         {
             if (menuManager == null)
             {
                 Debug.LogError(
-                    "ProductionMiniPanelUI: MenuManager is not assigned.",
+                    "AssemblyMiniPanelUI: MenuManager is not assigned.",
                     this);
 
                 return;
@@ -245,7 +245,7 @@ namespace SkyOfFreedom.UI
             if (productionMenuButton == null)
             {
                 Debug.LogError(
-                    "ProductionMiniPanelUI: Production MenuButton is not assigned.",
+                    "AssemblyMiniPanelUI: Production MenuButton is not assigned.",
                     this);
 
                 return;
@@ -254,7 +254,7 @@ namespace SkyOfFreedom.UI
             if (productionSubPanel == null)
             {
                 Debug.LogError(
-                    "ProductionMiniPanelUI: Production Sub Panel is not assigned.",
+                    "AssemblyMiniPanelUI: Production Sub Panel is not assigned.",
                     this);
 
                 return;
@@ -263,7 +263,7 @@ namespace SkyOfFreedom.UI
             if (assemblySubPanel == null)
             {
                 Debug.LogError(
-                    "ProductionMiniPanelUI: Assembly Sub Panel is not assigned.",
+                    "AssemblyMiniPanelUI: Assembly Sub Panel is not assigned.",
                     this);
 
                 return;
@@ -274,17 +274,17 @@ namespace SkyOfFreedom.UI
             menuManager.Toggle(
                 productionMenuButton);
 
-            productionSubPanel.Show();
-            assemblySubPanel.Hide();
+            productionSubPanel.Hide();
+            assemblySubPanel.Show();
 
             if (productionZoneHighlight != null)
             {
-                productionZoneHighlight.gameObject.SetActive(true);
+                productionZoneHighlight.gameObject.SetActive(false);
             }
 
             if (assemblyZoneHighlight != null)
             {
-                assemblyZoneHighlight.gameObject.SetActive(false);
+                assemblyZoneHighlight.gameObject.SetActive(true);
             }
         }
     }
