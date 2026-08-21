@@ -16,7 +16,6 @@ namespace SkyOfFreedom.Production
     {
         [SerializeField] private FactoryZoneType zoneType;
         [SerializeField] private int queueCapacity = 5;
-        [SerializeField] private int level = 1;
 
         private readonly List<ProductionTask> queue =
             new List<ProductionTask>();
@@ -34,7 +33,22 @@ namespace SkyOfFreedom.Production
 
         public FactoryZoneType ZoneType => zoneType;
         public int QueueCapacity => queueCapacity;
-        public int Level => level;
+
+        public int Level
+        {
+            get
+            {
+                if (GameManager.Instance == null ||
+                    GameManager.Instance.Factory == null)
+                {
+                    return 1;
+                }
+
+                return GameManager.Instance.Factory.GetLevel(
+                    zoneType);
+            }
+        }
+
         public ProductionTask CurrentTask => currentTask;
         public bool IsBusy => currentTask != null;
 
@@ -54,8 +68,10 @@ namespace SkyOfFreedom.Production
 
         private void Awake()
         {
-            queueCapacity = Mathf.Max(1, queueCapacity);
-            level = Mathf.Max(1, level);
+            queueCapacity =
+                Mathf.Max(
+                    1,
+                    queueCapacity);
 
             RegisterWithProductionManager();
         }
@@ -80,7 +96,8 @@ namespace SkyOfFreedom.Production
             if (registered)
                 return;
 
-            GameManager gameManager = GameManager.Instance;
+            GameManager gameManager =
+                GameManager.Instance;
 
             if (gameManager == null)
                 return;
@@ -100,7 +117,8 @@ namespace SkyOfFreedom.Production
             if (!registered)
                 return;
 
-            GameManager gameManager = GameManager.Instance;
+            GameManager gameManager =
+                GameManager.Instance;
 
             if (gameManager != null &&
                 gameManager.Production != null)
@@ -111,7 +129,8 @@ namespace SkyOfFreedom.Production
             registered = false;
         }
 
-        public bool Enqueue(ProductionTask task)
+        public bool Enqueue(
+            ProductionTask task)
         {
             if (task == null)
                 return false;
@@ -125,6 +144,7 @@ namespace SkyOfFreedom.Production
                 Debug.LogError(
                     "Drone cannot be produced in Production Zone.",
                     this);
+
                 return false;
             }
 
@@ -134,16 +154,19 @@ namespace SkyOfFreedom.Production
                 Debug.LogError(
                     "Component cannot be assembled in Assembly Zone.",
                     this);
+
                 return false;
             }
 
-            int taskCount = TaskCount;
+            int taskCount =
+                TaskCount;
 
             if (taskCount >= queueCapacity)
             {
                 Debug.Log(
                     $"Production queue is full: {name}",
                     this);
+
                 return false;
             }
 
@@ -157,7 +180,8 @@ namespace SkyOfFreedom.Production
             return true;
         }
 
-        public bool SpeedUpTask(ProductionTask task)
+        public bool SpeedUpTask(
+            ProductionTask task)
         {
             if (task == null)
                 return false;
@@ -165,12 +189,14 @@ namespace SkyOfFreedom.Production
             if (task != currentTask)
                 return false;
 
-            currentProgress = task.Target.ProductionTime;
+            currentProgress =
+                task.Target.ProductionTime;
 
             return true;
         }
 
-        public bool CancelTask(ProductionTask task)
+        public bool CancelTask(
+            ProductionTask task)
         {
             if (task == null)
                 return false;
@@ -218,7 +244,8 @@ namespace SkyOfFreedom.Production
             QueueChanged?.Invoke(this);
         }
 
-        public void Tick(float deltaTime)
+        public void Tick(
+            float deltaTime)
         {
             if (!isActiveAndEnabled)
                 return;
@@ -250,7 +277,9 @@ namespace SkyOfFreedom.Production
             }
 
             float productionTime =
-                Mathf.Max(0.01f, currentTask.Target.ProductionTime);
+                Mathf.Max(
+                    0.01f,
+                    currentTask.Target.ProductionTime);
 
             float speedMultiplier =
                 ProductionSpeedCalculator.GetMultiplier(this);
@@ -276,7 +305,8 @@ namespace SkyOfFreedom.Production
             if (currentTask.RemainingQuantity > 0)
                 return;
 
-            ProductionTask completed = currentTask;
+            ProductionTask completed =
+                currentTask;
 
             TaskCompleted?.Invoke(
                 this,
@@ -297,7 +327,9 @@ namespace SkyOfFreedom.Production
             if (queue.Count == 0)
                 return;
 
-            currentTask = queue[0];
+            currentTask =
+                queue[0];
+
             queue.RemoveAt(0);
 
             currentTask.Start();
