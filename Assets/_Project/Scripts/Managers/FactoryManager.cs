@@ -249,8 +249,11 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
+            int targetLevel =
+                level + 1;
+
             if (!progressionConfig.TryGetFactoryRequirement(
-                    level + 1,
+                    targetLevel,
                     out FactoryProgressionConfig.FactoryLevelRequirement requirement))
             {
                 return false;
@@ -265,7 +268,13 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            return ApplyFactoryUpgrade();
+            level =
+                targetLevel;
+
+            OnFactoryLevelChanged?.Invoke(
+                level);
+
+            return true;
         }
 
         public bool TryGetFactoryUpgradeRequirement(
@@ -303,29 +312,6 @@ namespace SkyOfFreedom.Managers
                 if (GetLevel(zone) < targetLevel)
                     return false;
             }
-
-            return true;
-        }
-
-        private bool ApplyFactoryUpgrade()
-        {
-            if (level >= MaxFactoryLevel)
-                return false;
-
-            int targetLevel =
-                level + 1;
-
-            if (!AreAllZonesReadyForFactoryLevel(
-                    targetLevel))
-            {
-                return false;
-            }
-
-            level =
-                targetLevel;
-
-            OnFactoryLevelChanged?.Invoke(
-                level);
 
             return true;
         }
@@ -464,8 +450,11 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
+            int targetLevel =
+                GetNextZoneLevel(zone);
+
             if (!progressionConfig.TryGetZoneRequirement(
-                    GetNextZoneLevel(zone),
+                    targetLevel,
                     out FactoryProgressionConfig.ZoneLevelRequirement requirement))
             {
                 return false;
@@ -480,8 +469,11 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            return ApplyZoneUpgrade(
-                zone);
+            SetLevel(
+                zone,
+                targetLevel);
+
+            return true;
         }
 
         public bool TryGetZoneUpgradeRequirement(
@@ -505,31 +497,6 @@ namespace SkyOfFreedom.Managers
             return progressionConfig.TryGetZoneRequirement(
                 targetLevel,
                 out requirement);
-        }
-
-        private bool ApplyZoneUpgrade(
-            FactoryZoneType zone)
-        {
-            if (!IsUpgradeableZone(zone))
-                return false;
-
-            int currentLevel =
-                GetLevel(zone);
-
-            if (currentLevel >= MaxZoneLevel)
-                return false;
-
-            int targetLevel =
-                currentLevel + 1;
-
-            if (targetLevel > level + 1)
-                return false;
-
-            SetLevel(
-                zone,
-                targetLevel);
-
-            return true;
         }
 
         #endregion

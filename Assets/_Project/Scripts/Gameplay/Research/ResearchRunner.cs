@@ -53,7 +53,8 @@ namespace SkyOfFreedom.Managers
                 return;
 
             ResearchSO research =
-                researchManager.GetResearch(state.ResearchID);
+                researchManager.GetResearch(
+                    state.ResearchID);
 
             if (research == null)
                 return;
@@ -65,14 +66,21 @@ namespace SkyOfFreedom.Managers
                 state.RemainingTime = 0f;
             }
 
-            state.Progress =
-                1f -
-                (state.RemainingTime / research.ResearchTime);
-
-            if (state.Progress > 1f)
+            if (state.TotalResearchTime > 0f)
+            {
+                state.Progress =
+                    1f -
+                    (state.RemainingTime /
+                     state.TotalResearchTime);
+            }
+            else
             {
                 state.Progress = 1f;
             }
+
+            state.Progress =
+                Mathf.Clamp01(
+                    state.Progress);
 
             if (state.RemainingTime <= 0f)
             {
@@ -119,4 +127,4 @@ namespace SkyOfFreedom.Managers
             return researchManager.ActiveResearch.Progress;
         }
     }
-}
+}   

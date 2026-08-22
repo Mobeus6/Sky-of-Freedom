@@ -16,5 +16,7 @@ namespace SkyOfFreedom.Data
         public float Progress;
 
         public float RemainingTime;
+
+        public float TotalResearchTime;
     }
 }

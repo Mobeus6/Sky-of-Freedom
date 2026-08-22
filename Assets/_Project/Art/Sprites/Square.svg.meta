@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 3e9d2fe1ff670d949a4f16c45c159307
+guid: 28aa6546eb7bc6d458a4a844ba72eed0
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -39,7 +39,7 @@ ScriptedImporter:
   useSVGPixelsPerUnit: 0
   spriteData:
     TessellationDetail: 0
-    SpriteName: LicenseSprite
+    SpriteName: SquareSprite
     SpritePivot: {x: 0.5, y: 0.5}
     SpriteAlignment: 0
     SpriteBorder: {x: 0, y: 0, z: 0, w: 0}
@@ -47,7 +47,7 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 13
-      height: 21
-    SpriteID: 35946d620061f30489f5f8eeeea0def9
+      width: 19
+      height: 19
+    SpriteID: b6393f28ada189a41b201419bc3ea428
     PhysicsOutlines: []

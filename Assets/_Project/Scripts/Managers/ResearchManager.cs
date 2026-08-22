@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using SkyOfFreedom.Data;
+using SkyOfFreedom.Factory;
 
 namespace SkyOfFreedom.Managers
 {
@@ -12,6 +13,7 @@ namespace SkyOfFreedom.Managers
 
         private EconomyManager economyManager;
         private FactoryManager factoryManager;
+
         private readonly Dictionary<string, ResearchState> researchStates =
             new Dictionary<string, ResearchState>();
 
@@ -28,7 +30,8 @@ namespace SkyOfFreedom.Managers
 
         public ResearchState ActiveResearch => activeResearch;
 
-        public IReadOnlyDictionary<string, ResearchState> ResearchStates => researchStates;
+        public IReadOnlyDictionary<string, ResearchState> ResearchStates =>
+            researchStates;
 
         #endregion
 
@@ -45,17 +48,23 @@ namespace SkyOfFreedom.Managers
                 return;
             }
 
-            gameDatabase = GameManager.Instance.Database.Database;
-            economyManager = GameManager.Instance.Economy;
-            factoryManager = GameManager.Instance.Factory;
-            CreateResearchStates();
-            RefreshUnlockedResearches();
+            gameDatabase =
+                GameManager.Instance.Database.Database;
+
+            economyManager =
+                GameManager.Instance.Economy;
+
+            factoryManager =
+                GameManager.Instance.Factory;
 
             if (gameDatabase == null)
             {
                 Debug.LogError("GameDatabase not found.");
                 return;
             }
+
+            CreateResearchStates();
+            RefreshUnlockedResearches();
         }
 
         #endregion
@@ -69,7 +78,10 @@ namespace SkyOfFreedom.Managers
 
         public ResearchState GetState(string researchID)
         {
-            researchStates.TryGetValue(researchID, out ResearchState state);
+            researchStates.TryGetValue(
+                researchID,
+                out ResearchState state);
+
             return state;
         }
 
@@ -89,7 +101,9 @@ namespace SkyOfFreedom.Managers
         }
 
         #endregion
+
         #region Validation
+
         private void RefreshUnlockedResearches()
         {
             bool unlockedAnyResearch;
@@ -103,18 +117,29 @@ namespace SkyOfFreedom.Managers
                     if (research == null)
                         continue;
 
-                    if (!TryGetResearchState(research, out ResearchState state))
+                    if (!TryGetResearchState(
+                            research,
+                            out ResearchState state))
+                    {
                         continue;
+                    }
 
-                    if (state.IsUnlocked || state.IsCompleted)
+                    if (state.IsUnlocked ||
+                        state.IsCompleted)
+                    {
                         continue;
+                    }
 
-                    if (factoryManager.Level < research.RequiredFactoryLevel)
+                    if (factoryManager.Level <
+                        research.RequiredFactoryLevel)
+                    {
                         continue;
+                    }
 
                     bool prerequisitesCompleted = true;
 
-                    foreach (ResearchSO prerequisite in research.Prerequisites)
+                    foreach (ResearchSO prerequisite
+                             in research.Prerequisites)
                     {
                         if (prerequisite == null)
                             continue;
@@ -129,42 +154,51 @@ namespace SkyOfFreedom.Managers
                     if (!prerequisitesCompleted)
                         continue;
 
-                    UnlockResearch(research.ID);
+                    UnlockResearch(
+                        research.ID);
 
                     unlockedAnyResearch = true;
                 }
 
             } while (unlockedAnyResearch);
         }
+
         private void CreateResearchStates()
         {
             researchStates.Clear();
 
-            foreach (ResearchSO research in gameDatabase.Researches)
+            foreach (ResearchSO research
+                     in gameDatabase.Researches)
             {
                 if (research == null)
                     continue;
 
-                ResearchState state = new ResearchState
-                {
-                    ResearchID = research.ID,
-                    IsUnlocked = false,
-                    IsCompleted = false,
-                    IsResearching = false,
-                    Progress = 0f,
-                    RemainingTime = research.ResearchTime
-                };
+                ResearchState state =
+                    new ResearchState
+                    {
+                        ResearchID = research.ID,
+                        IsUnlocked = false,
+                        IsCompleted = false,
+                        IsResearching = false,
+                        Progress = 0f,
+                        RemainingTime = research.ResearchTime,
+                        TotalResearchTime = research.ResearchTime
+                    };
 
                 if (research.Prerequisites == null ||
-     research.Prerequisites.Length == 0)
+                    research.Prerequisites.Length == 0)
                 {
                     state.IsUnlocked = true;
                 }
 
-                researchStates.Add(research.ID, state);
+                researchStates.Add(
+                    research.ID,
+                    state);
             }
         }
-        public bool CanStartResearch(ResearchSO research)
+
+        public bool CanStartResearch(
+            ResearchSO research)
         {
             if (research == null)
                 return false;
@@ -172,8 +206,12 @@ namespace SkyOfFreedom.Managers
             if (activeResearch != null)
                 return false;
 
-            if (!TryGetResearchState(research, out ResearchState state))
+            if (!TryGetResearchState(
+                    research,
+                    out ResearchState state))
+            {
                 return false;
+            }
 
             if (state.IsCompleted)
                 return false;
@@ -181,13 +219,20 @@ namespace SkyOfFreedom.Managers
             if (!state.IsUnlocked)
                 return false;
 
-            if (factoryManager.Level < research.RequiredFactoryLevel)
+            if (factoryManager.Level <
+                research.RequiredFactoryLevel)
+            {
                 return false;
+            }
 
-            if (!economyManager.HasMoney(research.Cost))
+            if (!economyManager.HasMoney(
+                    research.Cost))
+            {
                 return false;
+            }
 
-            foreach (ResearchSO prerequisite in research.Prerequisites)
+            foreach (ResearchSO prerequisite
+                     in research.Prerequisites)
             {
                 if (prerequisite == null)
                     continue;
@@ -198,15 +243,21 @@ namespace SkyOfFreedom.Managers
 
             return true;
         }
-        private bool TryGetResearchState(ResearchSO research, out ResearchState state)
+
+        private bool TryGetResearchState(
+            ResearchSO research,
+            out ResearchState state)
         {
             state = null;
 
             if (research == null)
                 return false;
 
-            return researchStates.TryGetValue(research.ID, out state);
+            return researchStates.TryGetValue(
+                research.ID,
+                out state);
         }
+
         #endregion
 
         #region Research
@@ -216,25 +267,72 @@ namespace SkyOfFreedom.Managers
             return activeResearch != null;
         }
 
-        public bool StartResearch(ResearchSO research)
+        public bool StartResearch(
+            ResearchSO research)
         {
             if (!CanStartResearch(research))
                 return false;
 
-            if (!TryGetResearchState(research, out ResearchState state))
+            if (!TryGetResearchState(
+                    research,
+                    out ResearchState state))
+            {
                 return false;
+            }
 
-            economyManager.SpendMoney(research.Cost);
+            economyManager.SpendMoney(
+                research.Cost);
+
+            float researchDuration =
+                GetResearchDuration(research);
 
             state.IsResearching = true;
             state.Progress = 0f;
-            state.RemainingTime = research.ResearchTime;
+            state.TotalResearchTime = researchDuration;
+            state.RemainingTime = researchDuration;
 
             activeResearch = state;
 
-            OnResearchStarted?.Invoke(research);
+            OnResearchStarted?.Invoke(
+                research);
 
             return true;
+        }
+
+        private float GetResearchDuration(
+            ResearchSO research)
+        {
+            if (research == null)
+                return 0f;
+
+            float duration =
+                research.ResearchTime;
+
+            if (factoryManager == null)
+                return duration;
+
+            if (factoryManager.ProgressionConfig == null)
+                return duration;
+
+            int researchZoneLevel =
+                factoryManager.GetLevel(
+                    FactoryZoneType.Research);
+
+            if (factoryManager.ProgressionConfig
+                .TryGetResearchZoneBonus(
+                    researchZoneLevel,
+                    out FactoryProgressionConfig.ResearchZoneLevelBonus bonus))
+            {
+                if (bonus.SpeedMultiplier > 0f)
+                {
+                    duration /=
+                        bonus.SpeedMultiplier;
+                }
+            }
+
+            return Mathf.Max(
+                0f,
+                duration);
         }
 
         public void CancelResearch()
@@ -243,15 +341,22 @@ namespace SkyOfFreedom.Managers
                 return;
 
             ResearchSO research =
-                gameDatabase.GetResearch(activeResearch.ResearchID);
+                gameDatabase.GetResearch(
+                    activeResearch.ResearchID);
 
             activeResearch.IsResearching = false;
             activeResearch.Progress = 0f;
-            activeResearch.RemainingTime = research.ResearchTime;
+
+            activeResearch.TotalResearchTime =
+                research.ResearchTime;
+
+            activeResearch.RemainingTime =
+                research.ResearchTime;
 
             activeResearch = null;
 
-            OnResearchCancelled?.Invoke(research);
+            OnResearchCancelled?.Invoke(
+                research);
         }
 
         public void CompleteResearch()
@@ -260,7 +365,8 @@ namespace SkyOfFreedom.Managers
                 return;
 
             ResearchSO research =
-                gameDatabase.GetResearch(activeResearch.ResearchID);
+                gameDatabase.GetResearch(
+                    activeResearch.ResearchID);
 
             activeResearch.IsResearching = false;
             activeResearch.IsCompleted = true;
@@ -269,14 +375,21 @@ namespace SkyOfFreedom.Managers
 
             activeResearch = null;
 
-            OnResearchCompleted?.Invoke(research);
+            OnResearchCompleted?.Invoke(
+                research);
+
             RefreshUnlockedResearches();
         }
 
-        public void UnlockResearch(string researchID)
+        public void UnlockResearch(
+            string researchID)
         {
-            if (!researchStates.TryGetValue(researchID, out ResearchState state))
+            if (!researchStates.TryGetValue(
+                    researchID,
+                    out ResearchState state))
+            {
                 return;
+            }
 
             if (state.IsUnlocked)
                 return;
@@ -284,9 +397,11 @@ namespace SkyOfFreedom.Managers
             state.IsUnlocked = true;
 
             ResearchSO research =
-                gameDatabase.GetResearch(researchID);
+                gameDatabase.GetResearch(
+                    researchID);
 
-            OnResearchUnlocked?.Invoke(research);
+            OnResearchUnlocked?.Invoke(
+                research);
         }
 
         #endregion
@@ -295,20 +410,27 @@ namespace SkyOfFreedom.Managers
 
         public List<ResearchState> GetSaveData()
         {
-            return new List<ResearchState>(researchStates.Values);
+            return new List<ResearchState>(
+                researchStates.Values);
         }
 
-        public void LoadSaveData(List<ResearchState> saveData)
+        public void LoadSaveData(
+            List<ResearchState> saveData)
         {
             if (saveData == null)
                 return;
 
-            foreach (ResearchState savedState in saveData)
+            foreach (ResearchState savedState
+                     in saveData)
             {
-                if (!researchStates.ContainsKey(savedState.ResearchID))
+                if (!researchStates.ContainsKey(
+                        savedState.ResearchID))
+                {
                     continue;
+                }
 
-                researchStates[savedState.ResearchID] = savedState;
+                researchStates[savedState.ResearchID] =
+                    savedState;
 
                 if (savedState.IsResearching)
                 {

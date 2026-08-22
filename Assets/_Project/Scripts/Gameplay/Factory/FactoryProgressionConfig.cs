@@ -78,6 +78,21 @@ namespace SkyOfFreedom.Factory
             public float SpeedMultiplier => speedMultiplier;
         }
 
+        [Serializable]
+        public class ResearchZoneLevelBonus
+        {
+            [SerializeField]
+            [Range(1, 5)]
+            private int level = 1;
+
+            [SerializeField]
+            [Min(0f)]
+            private float speedMultiplier = 1f;
+
+            public int Level => level;
+            public float SpeedMultiplier => speedMultiplier;
+        }
+
         [Header("Factory Upgrade Requirements")]
         [SerializeField]
         private FactoryLevelRequirement[] factoryRequirements =
@@ -98,6 +113,11 @@ namespace SkyOfFreedom.Factory
         private AssemblyZoneLevelBonus[] assemblyZoneBonuses =
             new AssemblyZoneLevelBonus[5];
 
+        [Header("Research Zone Bonuses")]
+        [SerializeField]
+        private ResearchZoneLevelBonus[] researchZoneBonuses =
+            new ResearchZoneLevelBonus[5];
+
         public FactoryLevelRequirement[] FactoryRequirements =>
             factoryRequirements;
 
@@ -109,6 +129,9 @@ namespace SkyOfFreedom.Factory
 
         public AssemblyZoneLevelBonus[] AssemblyZoneBonuses =>
             assemblyZoneBonuses;
+
+        public ResearchZoneLevelBonus[] ResearchZoneBonuses =>
+            researchZoneBonuses;
 
         public bool TryGetFactoryRequirement(
             int targetLevel,
@@ -195,8 +218,8 @@ namespace SkyOfFreedom.Factory
         }
 
         public bool TryGetAssemblyZoneBonus(
-    int level,
-    out AssemblyZoneLevelBonus bonus)
+            int level,
+            out AssemblyZoneLevelBonus bonus)
         {
             if (assemblyZoneBonuses != null)
             {
@@ -206,6 +229,34 @@ namespace SkyOfFreedom.Factory
                 {
                     AssemblyZoneLevelBonus current =
                         assemblyZoneBonuses[i];
+
+                    if (current == null)
+                        continue;
+
+                    if (current.Level == level)
+                    {
+                        bonus = current;
+                        return true;
+                    }
+                }
+            }
+
+            bonus = null;
+            return false;
+        }
+
+        public bool TryGetResearchZoneBonus(
+            int level,
+            out ResearchZoneLevelBonus bonus)
+        {
+            if (researchZoneBonuses != null)
+            {
+                for (int i = 0;
+                     i < researchZoneBonuses.Length;
+                     i++)
+                {
+                    ResearchZoneLevelBonus current =
+                        researchZoneBonuses[i];
 
                     if (current == null)
                         continue;
