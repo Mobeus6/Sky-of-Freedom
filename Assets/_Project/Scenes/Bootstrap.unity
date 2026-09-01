@@ -140,6 +140,7 @@ GameObject:
   - component: {fileID: 250106909}
   - component: {fileID: 250106910}
   - component: {fileID: 250106911}
+  - component: {fileID: 250106912}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -160,7 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.FactoryManager
   level: 2
-  experience: 0
+  progressionConfig: {fileID: 11400000, guid: 8436eb0caabd1cf4586edbb3000c4103, type: 2}
 --- !u!114 &250106900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,6 +235,7 @@ MonoBehaviour:
   warehouseManager: {fileID: 250106901}
   licenseManager: {fileID: 250106907}
   contractManager: {fileID: 250106911}
+  factoryStatisticsManager: {fileID: 250106912}
 --- !u!4 &250106905
 Transform:
   m_ObjectHideFlags: 0
@@ -246,7 +248,9 @@ Transform:
   m_LocalPosition: {x: 1.09687, y: 2.87213, z: -4.74}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 264510687}
+  - {fileID: 795252195}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &250106906
@@ -287,9 +291,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4aedb4194db02e40b1dd3f9a98cf2a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.CurrencyManager
-  productionZones:
-  - {fileID: 0}
-  - {fileID: 0}
+  productionZone: {fileID: 264510686}
+  assemblyZone: {fileID: 795252194}
 --- !u!114 &250106909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -331,6 +334,110 @@ MonoBehaviour:
   database: {fileID: 11400000, guid: 4d08e8a6770487f4d85233f219cebd0e, type: 2}
   economyManager: {fileID: 250106902}
   maxActiveContracts: 10
+--- !u!114 &250106912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 250106898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccbc2f11a29bbb449be7145643e194db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.FactoryStatisticsManager
+--- !u!1 &264510685
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 264510687}
+  - component: {fileID: 264510686}
+  m_Layer: 0
+  m_Name: ProductionZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &264510686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 264510685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e547ac931f4e2574c8c124d9a59791f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Production.ProductionZone
+  zoneType: 1
+  queueCapacity: 2
+--- !u!4 &264510687
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 264510685}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 250106905}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &795252193
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 795252195}
+  - component: {fileID: 795252194}
+  m_Layer: 0
+  m_Name: AssemblyZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &795252194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795252193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e547ac931f4e2574c8c124d9a59791f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Production.ProductionZone
+  zoneType: 2
+  queueCapacity: 2
+--- !u!4 &795252195
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795252193}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 250106905}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

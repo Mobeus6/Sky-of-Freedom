@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using SkyOfFreedom.Factory;
 using SkyOfFreedom.Gameplay.Factory;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Production;
@@ -14,9 +15,6 @@ namespace SkyOfFreedom.UI
         [Header("Zone References")]
         [SerializeField]
         private FactoryZoneInteraction assemblyZoneInteraction;
-
-        [SerializeField]
-        private ProductionZone assemblyZone;
 
         [Header("UI")]
         [SerializeField]
@@ -49,6 +47,8 @@ namespace SkyOfFreedom.UI
         [SerializeField]
         private Image assemblyZoneHighlight;
 
+        private ProductionZone assemblyZone;
+
         private void Awake()
         {
             if (canvasGroup == null)
@@ -68,6 +68,8 @@ namespace SkyOfFreedom.UI
 
         private void OnEnable()
         {
+            ResolveAssemblyZone();
+
             if (assemblyZoneInteraction != null)
             {
                 assemblyZoneInteraction.ZoneSelected +=
@@ -108,6 +110,52 @@ namespace SkyOfFreedom.UI
                 assemblyZone.QueueChanged -=
                     RefreshQueue;
             }
+
+            assemblyZone = null;
+        }
+
+        private void ResolveAssemblyZone()
+        {
+            assemblyZone = null;
+
+            if (GameManager.Instance == null)
+            {
+                return;
+            }
+
+            ProductionManager productionManager =
+                GameManager.Instance.Production;
+
+            if (productionManager == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<ProductionZone> zones =
+                productionManager.Zones;
+
+            for (int i = 0; i < zones.Count; i++)
+            {
+                ProductionZone zone = zones[i];
+
+                if (zone == null)
+                {
+                    continue;
+                }
+
+                if (!zone.isActiveAndEnabled)
+                {
+                    continue;
+                }
+
+                if (zone.ZoneType != FactoryZoneType.Assembly)
+                {
+                    continue;
+                }
+
+                assemblyZone = zone;
+                return;
+            }
         }
 
         private void OnZoneSelected(
@@ -116,6 +164,17 @@ namespace SkyOfFreedom.UI
             if (zone != assemblyZoneInteraction)
             {
                 return;
+            }
+
+            ResolveAssemblyZone();
+
+            if (assemblyZone != null)
+            {
+                assemblyZone.QueueChanged -=
+                    RefreshQueue;
+
+                assemblyZone.QueueChanged +=
+                    RefreshQueue;
             }
 
             RefreshQueue(assemblyZone);
@@ -146,6 +205,11 @@ namespace SkyOfFreedom.UI
                 GameManager.Instance.Factory == null)
             {
                 HideAllSlots();
+                return;
+            }
+
+            if (queueSlots == null)
+            {
                 return;
             }
 
@@ -182,7 +246,7 @@ namespace SkyOfFreedom.UI
                 {
                     slot.Setup(
                         tasks[i],
-                        assemblyZone);
+                        zone);
                 }
                 else
                 {

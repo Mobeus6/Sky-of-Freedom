@@ -7,32 +7,38 @@ using UnityEngine;
 
 namespace SkyOfFreedom.Production
 {
-    /// <summary>
-    /// Generic production zone capable of producing any IProducible.
-    /// The zone registers itself with ProductionManager while it exists
-    /// in the Gameplay scene. No external bootstrap object is required.
-    /// </summary>
     public class ProductionZone : MonoBehaviour
     {
-        [SerializeField] private FactoryZoneType zoneType;
-        [SerializeField] private int queueCapacity = 5;
+        [SerializeField]
+        private FactoryZoneType zoneType;
+
+        [SerializeField]
+        private int queueCapacity = 5;
 
         private readonly List<ProductionTask> queue =
             new List<ProductionTask>();
 
         private ProductionTask currentTask;
         private float currentProgress;
-        private bool registered;
 
         public int TaskCount =>
-            queue.Count + (currentTask != null ? 1 : 0);
+            queue.Count +
+            (currentTask != null ? 1 : 0);
 
-        public event Action<ProductionZone, IProducible> ItemProduced;
-        public event Action<ProductionZone, ProductionTask> TaskCompleted;
-        public event Action<ProductionZone> QueueChanged;
+        public event Action<ProductionZone, IProducible>
+            ItemProduced;
 
-        public FactoryZoneType ZoneType => zoneType;
-        public int QueueCapacity => queueCapacity;
+        public event Action<ProductionZone, ProductionTask>
+            TaskCompleted;
+
+        public event Action<ProductionZone>
+            QueueChanged;
+
+        public FactoryZoneType ZoneType =>
+            zoneType;
+
+        public int QueueCapacity =>
+            queueCapacity;
 
         public int Level
         {
@@ -49,10 +55,14 @@ namespace SkyOfFreedom.Production
             }
         }
 
-        public ProductionTask CurrentTask => currentTask;
-        public bool IsBusy => currentTask != null;
+        public ProductionTask CurrentTask =>
+            currentTask;
 
-        public IReadOnlyCollection<ProductionTask> Queue => queue;
+        public bool IsBusy =>
+            currentTask != null;
+
+        public IReadOnlyCollection<ProductionTask> Queue =>
+            queue;
 
         public IEnumerable<ProductionTask> Tasks
         {
@@ -72,61 +82,6 @@ namespace SkyOfFreedom.Production
                 Mathf.Max(
                     1,
                     queueCapacity);
-
-            RegisterWithProductionManager();
-        }
-
-        private void OnEnable()
-        {
-            RegisterWithProductionManager();
-        }
-
-        private void OnDisable()
-        {
-            UnregisterFromProductionManager();
-        }
-
-        private void OnDestroy()
-        {
-            UnregisterFromProductionManager();
-        }
-
-        private void RegisterWithProductionManager()
-        {
-            if (registered)
-                return;
-
-            GameManager gameManager =
-                GameManager.Instance;
-
-            if (gameManager == null)
-                return;
-
-            ProductionManager productionManager =
-                gameManager.Production;
-
-            if (productionManager == null)
-                return;
-
-            productionManager.RegisterZone(this);
-            registered = true;
-        }
-
-        private void UnregisterFromProductionManager()
-        {
-            if (!registered)
-                return;
-
-            GameManager gameManager =
-                GameManager.Instance;
-
-            if (gameManager != null &&
-                gameManager.Production != null)
-            {
-                gameManager.Production.UnregisterZone(this);
-            }
-
-            registered = false;
         }
 
         public bool Enqueue(
@@ -138,7 +93,8 @@ namespace SkyOfFreedom.Production
             if (!isActiveAndEnabled)
                 return false;
 
-            if (zoneType == FactoryZoneType.Production &&
+            if (zoneType ==
+                    FactoryZoneType.Production &&
                 task.Target is DroneModelSO)
             {
                 Debug.LogError(
@@ -148,7 +104,8 @@ namespace SkyOfFreedom.Production
                 return false;
             }
 
-            if (zoneType == FactoryZoneType.Assembly &&
+            if (zoneType ==
+                    FactoryZoneType.Assembly &&
                 task.Target is ComponentSO)
             {
                 Debug.LogError(
@@ -204,7 +161,9 @@ namespace SkyOfFreedom.Production
             if (task == currentTask)
             {
                 currentTask.Cancel();
+
                 currentTask = null;
+
                 currentProgress = 0f;
 
                 StartNextTask();
@@ -267,10 +226,13 @@ namespace SkyOfFreedom.Production
                     this);
 
                 currentTask.Cancel();
+
                 currentTask = null;
+
                 currentProgress = 0f;
 
                 StartNextTask();
+
                 QueueChanged?.Invoke(this);
 
                 return;
@@ -282,17 +244,23 @@ namespace SkyOfFreedom.Production
                     currentTask.Target.ProductionTime);
 
             float speedMultiplier =
-                ProductionSpeedCalculator.GetMultiplier(this);
+                ProductionSpeedCalculator.GetMultiplier(
+                    this);
 
             currentProgress +=
-                deltaTime * speedMultiplier;
+                deltaTime *
+                speedMultiplier;
 
             currentTask.CurrentItemProgress =
                 Mathf.Clamp01(
-                    currentProgress / productionTime);
+                    currentProgress /
+                    productionTime);
 
-            if (currentProgress < productionTime)
+            if (currentProgress <
+                productionTime)
+            {
                 return;
+            }
 
             currentProgress = 0f;
 

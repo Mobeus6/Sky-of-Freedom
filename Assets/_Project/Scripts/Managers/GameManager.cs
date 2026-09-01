@@ -22,6 +22,7 @@ namespace SkyOfFreedom.Managers
         [SerializeField] private WarehouseManager warehouseManager;
         [SerializeField] private LicenseManager licenseManager;
         [SerializeField] private ContractManager contractManager;
+        [SerializeField] private FactoryStatisticsManager factoryStatisticsManager;
 
         public DatabaseManager Database => databaseManager;
         public ProductionManager Production => productionManager;
@@ -33,6 +34,8 @@ namespace SkyOfFreedom.Managers
         public ResearchManager Research => researchManager;
         public LicenseManager License => licenseManager;
         public ContractManager Contracts => contractManager;
+        public FactoryStatisticsManager Statistics =>
+            factoryStatisticsManager;
 
         private void Awake()
         {
@@ -48,27 +51,63 @@ namespace SkyOfFreedom.Managers
 
             InitializeManagers();
 
-            warehouseManager.AddItem("MAT-PLASTIC", 15);
-            warehouseManager.AddItem("MAT-ALUMINUM", 15);
-            warehouseManager.AddItem("MAT-CARBON", 15);
-            warehouseManager.AddItem("MAT-COPPER", 15);
-            warehouseManager.AddItem("MAT-PCB", 15);
-            warehouseManager.AddItem("MAT-BATTERY-CELL", 15);
-            warehouseManager.AddItem("MAT-GLASS", 15);
-            warehouseManager.AddItem("MAT-STEEL", 15);
-            warehouseManager.AddItem("MAT-MAGNET", 15);
-            warehouseManager.AddItem("MAT-MICROCHIP", 15);
-            warehouseManager.AddItem("MAT-SILICONE", 15);
+            warehouseManager.AddItem(
+                "MAT-PLASTIC",
+                15);
 
-            foreach (ComponentSO component in databaseManager.Database.Components)
+            warehouseManager.AddItem(
+                "MAT-ALUMINUM",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-CARBON",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-COPPER",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-PCB",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-BATTERY-CELL",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-GLASS",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-STEEL",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-MAGNET",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-MICROCHIP",
+                15);
+
+            warehouseManager.AddItem(
+                "MAT-SILICONE",
+                15);
+
+            foreach (ComponentSO component
+                     in databaseManager.Database.Components)
             {
-                warehouseManager.AddItem(component.ID, 10);
+                warehouseManager.AddItem(
+                    component.ID,
+                    10);
             }
         }
 
         private void Start()
         {
-            SceneManager.LoadSceneAsync("MainMenu");
+            SceneManager.LoadSceneAsync(
+                "MainMenu");
         }
 
         private void OnDestroy()
@@ -87,10 +126,12 @@ namespace SkyOfFreedom.Managers
             warehouseManager?.Initialize();
             licenseManager?.Initialize();
             contractManager?.Initialize();
+            factoryStatisticsManager?.Initialize();
         }
 
         private void ShutdownManagers()
         {
+            factoryStatisticsManager?.Shutdown();
             contractManager?.Shutdown();
             productionManager?.Shutdown();
             factoryManager?.Shutdown();

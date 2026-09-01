@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using SkyOfFreedom.Factory;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Production;
 using UnityEngine;
@@ -9,14 +10,19 @@ namespace SkyOfFreedom.UI
     public class ProductionZoneUI : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private ProductionZone zone;
-        [SerializeField] private QueueItemUI[] queueSlots;
+        [SerializeField]
+        private QueueItemUI[] queueSlots;
+
+        private ProductionZone productionZone;
 
         private void OnEnable()
         {
-            if (zone != null)
+            ResolveProductionZone();
+
+            if (productionZone != null)
             {
-                zone.QueueChanged += RefreshQueue;
+                productionZone.QueueChanged +=
+                    RefreshQueue;
             }
 
             if (GameManager.Instance != null &&
@@ -29,9 +35,10 @@ namespace SkyOfFreedom.UI
 
         private void OnDisable()
         {
-            if (zone != null)
+            if (productionZone != null)
             {
-                zone.QueueChanged -= RefreshQueue;
+                productionZone.QueueChanged -=
+                    RefreshQueue;
             }
 
             if (GameManager.Instance != null &&
@@ -40,42 +47,84 @@ namespace SkyOfFreedom.UI
                 GameManager.Instance.Factory.OnFactoryLevelChanged -=
                     OnFactoryLevelChanged;
             }
+
+            productionZone = null;
         }
 
         private void Start()
         {
-            RefreshQueue(zone);
+            ResolveProductionZone();
+            RefreshQueue(productionZone);
         }
 
-        private void OnFactoryLevelChanged(int level)
+        private void ResolveProductionZone()
         {
-            RefreshQueue(zone);
-        }
+            productionZone = null;
 
-        private void RefreshQueue(ProductionZone productionZone)
-        {
-            if (productionZone == null)
+            if (GameManager.Instance == null)
             {
                 return;
             }
 
-            if (queueSlots == null || queueSlots.Length == 0)
+            ProductionManager productionManager =
+                GameManager.Instance.Production;
+
+            if (productionManager == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<ProductionZone> zones =
+                productionManager.Zones;
+
+            for (int i = 0; i < zones.Count; i++)
+            {
+                ProductionZone zone = zones[i];
+
+                if (zone == null)
+                {
+                    continue;
+                }
+
+                if (!zone.isActiveAndEnabled)
+                {
+                    continue;
+                }
+
+                if (zone.ZoneType != FactoryZoneType.Production)
+                {
+                    continue;
+                }
+
+                productionZone = zone;
+                return;
+            }
+        }
+
+        private void OnFactoryLevelChanged(int level)
+        {
+            RefreshQueue(productionZone);
+        }
+
+        private void RefreshQueue(
+            ProductionZone zone)
+        {
+            if (zone == null)
+            {
+                return;
+            }
+
+            if (queueSlots == null ||
+                queueSlots.Length == 0)
             {
                 return;
             }
 
             List<ProductionTask> tasks =
-                productionZone.Tasks.ToList();
+                zone.Tasks.ToList();
 
-            /*
-             * QueueCapacity belongs to the actual ProductionZone.
-             * It determines how many queue slots are available
-             * in this specific zone.
-             *
-             * Factory.GetUnlockedQueueSlots() is NOT used here.
-             */
             int availableSlots = Mathf.Min(
-                productionZone.QueueCapacity,
+                zone.QueueCapacity,
                 queueSlots.Length);
 
             for (int i = 0; i < queueSlots.Length; i++)
@@ -87,18 +136,13 @@ namespace SkyOfFreedom.UI
                     continue;
                 }
 
-                /*
-                 * Slots inside the zone capacity are either:
-                 * - occupied by a task
-                 * - empty and available
-                 */
                 if (i < availableSlots)
                 {
                     if (i < tasks.Count)
                     {
                         slot.Setup(
                             tasks[i],
-                            productionZone);
+                            zone);
                     }
                     else
                     {
@@ -108,10 +152,6 @@ namespace SkyOfFreedom.UI
                     continue;
                 }
 
-                /*
-                 * Slots beyond the zone capacity remain visible
-                 * but are locked.
-                 */
                 int requiredLevel = 0;
 
                 if (GameManager.Instance != null &&

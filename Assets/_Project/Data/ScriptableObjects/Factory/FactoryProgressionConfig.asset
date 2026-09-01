@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ea72fd8577f5441ac10bd1cc1ccc22, type: 3}
+  m_Name: FactoryProgressionConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Factory.FactoryProgressionConfig
+  factoryRequirements:
+  - targetLevel: 2
+    moneyRequired: 1200
+    reputationRequired: 200
+    rewardDescription: Blah Blah Blah
+  - targetLevel: 3
+    moneyRequired: 5000
+    reputationRequired: 500
+    rewardDescription: Blah Blah Blah
+  - targetLevel: 4
+    moneyRequired: 0
+    reputationRequired: 0
+    rewardDescription: 
+  - targetLevel: 5
+    moneyRequired: 0
+    reputationRequired: 0
+    rewardDescription: 
+  zoneRequirements:
+  - targetLevel: 2
+    moneyRequired: 0
+    reputationRequired: 0
+  - targetLevel: 2
+    moneyRequired: 0
+    reputationRequired: 0
+  - targetLevel: 2
+    moneyRequired: 0
+    reputationRequired: 0
+  - targetLevel: 2
+    moneyRequired: 0
+    reputationRequired: 0
+  productionZoneBonuses:
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  assemblyZoneBonuses:
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  warehouseZoneBonuses:
+  - level: 1
+    capacityMultiplier: 1
+  - level: 1
+    capacityMultiplier: 1
+  - level: 1
+    capacityMultiplier: 1
+  - level: 1
+    capacityMultiplier: 1
+  - level: 1
+    capacityMultiplier: 1
+  researchZoneBonuses:
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1
+  - level: 1
+    speedMultiplier: 1

@@ -9,12 +9,20 @@ namespace SkyOfFreedom.Production
 {
     public class ProductionManager : BaseManager
     {
+        [Header("Production Zones")]
+        [SerializeField]
+        private ProductionZone productionZone;
+
+        [SerializeField]
+        private ProductionZone assemblyZone;
+
         private DatabaseManager databaseManager;
 
         private readonly List<ProductionZone> productionZones =
             new List<ProductionZone>();
 
-        public IReadOnlyList<ProductionZone> Zones => productionZones;
+        public IReadOnlyList<ProductionZone> Zones =>
+            productionZones;
 
         public event Action<IProducible> OnItemProduced;
 
@@ -25,7 +33,11 @@ namespace SkyOfFreedom.Production
 
             base.Initialize();
 
-            databaseManager = GameManager.Instance.Database;
+            databaseManager =
+                GameManager.Instance.Database;
+
+            RegisterZone(productionZone);
+            RegisterZone(assemblyZone);
         }
 
         public override void Shutdown()
@@ -33,9 +45,12 @@ namespace SkyOfFreedom.Production
             if (!IsInitialized)
                 return;
 
-            for (int i = 0; i < productionZones.Count; i++)
+            for (int i = 0;
+                 i < productionZones.Count;
+                 i++)
             {
-                ProductionZone zone = productionZones[i];
+                ProductionZone zone =
+                    productionZones[i];
 
                 if (zone == null)
                     continue;
@@ -55,11 +70,15 @@ namespace SkyOfFreedom.Production
             if (!IsInitialized)
                 return;
 
-            float deltaTime = Time.deltaTime;
+            float deltaTime =
+                Time.deltaTime;
 
-            for (int i = productionZones.Count - 1; i >= 0; i--)
+            for (int i = productionZones.Count - 1;
+                 i >= 0;
+                 i--)
             {
-                ProductionZone zone = productionZones[i];
+                ProductionZone zone =
+                    productionZones[i];
 
                 if (zone == null)
                 {
@@ -71,7 +90,28 @@ namespace SkyOfFreedom.Production
             }
         }
 
-        public void QueueComponent(ComponentSO component)
+        public ProductionZone GetZone(
+            FactoryZoneType zoneType)
+        {
+            for (int i = 0;
+                 i < productionZones.Count;
+                 i++)
+            {
+                ProductionZone zone =
+                    productionZones[i];
+
+                if (zone == null)
+                    continue;
+
+                if (zone.ZoneType == zoneType)
+                    return zone;
+            }
+
+            return null;
+        }
+
+        public void QueueComponent(
+            ComponentSO component)
         {
             QueueProduction(
                 FactoryZoneType.Production,
@@ -79,7 +119,8 @@ namespace SkyOfFreedom.Production
                 1);
         }
 
-        public void QueueDrone(DroneModelSO drone)
+        public void QueueDrone(
+            DroneModelSO drone)
         {
             QueueProduction(
                 FactoryZoneType.Assembly,
@@ -87,7 +128,8 @@ namespace SkyOfFreedom.Production
                 1);
         }
 
-        public void QueueProduction(IProducible producible)
+        public void QueueProduction(
+            IProducible producible)
         {
             if (producible == null)
                 return;
@@ -109,15 +151,19 @@ namespace SkyOfFreedom.Production
             IProducible item,
             int quantity)
         {
-            if (item == null || quantity <= 0)
+            if (item == null ||
+                quantity <= 0)
+            {
                 return false;
+            }
 
-            ProductionZone zone = GetAvailableZone(zoneType);
+            ProductionZone zone =
+                GetAvailableZone(zoneType);
 
             if (zone == null)
             {
                 Debug.LogWarning(
-                    $"No registered production zone available for type: {zoneType}");
+                    $"No available production zone for type: {zoneType}");
 
                 return false;
             }
@@ -133,29 +179,39 @@ namespace SkyOfFreedom.Production
 
             if (!GameManager.Instance.License.CanProduce(item))
             {
-                Debug.Log("License failed");
+                Debug.Log(
+                    "License failed");
+
                 return false;
             }
 
-            if (!ProductionRecipeProcessor.CanProduce(item, quantity))
+            if (!ProductionRecipeProcessor.CanProduce(
+                    item,
+                    quantity))
             {
-                Debug.Log($"CanProduce failed: {item.ID}");
+                Debug.Log(
+                    $"CanProduce failed: {item.ID}");
+
                 return false;
             }
 
-            if (!ProductionRecipeProcessor.Consume(item, quantity))
+            if (!ProductionRecipeProcessor.Consume(
+                    item,
+                    quantity))
             {
-                Debug.Log($"Consume failed: {item.ID}");
+                Debug.Log(
+                    $"Consume failed: {item.ID}");
+
                 return false;
             }
 
             ProductionTask task =
-                new ProductionTask(item, quantity);
+                new ProductionTask(
+                    item,
+                    quantity);
 
             if (!zone.Enqueue(task))
-            {
                 return false;
-            }
 
             return true;
         }
@@ -165,9 +221,12 @@ namespace SkyOfFreedom.Production
         {
             ProductionZone bestZone = null;
 
-            for (int i = 0; i < productionZones.Count; i++)
+            for (int i = 0;
+                 i < productionZones.Count;
+                 i++)
             {
-                ProductionZone zone = productionZones[i];
+                ProductionZone zone =
+                    productionZones[i];
 
                 if (zone == null)
                     continue;
@@ -178,11 +237,15 @@ namespace SkyOfFreedom.Production
                 if (zone.ZoneType != zoneType)
                     continue;
 
-                if (zone.TaskCount >= zone.QueueCapacity)
+                if (zone.TaskCount >=
+                    zone.QueueCapacity)
+                {
                     continue;
+                }
 
                 if (bestZone == null ||
-                    zone.TaskCount < bestZone.TaskCount)
+                    zone.TaskCount <
+                    bestZone.TaskCount)
                 {
                     bestZone = zone;
                 }
@@ -193,16 +256,20 @@ namespace SkyOfFreedom.Production
 
         public void ClearAll()
         {
-            for (int i = 0; i < productionZones.Count; i++)
+            for (int i = 0;
+                 i < productionZones.Count;
+                 i++)
             {
-                ProductionZone zone = productionZones[i];
+                ProductionZone zone =
+                    productionZones[i];
 
                 if (zone != null)
                     zone.ClearQueue();
             }
         }
 
-        public void RegisterZone(ProductionZone zone)
+        public void RegisterZone(
+            ProductionZone zone)
         {
             if (zone == null)
                 return;
@@ -224,11 +291,12 @@ namespace SkyOfFreedom.Production
             SubscribeToZone(zone);
 
             Debug.Log(
-                $"Production zone registered: {zone.ZoneType}",
+                $"Production zone registered: {zone.name}, Type: {zone.ZoneType}",
                 zone);
         }
 
-        public void UnregisterZone(ProductionZone zone)
+        public void UnregisterZone(
+            ProductionZone zone)
         {
             if (zone == null)
                 return;
@@ -239,23 +307,34 @@ namespace SkyOfFreedom.Production
             UnsubscribeFromZone(zone);
 
             Debug.Log(
-                $"Production zone unregistered: {zone.ZoneType}",
+                $"Production zone unregistered: {zone.name}, Type: {zone.ZoneType}",
                 zone);
         }
 
-        private void SubscribeToZone(ProductionZone zone)
+        private void SubscribeToZone(
+            ProductionZone zone)
         {
-            zone.ItemProduced -= OnItemProducedInternal;
-            zone.TaskCompleted -= OnTaskCompleted;
+            zone.ItemProduced -=
+                OnItemProducedInternal;
 
-            zone.ItemProduced += OnItemProducedInternal;
-            zone.TaskCompleted += OnTaskCompleted;
+            zone.TaskCompleted -=
+                OnTaskCompleted;
+
+            zone.ItemProduced +=
+                OnItemProducedInternal;
+
+            zone.TaskCompleted +=
+                OnTaskCompleted;
         }
 
-        private void UnsubscribeFromZone(ProductionZone zone)
+        private void UnsubscribeFromZone(
+            ProductionZone zone)
         {
-            zone.ItemProduced -= OnItemProducedInternal;
-            zone.TaskCompleted -= OnTaskCompleted;
+            zone.ItemProduced -=
+                OnItemProducedInternal;
+
+            zone.TaskCompleted -=
+                OnTaskCompleted;
         }
 
         public List<IProducible> GetAvailableItems(
@@ -275,8 +354,10 @@ namespace SkyOfFreedom.Production
                         if (component == null)
                             continue;
 
-                        if (category == ComponentCategory.All ||
-                            component.Category == category)
+                        if (category ==
+                                ComponentCategory.All ||
+                            component.Category ==
+                                category)
                         {
                             result.Add(component);
                         }

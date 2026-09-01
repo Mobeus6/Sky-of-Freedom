@@ -23,9 +23,20 @@ namespace SkyOfFreedom.Factory
             [Min(0)]
             private long reputationRequired;
 
+            [SerializeField]
+            [TextArea(2, 5)]
+            private string rewardDescription;
+
             public int TargetLevel => targetLevel;
-            public long MoneyRequired => moneyRequired;
-            public long ReputationRequired => reputationRequired;
+
+            public long MoneyRequired =>
+                moneyRequired;
+
+            public long ReputationRequired =>
+                reputationRequired;
+
+            public string RewardDescription =>
+                rewardDescription;
         }
 
         [Serializable]
@@ -44,8 +55,12 @@ namespace SkyOfFreedom.Factory
             private long reputationRequired;
 
             public int TargetLevel => targetLevel;
-            public long MoneyRequired => moneyRequired;
-            public long ReputationRequired => reputationRequired;
+
+            public long MoneyRequired =>
+                moneyRequired;
+
+            public long ReputationRequired =>
+                reputationRequired;
         }
 
         [Serializable]
@@ -60,7 +75,9 @@ namespace SkyOfFreedom.Factory
             private float speedMultiplier = 1f;
 
             public int Level => level;
-            public float SpeedMultiplier => speedMultiplier;
+
+            public float SpeedMultiplier =>
+                speedMultiplier;
         }
 
         [Serializable]
@@ -75,7 +92,26 @@ namespace SkyOfFreedom.Factory
             private float speedMultiplier = 1f;
 
             public int Level => level;
-            public float SpeedMultiplier => speedMultiplier;
+
+            public float SpeedMultiplier =>
+                speedMultiplier;
+        }
+
+        [Serializable]
+        public class WarehouseZoneLevelBonus
+        {
+            [SerializeField]
+            [Range(1, 5)]
+            private int level = 1;
+
+            [SerializeField]
+            [Min(0f)]
+            private float capacityMultiplier = 1f;
+
+            public int Level => level;
+
+            public float CapacityMultiplier =>
+                capacityMultiplier;
         }
 
         [Serializable]
@@ -90,7 +126,9 @@ namespace SkyOfFreedom.Factory
             private float speedMultiplier = 1f;
 
             public int Level => level;
-            public float SpeedMultiplier => speedMultiplier;
+
+            public float SpeedMultiplier =>
+                speedMultiplier;
         }
 
         [Header("Factory Upgrade Requirements")]
@@ -113,6 +151,11 @@ namespace SkyOfFreedom.Factory
         private AssemblyZoneLevelBonus[] assemblyZoneBonuses =
             new AssemblyZoneLevelBonus[5];
 
+        [Header("Warehouse Zone Bonuses")]
+        [SerializeField]
+        private WarehouseZoneLevelBonus[] warehouseZoneBonuses =
+            new WarehouseZoneLevelBonus[5];
+
         [Header("Research Zone Bonuses")]
         [SerializeField]
         private ResearchZoneLevelBonus[] researchZoneBonuses =
@@ -129,6 +172,9 @@ namespace SkyOfFreedom.Factory
 
         public AssemblyZoneLevelBonus[] AssemblyZoneBonuses =>
             assemblyZoneBonuses;
+
+        public WarehouseZoneLevelBonus[] WarehouseZoneBonuses =>
+            warehouseZoneBonuses;
 
         public ResearchZoneLevelBonus[] ResearchZoneBonuses =>
             researchZoneBonuses;
@@ -229,6 +275,34 @@ namespace SkyOfFreedom.Factory
                 {
                     AssemblyZoneLevelBonus current =
                         assemblyZoneBonuses[i];
+
+                    if (current == null)
+                        continue;
+
+                    if (current.Level == level)
+                    {
+                        bonus = current;
+                        return true;
+                    }
+                }
+            }
+
+            bonus = null;
+            return false;
+        }
+
+        public bool TryGetWarehouseZoneBonus(
+            int level,
+            out WarehouseZoneLevelBonus bonus)
+        {
+            if (warehouseZoneBonuses != null)
+            {
+                for (int i = 0;
+                     i < warehouseZoneBonuses.Length;
+                     i++)
+                {
+                    WarehouseZoneLevelBonus current =
+                        warehouseZoneBonuses[i];
 
                     if (current == null)
                         continue;
