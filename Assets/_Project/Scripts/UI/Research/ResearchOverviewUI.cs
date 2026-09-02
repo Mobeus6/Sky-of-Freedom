@@ -118,7 +118,7 @@ namespace SkyOfFreedom.UI
             if (researchTotalText == null)
                 return;
 
-            int unlockedResearches = 0;
+            int completedResearches = 0;
             int maximumResearches = 0;
 
             if (researchManager.Database != null &&
@@ -135,14 +135,14 @@ namespace SkyOfFreedom.UI
                 if (state == null)
                     continue;
 
-                if (state.IsUnlocked)
+                if (state.IsCompleted)
                 {
-                    unlockedResearches++;
+                    completedResearches++;
                 }
             }
 
             researchTotalText.text =
-                $"{unlockedResearches}/{maximumResearches}";
+                $"{completedResearches}/{maximumResearches}";
         }
 
         private void RefreshCurrentResearch()
@@ -154,6 +154,7 @@ namespace SkyOfFreedom.UI
             {
                 currentResearchText.text =
                     "No Research";
+
                 return;
             }
 
@@ -164,6 +165,7 @@ namespace SkyOfFreedom.UI
             {
                 currentResearchText.text =
                     "No Research";
+
                 return;
             }
 
@@ -175,6 +177,7 @@ namespace SkyOfFreedom.UI
             {
                 currentResearchText.text =
                     "No Research";
+
                 return;
             }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SkyOfFreedom.Data;
 using UnityEngine;
@@ -16,6 +17,8 @@ namespace SkyOfFreedom.Managers
 
         private readonly Dictionary<string, LicenseSO> componentLicenses =
             new Dictionary<string, LicenseSO>();
+
+        public event Action<LicenseSO> OnLicensePurchased;
 
         public bool CanProduce(IProducible item)
         {
@@ -52,6 +55,7 @@ namespace SkyOfFreedom.Managers
             }
 
             componentLicenses.Clear();
+            OnLicensePurchased = null;
 
             base.Shutdown();
         }
@@ -250,6 +254,9 @@ namespace SkyOfFreedom.Managers
              * Only unlock after successful payment.
              */
             Unlock(license);
+
+            OnLicensePurchased?.Invoke(
+                license);
 
             return true;
         }
