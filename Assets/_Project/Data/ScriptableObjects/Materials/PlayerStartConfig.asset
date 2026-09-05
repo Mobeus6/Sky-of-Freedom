@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 487e693c759b597488bfbd06ef6a713f, type: 3}
+  m_Name: PlayerStartConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Data.PlayerStartConfigSO
+  startingMoney: 100000
+  startingReputation: 50
+  materials:
+  - materialId: MAT-ALUMINUM
+    quantity: 12
+  - materialId: MAT-BATTERY-CELL
+    quantity: 12
+  - materialId: MAT-CARBON
+    quantity: 12
+  - materialId: MAT-COPPER
+    quantity: 12
+  - materialId: MAT-GLASS
+    quantity: 12
+  - materialId: MAT-MAGNET
+    quantity: 12
+  - materialId: MAT-MICROCHIP
+    quantity: 12
+  - materialId: MAT-PCB
+    quantity: 12
+  - materialId: MAT-PLASTIC
+    quantity: 12
+  - materialId: MAT-SILICONE
+    quantity: 12
+  - materialId: MAT-STEEL
+    quantity: 12

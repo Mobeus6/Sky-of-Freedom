@@ -276,9 +276,6 @@ namespace SkyOfFreedom.Production
 
             if (!IsInitialized)
             {
-                Debug.LogWarning(
-                    "ProductionManager: RegisterZone called before manager initialization.",
-                    this);
 
                 return;
             }
@@ -289,10 +286,6 @@ namespace SkyOfFreedom.Production
             productionZones.Add(zone);
 
             SubscribeToZone(zone);
-
-            Debug.Log(
-                $"Production zone registered: {zone.name}, Type: {zone.ZoneType}",
-                zone);
         }
 
         public void UnregisterZone(
@@ -306,9 +299,6 @@ namespace SkyOfFreedom.Production
 
             UnsubscribeFromZone(zone);
 
-            Debug.Log(
-                $"Production zone unregistered: {zone.name}, Type: {zone.ZoneType}",
-                zone);
         }
 
         private void SubscribeToZone(
