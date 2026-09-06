@@ -69,7 +69,13 @@ namespace SkyOfFreedom.Managers
         public FactoryStatisticsManager Statistics =>
             factoryStatisticsManager;
 
-        private async void Awake()
+        public float LoadingProgress { get; private set; }
+        public string LoadingStatus { get; private set; } = "Preparing…";
+        public bool IsLoading { get; private set; }
+        public bool HasLoadingError { get; private set; }
+        public bool CanRetryLoading { get; private set; }
+
+        private void Awake()
         {
             if (Instance != null && Instance != this)
             {
@@ -79,74 +85,105 @@ namespace SkyOfFreedom.Managers
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
 
-            if (playerStartConfig == null)
+        private void Start()
+        {
+            if (Instance == this)
             {
-                Debug.LogError(
-                    "PlayerStartConfig is not assigned to GameManager.",
-                    this
-                );
+                _ = StartGameAsync();
+            }
+        }
 
+        public async Task StartGameAsync()
+        {
+            if (isDestroyed || isGameReady || IsLoading ||
+                (HasLoadingError && !CanRetryLoading))
+            {
                 return;
             }
 
-            playerDataService = new PlayerDataService(
-                playerStartConfig
-            );
+            IsLoading = true;
+            HasLoadingError = false;
+            CanRetryLoading = false;
+            bool networkStage = false;
+            SetLoadingStage(0f, "Initializing services…");
 
             try
             {
+                if (playerStartConfig == null)
+                {
+                    throw new InvalidOperationException(
+                        "PlayerStartConfig is not assigned to GameManager."
+                    );
+                }
+
+                if (economyManager == null || factoryManager == null ||
+                    warehouseManager == null || licenseManager == null)
+                {
+                    throw new InvalidOperationException(
+                        "Required managers are not assigned to GameManager."
+                    );
+                }
+
+                playerDataService = new PlayerDataService(playerStartConfig);
+                networkStage = true;
+
                 await authenticationService.InitializeAsync();
+                if (isDestroyed) return;
 
-                if (isDestroyed)
-                {
-                    return;
-                }
-
+                SetLoadingStage(0.2f, "Signing in…");
                 await authenticationService.SignInAsGuestAsync();
+                if (isDestroyed) return;
 
-                if (isDestroyed)
-                {
-                    return;
-                }
-
+                SetLoadingStage(0.4f, "Retrieving player ID…");
                 string playerId = authenticationService.PlayerId;
-
                 string publicId =
                     await publicIdService.GetOrCreatePublicIdAsync();
+                if (isDestroyed) return;
 
-                if (isDestroyed)
-                {
-                    return;
-                }
-
+                SetLoadingStage(0.6f, "Loading progress…");
                 await LoadOrCreatePlayerDataAsync(playerId, publicId);
+                if (isDestroyed) return;
 
-                if (isDestroyed)
-                {
-                    return;
-                }
+                networkStage = false;
+                SetLoadingStage(0.8f, "Preparing game…");
+
+                // Give the loading UI a frame before synchronous initialization.
+                await Task.Yield();
+                if (isDestroyed) return;
 
                 managersStarted = true;
                 InitializeManagers();
-
                 playerDataService.ApplyToManagers(this);
-
                 SubscribeToSaveEvents();
-                isGameReady = true;
 
-                Debug.Log(
-                    $"Game ready. PublicId: {PublicId}",
-                    this
-                );
+                isGameReady = true;
+                SetLoadingStage(1f, "Ready!");
+                Debug.Log($"Game ready. PublicId: {PublicId}", this);
             }
             catch (Exception exception)
             {
                 if (!isDestroyed)
                 {
+                    HasLoadingError = true;
+                    CanRetryLoading = networkStage;
+                    LoadingStatus = networkStage
+                        ? "Unable to load data. Check your connection and try again."
+                        : "Unable to prepare the game. Restart the game. If the problem persists, contact support.";
                     Debug.LogException(exception, this);
                 }
             }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private void SetLoadingStage(float progress, string status)
+        {
+            LoadingProgress = progress;
+            LoadingStatus = status;
         }
 
         private void OnDestroy()
