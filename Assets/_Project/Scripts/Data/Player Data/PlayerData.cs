@@ -23,6 +23,7 @@ namespace SkyOfFreedom.Data
     public class PlayerAccountData
     {
         public string PlayerId;
+        public string PublicId;
         public string CreatedAtUtc;
         public string LastSaveAtUtc;
     }
