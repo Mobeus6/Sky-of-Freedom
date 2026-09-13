@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.VectorGraphics::Unity.VectorGraphics.SVGImage
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7176471, g: 0.74509805, b: 0.78039217, a: 1}
+  m_Color: {r: 0.18431373, g: 0.5019608, b: 0.92941177, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -950,7 +950,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 1355, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9220111004386994772
 CanvasRenderer:
@@ -1048,6 +1048,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.UI.WarehouseCardUI
   icon: {fileID: 7076600965204278993}
   nameText: {fileID: 3464598696650427009}
+  descriptionText: {fileID: 5674184046665601469}
   quantityText: {fileID: 7254869691507794936}
   tierText: {fileID: 2534389817850164355}
   button: {fileID: 1474221786290233015}
@@ -1667,8 +1668,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 145, y: -14}
-  m_SizeDelta: {x: 200, y: 100}
+  m_AnchoredPosition: {x: 150, y: -14}
+  m_SizeDelta: {x: 190, y: 100}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1041552894232105225
 CanvasRenderer:
@@ -1732,8 +1733,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -1978,7 +1979,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -431, y: 0}
+  m_AnchoredPosition: {x: -294, y: 0}
   m_SizeDelta: {x: 140, y: 55}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!1 &7484750563402878288
@@ -2015,7 +2016,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -807, y: 0}
+  m_AnchoredPosition: {x: -541, y: 0}
   m_SizeDelta: {x: 140, y: 55}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!1 &7639851408177636724
@@ -2168,7 +2169,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -34.88916, y: 0}
+  m_AnchoredPosition: {x: -24, y: 0}
   m_SizeDelta: {x: 165.1108, y: 55}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!1 &8670566467750798806
@@ -2303,7 +2304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.VectorGraphics::Unity.VectorGraphics.SVGImage
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7176471, g: 0.74509805, b: 0.78039217, a: 1}
+  m_Color: {r: 0.18431373, g: 0.5019608, b: 0.92941177, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

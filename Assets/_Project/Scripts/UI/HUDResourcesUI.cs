@@ -10,6 +10,7 @@ namespace SkyOfFreedom.UI
         [Header("UI")]
         [SerializeField] private TMP_Text moneyText;
         [SerializeField] private TMP_Text reputationText;
+        [SerializeField] private TMP_Text saveStatusText;
 
         private EconomyManager economyManager;
 
@@ -48,6 +49,21 @@ namespace SkyOfFreedom.UI
         private void UpdateMoney(long value)
         {
             moneyText.text = NumberFormatter.Format(value);
+        }
+
+        private void Update()
+        {
+            if (saveStatusText == null)
+                return;
+
+            GameManager game = GameManager.Instance;
+            string status = game != null && game.IsGameReady
+                ? game.SaveStatusText
+                : string.Empty;
+            if (saveStatusText.text != status)
+                saveStatusText.text = status;
+            // This label must not intercept taps on the HUD.
+            saveStatusText.raycastTarget = false;
         }
 
         private void UpdateReputation(int value)

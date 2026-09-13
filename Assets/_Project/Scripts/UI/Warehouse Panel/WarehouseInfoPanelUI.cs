@@ -264,6 +264,9 @@ namespace SkyOfFreedom.UI
                     material.Material.Icon,
                     material.Material.Tier,
                     material.Amount);
+                MaterialSO recipeMaterial = material.Material;
+                item.EnablePurchase(() => Show(recipeMaterial,
+                    warehouse.GetQuantity(recipeMaterial.ID)));
             }
         }
         private void ShowComponent(ComponentSO component)

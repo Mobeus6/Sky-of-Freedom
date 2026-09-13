@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Services;
 using TMPro;
@@ -22,6 +23,15 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text statusText;
         [SerializeField] private GameObject guestOptionsRoot;
         [SerializeField] private Button tapToPlayButton;
+        [Header("Account confirmation")]
+        [SerializeField] private Button signOutButton;
+        [SerializeField] private GameObject signOutOverlay;
+        [SerializeField] private TMP_Text confirmationTitle;
+        [SerializeField] private TMP_Text confirmationStatusText;
+        [SerializeField] private Button confirmButton;
+        [SerializeField] private TMP_Text confirmButtonText;
+        [SerializeField] private Button cancelButton;
+
         [SerializeField]
         private string webClientId =
             "715019449943-dbu03rb254ppiocg4jiijfsuhi74b9al.apps.googleusercontent.com";
@@ -34,11 +44,16 @@ namespace SkyOfFreedom.UI
         private bool initialized;
         private string requestId;
         private string originalPlayerId;
+        private bool confirmationOpen;
 
         private void Awake()
         {
             if (googleSignInButton == null || playButton == null || statusText == null ||
-                guestOptionsRoot == null || tapToPlayButton == null)
+                guestOptionsRoot == null || tapToPlayButton == null ||
+                signOutButton == null || signOutOverlay == null ||
+                confirmationTitle == null ||
+                confirmationStatusText == null || confirmButton == null || confirmButtonText == null ||
+                cancelButton == null)
             {
                 Debug.LogError("GoogleAccountLinkUI: assign all Inspector fields.", this);
                 enabled = false;
@@ -46,7 +61,8 @@ namespace SkyOfFreedom.UI
             }
 
             if (transform.IsChildOf(guestOptionsRoot.transform) ||
-                transform.IsChildOf(tapToPlayButton.transform))
+                transform.IsChildOf(tapToPlayButton.transform) ||
+                transform.IsChildOf(signOutOverlay.transform))
             {
                 Debug.LogError("GoogleAccountLinkUI must be outside the panels it hides.", this);
                 enabled = false;
@@ -58,6 +74,10 @@ namespace SkyOfFreedom.UI
             // Attach this component to a dedicated empty object.
             gameObject.name = "GoogleAccountLinkReceiver_" + Guid.NewGuid().ToString("N");
             googleSignInButton.onClick.AddListener(BeginLink);
+            signOutButton.onClick.AddListener(OpenSignOut);
+            confirmButton.onClick.AddListener(ConfirmAccountChange);
+            cancelButton.onClick.AddListener(CancelAccountChange);
+            signOutOverlay.SetActive(false);
             initialized = true;
             statusText.text = "";
             RefreshButtons();
@@ -73,30 +93,142 @@ namespace SkyOfFreedom.UI
             bool ready = GameManager.Instance != null &&
                          GameManager.Instance.IsGameReady;
             bool supported = Application.platform == RuntimePlatform.Android;
+            // Do not access Authentication.Instance before startup initializes UGS.
             bool linked = ready && authentication.IsGoogleLinked;
+            bool canInteract = ready && !busy && !confirmationOpen;
 
-            googleSignInButton.interactable =
-                ready && supported && !busy && !linked;
+            googleSignInButton.interactable = canInteract && supported && !linked;
+            playButton.interactable = canInteract && !linked;
 
-            bool showTapToPlay = ready && linked && !busy;
-            if (guestOptionsRoot.activeSelf != !showTapToPlay)
-                guestOptionsRoot.SetActive(!showTapToPlay);
-            if (tapToPlayButton.gameObject.activeSelf != showTapToPlay)
-                tapToPlayButton.gameObject.SetActive(showTapToPlay);
-            tapToPlayButton.interactable = showTapToPlay;
+            bool showTapToPlay = ready && linked;
+            guestOptionsRoot.SetActive(!showTapToPlay);
+            tapToPlayButton.gameObject.SetActive(showTapToPlay);
+            tapToPlayButton.interactable = canInteract && linked;
+            signOutButton.gameObject.SetActive(linked);
+            signOutButton.interactable = canInteract && linked;
 
-            // Only override Play while a link operation is running.
-            if (busy) playButton.interactable = false;
+            cancelButton.interactable = confirmationOpen && !busy;
+            confirmButton.interactable = confirmationOpen && ready && !busy;
 
-            if (!busy && linked)
+            if (!busy && !confirmationOpen && linked)
                 statusText.text = "Google account linked";
-            else if (!busy && !supported)
+            else if (!busy && !confirmationOpen && !supported)
                 statusText.text = "Google sign-in is available in the Android build.";
+        }
+
+        private void OpenSignOut()
+        {
+            if (busy || confirmationOpen || GameManager.Instance == null ||
+                !GameManager.Instance.IsGameReady || !authentication.IsGoogleLinked)
+                return;
+
+            originalPlayerId = authentication.PlayerId;
+            ShowConfirmation(
+                "Sign out?",
+                "");
+        }
+
+        private void ShowConfirmation(string title, string message)
+        {
+            busy = false;
+            confirmationOpen = true;
+            confirmationTitle.text = title;
+            confirmButtonText.text = "Sign Out";
+            confirmationStatusText.text = message;
+            signOutOverlay.SetActive(true);
+            RefreshButtons();
+        }
+
+        private void CancelAccountChange()
+        {
+            if (busy) return;
+            confirmationOpen = false;
+            signOutOverlay.SetActive(false);
+            RefreshButtons();
+        }
+
+        private async void ConfirmAccountChange()
+        {
+            GameManager manager = GameManager.Instance;
+            if (!confirmationOpen || busy || manager == null ||
+                !manager.IsGameReady)
+                return;
+
+            if (!authentication.IsSignedIn ||
+                authentication.PlayerId != originalPlayerId)
+            {
+                confirmationStatusText.text =
+                    "Account changed. Restart the game.";
+                return;
+            }
+
+            busy = true;
+            confirmationStatusText.text = "Saving…";
+            RefreshButtons();
+
+            try
+            {
+                await manager.SignOutAccountAsync();
+
+                // The scene reload creates fresh UI and managers for the new player.
+                if (!destroyed) confirmationStatusText.text = "Loading…";
+            }
+            catch (Exception exception)
+            {
+                if (destroyed) return;
+                busy = false;
+                bool recovered = GameManager.Instance != null &&
+                                 GameManager.Instance.IsGameReady;
+                string code = exception is RequestFailedException requestException
+                    ? " Code: " + requestException.ErrorCode + "."
+                    : "";
+                confirmationStatusText.text = recovered
+                    ? "Cancelled. Please try again." + code
+                    : "Restart the game." + code;
+                Debug.LogWarning("Account change failed." + code, this);
+                RefreshButtons();
+            }
+        }
+
+        private async Task SignInToExistingAccountAsync(string idToken)
+        {
+            // Choosing Google is the user's sign-in action; no second confirmation.
+            confirmationOpen = false;
+            signOutOverlay.SetActive(false);
+            busy = true;
+            statusText.text = "Signing in…";
+            RefreshButtons();
+
+            try
+            {
+                GameManager manager = GameManager.Instance;
+                if (manager == null || !manager.IsGameReady ||
+                    !authentication.IsSignedIn ||
+                    authentication.PlayerId != originalPlayerId)
+                    throw new InvalidOperationException("The active player changed.");
+
+                // This existing path saves the guest first and reloads fresh managers.
+                await manager.RestoreGoogleAccountAsync(idToken);
+                if (!destroyed) statusText.text = "Loading…";
+            }
+            catch (Exception exception)
+            {
+                if (destroyed) return;
+                bool recovered = GameManager.Instance != null &&
+                                 GameManager.Instance.IsGameReady;
+                string code = exception is RequestFailedException requestException
+                    ? " Code: " + requestException.ErrorCode + "."
+                    : "";
+                Finish(recovered
+                    ? "Sign-in failed. Please try again." + code
+                    : "Unable to finish sign-in. Restart the game." + code);
+                Debug.LogWarning("Google account sign-in failed." + code, this);
+            }
         }
 
         private void BeginLink()
         {
-            if (busy || GameManager.Instance == null ||
+            if (busy || confirmationOpen || GameManager.Instance == null ||
                 !GameManager.Instance.IsGameReady ||
                 !authentication.IsSignedIn || authentication.IsGoogleLinked)
                 return;
@@ -143,7 +275,7 @@ namespace SkyOfFreedom.UI
         [Preserve]
         public async void OnGoogleCredential(string json)
         {
-            if (destroyed || !busy) return;
+            if (destroyed || !busy || string.IsNullOrEmpty(requestId)) return;
 
             GoogleResult result;
             try
@@ -199,11 +331,16 @@ namespace SkyOfFreedom.UI
             {
                 if (!destroyed)
                 {
-                    Finish($"Google link failed. Auth code: {exception.ErrorCode}\n" +
-                        (exception.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked
-                            ? "This Google account is linked to another player. Your progress has not been switched."
-                            : "Unable to confirm the link."));
-                    Debug.LogWarning("Google link authentication error code: " + exception.ErrorCode);
+                    if (exception.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked)
+                    {
+                        await SignInToExistingAccountAsync(result.token);
+                    }
+                    else
+                    {
+                        Finish($"Google link failed. Auth code: {exception.ErrorCode}\nUnable to confirm the link.");
+                    }
+                    if (exception.ErrorCode != AuthenticationErrorCodes.AccountAlreadyLinked)
+                        Debug.LogWarning("Google link authentication error code: " + exception.ErrorCode);
                 }
             }
             catch (RequestFailedException exception)
@@ -238,6 +375,9 @@ namespace SkyOfFreedom.UI
         private void OnDestroy()
         {
             destroyed = true;
+            if (signOutButton != null) signOutButton.onClick.RemoveListener(OpenSignOut);
+            if (confirmButton != null) confirmButton.onClick.RemoveListener(ConfirmAccountChange);
+            if (cancelButton != null) cancelButton.onClick.RemoveListener(CancelAccountChange);
             if (googleSignInButton != null)
                 googleSignInButton.onClick.RemoveListener(BeginLink);
 

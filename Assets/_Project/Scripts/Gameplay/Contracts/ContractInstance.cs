@@ -55,6 +55,30 @@ namespace SkyOfFreedom.Contracts
             State = ContractState.InProgress;
         }
 
+        public static ContractInstance Restore(
+            ContractSO template, int quantity, int reward, float deadlineHours,
+            DateTime createdAt, DateTime expireAt, ContractState state,
+            int deliveredQuantity)
+        {
+            if (template == null || quantity <= 0 || reward < 0 ||
+                float.IsNaN(deadlineHours) || float.IsInfinity(deadlineHours) ||
+                deadlineHours < 0 || expireAt < createdAt ||
+                deliveredQuantity < 0 || deliveredQuantity > quantity ||
+                (state != ContractState.InProgress && state != ContractState.Completed) ||
+                (state == ContractState.Completed && deliveredQuantity != quantity) ||
+                (state == ContractState.InProgress && deliveredQuantity == quantity))
+                throw new ArgumentException("Invalid saved contract.");
+
+            return new ContractInstance(template, quantity, reward, 0f)
+            {
+                DeadlineHours = deadlineHours,
+                CreatedAt = createdAt,
+                ExpireAt = expireAt,
+                State = state,
+                DeliveredQuantity = deliveredQuantity
+            };
+        }
+
         public void Deliver(int amount)
         {
             if (State != ContractState.InProgress)

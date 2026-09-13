@@ -3,6 +3,7 @@ using SkyOfFreedom.Managers;
 using SkyOfFreedom.Production;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace SkyOfFreedom.Contracts
@@ -93,9 +94,83 @@ namespace SkyOfFreedom.Contracts
             base.Shutdown();
         }
 
-        private void Start()
+        public PlayerContractsData GetSaveData()
         {
+            var data = new PlayerContractsData();
+            foreach (ContractInstance contract in activeContracts)
+                data.Active.Add(Capture(contract));
+            foreach (ContractInstance contract in completedContracts)
+                data.History.Add(Capture(contract));
+            return data;
+        }
+
+        private static PlayerContractData Capture(ContractInstance contract)
+        {
+            return new PlayerContractData
+            {
+                TemplateId = contract.Template.ID,
+                Quantity = contract.Quantity,
+                Reward = contract.Reward,
+                DeadlineHours = contract.DeadlineHours,
+                CreatedAtUtc = contract.CreatedAt.ToString("O"),
+                ExpireAtUtc = contract.ExpireAt.ToString("O"),
+                State = contract.State.ToString(),
+                DeliveredQuantity = contract.DeliveredQuantity
+            };
+        }
+
+        public void LoadSaveData(PlayerContractsData data)
+        {
+            if (!IsInitialized || database == null)
+                throw new InvalidOperationException("Contract manager is not initialized.");
+
+            // Validate everything before replacing the live collections.
+            List<ContractInstance> restoredActive = RestoreList(
+                data?.Active, ContractState.InProgress);
+            List<ContractInstance> restoredHistory = RestoreList(
+                data?.History, ContractState.Completed);
+            activeContracts.Clear();
+            completedContracts.Clear();
+            readyContracts.Clear();
+            activeContracts.AddRange(restoredActive);
+            completedContracts.AddRange(restoredHistory);
+            // Existing deadlines remain unchanged. Expired contracts cannot be submitted.
+            activeContracts.RemoveAll(contract => contract.IsExpired());
             GenerateContracts();
+        }
+
+        private List<ContractInstance> RestoreList(
+            List<PlayerContractData> entries, ContractState expectedState)
+        {
+            var result = new List<ContractInstance>();
+            if (entries == null) return result;
+            foreach (PlayerContractData saved in entries)
+            {
+                if (saved == null ||
+                    !Enum.TryParse(saved.State, out ContractState state) ||
+                    state != expectedState ||
+                    !DateTime.TryParse(saved.CreatedAtUtc, CultureInfo.InvariantCulture,
+                        DateTimeStyles.RoundtripKind, out DateTime created) ||
+                    !DateTime.TryParse(saved.ExpireAtUtc, CultureInfo.InvariantCulture,
+                        DateTimeStyles.RoundtripKind, out DateTime expires))
+                    throw new InvalidOperationException("Invalid saved contract data.");
+
+                ContractSO template = null;
+                foreach (ContractSO candidate in database.Contracts)
+                    if (candidate != null && candidate.ID == saved.TemplateId)
+                    {
+                        template = candidate;
+                        break;
+                    }
+                if (template == null)
+                    throw new InvalidOperationException(
+                        $"Saved contract template is missing: {saved.TemplateId}");
+
+                result.Add(ContractInstance.Restore(template, saved.Quantity,
+                    saved.Reward, saved.DeadlineHours, created.ToUniversalTime(),
+                    expires.ToUniversalTime(), state, saved.DeliveredQuantity));
+            }
+            return result;
         }
 
         public void GenerateContracts()
@@ -242,6 +317,9 @@ namespace SkyOfFreedom.Contracts
                 return false;
 
             if (contract.State != ContractState.InProgress)
+                return false;
+
+            if (contract.IsExpired())
                 return false;
 
             if (GameManager.Instance == null ||
@@ -419,6 +497,10 @@ namespace SkyOfFreedom.Contracts
 
         private void Update()
         {
+            if (!IsInitialized || GameManager.Instance == null ||
+                !GameManager.Instance.IsGameReady)
+                return;
+
             for (int i = activeContracts.Count - 1;
                  i >= 0;
                  i--)

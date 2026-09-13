@@ -38,6 +38,42 @@ namespace SkyOfFreedom.Production
             State = ProductionState.Queued;
         }
 
+        public ProductionTask(
+            Guid id, IProducible target, int quantity, int producedQuantity,
+            float currentItemProgress, DateTime createdAt, ProductionState state)
+        {
+            if (id == Guid.Empty || target == null || quantity <= 0 ||
+                producedQuantity < 0 || producedQuantity >= quantity ||
+                float.IsNaN(currentItemProgress) || float.IsInfinity(currentItemProgress) ||
+                currentItemProgress < 0f || currentItemProgress > 1f ||
+                (state != ProductionState.Queued && state != ProductionState.Working &&
+                 state != ProductionState.Paused && state != ProductionState.WaitingForStorage))
+                throw new ArgumentException("Invalid saved production task.");
+
+            if (state == ProductionState.WaitingForStorage && currentItemProgress != 1f)
+                throw new ArgumentException("A waiting product must be complete.");
+            if (state == ProductionState.Queued &&
+                (producedQuantity != 0 || currentItemProgress != 0f))
+                throw new ArgumentException("A queued task cannot have production progress.");
+
+            Id = id;
+            Target = target;
+            Quantity = quantity;
+            ProducedQuantity = producedQuantity;
+            CurrentItemProgress = currentItemProgress;
+            CreatedAt = createdAt;
+            State = state;
+        }
+
+        public void WaitForStorage()
+        {
+            if (State != ProductionState.Working &&
+                State != ProductionState.WaitingForStorage)
+                return;
+            CurrentItemProgress = 1f;
+            State = ProductionState.WaitingForStorage;
+        }
+
         public void AddQuantity(int amount)
         {
             if (amount <= 0)
@@ -73,9 +109,11 @@ namespace SkyOfFreedom.Production
         }
         public void ProduceOne()
         {
-            if (State != ProductionState.Working)
+            if (State != ProductionState.Working &&
+                State != ProductionState.WaitingForStorage)
                 return;
 
+            State = ProductionState.Working;
             ProducedQuantity++;
             CurrentItemProgress = 0f;
 

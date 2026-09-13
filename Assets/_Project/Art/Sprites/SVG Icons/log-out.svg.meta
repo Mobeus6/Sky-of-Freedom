@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f24872d36e7e8884c8fe765d7d4c66e3
+guid: fbef4d7cf3ab0e64d820d028c52164d9
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -8,7 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 12408, guid: 0000000000000000e000000000000000, type: 0}
-  svgType: 0
+  svgType: 4
   texturedSpriteMeshType: 0
   svgPixelsPerUnit: 100
   gradientResolution: 64
@@ -39,15 +39,15 @@ ScriptedImporter:
   useSVGPixelsPerUnit: 0
   spriteData:
     TessellationDetail: 0
-    SpriteName: StorageSprite
-    SpritePivot: {x: NaN, y: NaN}
+    SpriteName: log-outSprite
+    SpritePivot: {x: 0.5, y: 0.5}
     SpriteAlignment: 0
     SpriteBorder: {x: 0, y: 0, z: 0, w: 0}
     SpriteRect:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 0
-      height: 0
-    SpriteID: 143a813b0e74cab4a86ef39cc179748d
+      width: 20
+      height: 20
+    SpriteID: 876bb744d0cc46b4cb327f1070a126c9
     PhysicsOutlines: []

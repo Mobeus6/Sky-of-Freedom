@@ -11,6 +11,7 @@ namespace SkyOfFreedom.UI
         [Header("UI")]
         [SerializeField] private Image icon;
         [SerializeField] private TMP_Text nameText;
+        [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private TMP_Text quantityText;
         [SerializeField] private TMP_Text tierText;
         [SerializeField] private Button button;
@@ -31,6 +32,17 @@ namespace SkyOfFreedom.UI
         public void Setup(DataSO data, int quantity)
         {
             item = data;
+
+            if (descriptionText != null)
+            {
+                descriptionText.text = data switch
+                {
+                    MaterialSO material => material.Description ?? string.Empty,
+                    ComponentSO component => component.Description ?? string.Empty,
+                    DroneModelSO drone => drone.Description ?? string.Empty,
+                    _ => string.Empty
+                };
+            }
 
             switch (data)
             {

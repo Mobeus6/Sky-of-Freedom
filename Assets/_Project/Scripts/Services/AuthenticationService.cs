@@ -60,6 +60,49 @@ namespace SkyOfFreedom.Services
             }
         }
 
+
+        public void SignOutAndClearSession()
+        {
+            UnityAuthenticationService.Instance.SignOut(true);
+        }
+
+        public async Task SignInToExistingGoogleAccountAsync(string idToken)
+        {
+            if (!IsSignedIn)
+                throw new InvalidOperationException("A current session is required.");
+            if (string.IsNullOrWhiteSpace(idToken))
+                throw new ArgumentException("Google credential is missing.");
+
+            string previousPlayerId = PlayerId;
+            UnityAuthenticationService.Instance.SignOut(false);
+            try
+            {
+                await UnityAuthenticationService.Instance.SignInWithGoogleAsync(
+                    idToken,
+                    new Unity.Services.Authentication.SignInOptions
+                    {
+                        CreateAccount = false
+                    });
+            }
+            catch
+            {
+                // Keep the cached old session available on sign-in failure.
+                if (!IsSignedIn)
+                {
+                    await UnityAuthenticationService.Instance.SignInAnonymouslyAsync(
+                        new Unity.Services.Authentication.SignInOptions
+                        {
+                            CreateAccount = false
+                        });
+                }
+                if (!IsSignedIn || PlayerId != previousPlayerId)
+                    throw new InvalidOperationException(
+                        "Could not restore the previous session. Restart the game.");
+                await RefreshPlayerInfoAsync();
+                throw;
+            }
+        }
+
         public async Task LinkGoogleAccountAsync(string idToken)
         {
             if (!IsSignedIn)

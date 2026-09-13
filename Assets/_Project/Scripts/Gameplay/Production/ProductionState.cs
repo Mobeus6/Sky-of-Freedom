@@ -6,6 +6,7 @@ namespace SkyOfFreedom.Production
         Working,
         Paused,
         Completed,
-        Cancelled
+        Cancelled,
+        WaitingForStorage
     }
 }

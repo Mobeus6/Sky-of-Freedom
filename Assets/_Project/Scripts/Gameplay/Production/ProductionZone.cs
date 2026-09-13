@@ -76,6 +76,46 @@ namespace SkyOfFreedom.Production
             }
         }
 
+        public bool CanAccept(IProducible item)
+        {
+            return isActiveAndEnabled && TaskCount < queueCapacity && Supports(item);
+        }
+
+        public bool Supports(IProducible item)
+        {
+            return (zoneType == FactoryZoneType.Production && item is ComponentSO) ||
+                   (zoneType == FactoryZoneType.Assembly && item is DroneModelSO);
+        }
+
+        // Restore without consuming ingredients or issuing products/events.
+        public void LoadTasks(IReadOnlyList<ProductionTask> tasks)
+        {
+            if (tasks == null) throw new ArgumentNullException(nameof(tasks));
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                if (tasks[i] == null || !Supports(tasks[i].Target) ||
+                    (i > 0 && tasks[i].State != ProductionState.Queued))
+                    throw new ArgumentException("Invalid production queue.");
+            }
+
+            queue.Clear();
+            currentTask = null;
+            currentProgress = 0f;
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                if (i == 0)
+                {
+                    currentTask = tasks[i];
+                    if (currentTask.State == ProductionState.Queued) currentTask.Start();
+                    currentProgress = currentTask.CurrentItemProgress *
+                        Mathf.Max(0.01f, currentTask.Target.ProductionTime);
+                }
+                else queue.Add(tasks[i]);
+            }
+            // An old queue may exceed a reduced capacity: retain it, block new orders.
+            QueueChanged?.Invoke(this);
+        }
+
         private void Awake()
         {
             queueCapacity =
@@ -87,7 +127,8 @@ namespace SkyOfFreedom.Production
         public bool Enqueue(
             ProductionTask task)
         {
-            if (task == null)
+            if (task == null || !Supports(task.Target) ||
+                task.State != ProductionState.Queued)
                 return false;
 
             if (!isActiveAndEnabled)
@@ -143,11 +184,13 @@ namespace SkyOfFreedom.Production
             if (task == null)
                 return false;
 
-            if (task != currentTask)
+            if (task != currentTask || task.State != ProductionState.Working)
                 return false;
 
             currentProgress =
-                task.Target.ProductionTime;
+                Mathf.Max(0.01f, task.Target.ProductionTime);
+            task.CompleteCurrentItem();
+            QueueChanged?.Invoke(this);
 
             return true;
         }
@@ -238,52 +281,46 @@ namespace SkyOfFreedom.Production
                 return;
             }
 
-            float productionTime =
-                Mathf.Max(
-                    0.01f,
-                    currentTask.Target.ProductionTime);
+            if (currentTask.State == ProductionState.Paused)
+                return;
+            if (currentTask.State != ProductionState.Working &&
+                currentTask.State != ProductionState.WaitingForStorage)
+                return;
 
-            float speedMultiplier =
-                ProductionSpeedCalculator.GetMultiplier(
-                    this);
-
-            currentProgress +=
-                deltaTime *
-                speedMultiplier;
-
-            currentTask.CurrentItemProgress =
-                Mathf.Clamp01(
-                    currentProgress /
-                    productionTime);
-
-            if (currentProgress <
-                productionTime)
+            float productionTime = Mathf.Max(0.01f, currentTask.Target.ProductionTime);
+            if (currentTask.State == ProductionState.Working)
             {
+                currentProgress = Mathf.Min(productionTime,
+                    currentProgress + Mathf.Max(0f, deltaTime) *
+                    ProductionSpeedCalculator.GetMultiplier(this));
+                currentTask.CurrentItemProgress = Mathf.Clamp01(currentProgress / productionTime);
+                if (currentProgress < productionTime) return;
+            }
+
+            Warehouse.WarehouseManager warehouse = GameManager.Instance?.Warehouse;
+            if (warehouse == null || !warehouse.TryAddItem(currentTask.Target.ID, 1))
+            {
+                if (currentTask.State != ProductionState.WaitingForStorage)
+                {
+                    currentTask.WaitForStorage();
+                    QueueChanged?.Invoke(this);
+                }
                 return;
             }
 
+            // Count only products actually delivered to storage.
+            ProductionTask deliveredTask = currentTask;
             currentProgress = 0f;
+            deliveredTask.ProduceOne();
+            if (deliveredTask.IsCompleted)
+            {
+                currentTask = null;
+                StartNextTask();
+            }
 
-            currentTask.ProduceOne();
-
-            ItemProduced?.Invoke(
-                this,
-                currentTask.Target);
-
-            if (currentTask.RemainingQuantity > 0)
-                return;
-
-            ProductionTask completed =
-                currentTask;
-
-            TaskCompleted?.Invoke(
-                this,
-                completed);
-
-            currentTask = null;
-
-            StartNextTask();
-
+            // The queue and warehouse are consistent before notifying consumers.
+            ItemProduced?.Invoke(this, deliveredTask.Target);
+            if (deliveredTask.IsCompleted) TaskCompleted?.Invoke(this, deliveredTask);
             QueueChanged?.Invoke(this);
         }
 

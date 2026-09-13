@@ -40,6 +40,10 @@ namespace SkyOfFreedom.Managers
 
         private void OnTick(float deltaTime)
         {
+            if (GameManager.Instance == null || !GameManager.Instance.IsGameReady ||
+                GameManager.Instance.IsAccountTransition)
+                return;
+
             if (researchManager == null)
                 return;
 

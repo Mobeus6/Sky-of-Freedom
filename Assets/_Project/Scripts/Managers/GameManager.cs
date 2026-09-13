@@ -8,6 +8,7 @@ using SkyOfFreedom.Production;
 using SkyOfFreedom.Services;
 using SkyOfFreedom.Warehouse;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SkyOfFreedom.Managers
 {
@@ -45,11 +46,21 @@ namespace SkyOfFreedom.Managers
 
         private bool isGameReady;
         private bool isSaving;
+        private Task saveTask = Task.CompletedTask;
+        public bool IsAccountTransition { get; private set; }
         private bool hasPendingSave;
         private bool isDestroyed;
         private bool managersStarted;
+        private float nextProductionCheckpoint;
+        private float nextSaveRetry;
+        private const float ProductionCheckpointSeconds = 15f;
 
         public bool IsGameReady => isGameReady;
+
+        public bool HasSaveError { get; private set; }
+        public string SaveStatusText => HasSaveError
+            ? "Not saved. Retrying…"
+            : (isSaving || hasPendingSave ? "Saving…" : string.Empty);
 
         public string PublicId =>
             playerDataService?.CurrentData?.Account?.PublicId
@@ -95,9 +106,24 @@ namespace SkyOfFreedom.Managers
             }
         }
 
+        private void Update()
+        {
+            if (!isGameReady || isDestroyed || IsAccountTransition) return;
+            float now = UnityEngine.Time.unscaledTime;
+            if (now >= nextProductionCheckpoint)
+            {
+                nextProductionCheckpoint = now + ProductionCheckpointSeconds;
+                if ((productionManager != null && productionManager.HasRunningTasks) ||
+                    (researchManager != null && researchManager.HasActiveResearch()))
+                    RequestSave();
+            }
+            if (hasPendingSave && !isSaving && now >= nextSaveRetry)
+                saveTask = SavePendingDataAsync();
+        }
+
         public async Task StartGameAsync()
         {
-            if (isDestroyed || isGameReady || IsLoading ||
+            if (isDestroyed || IsAccountTransition || isGameReady || IsLoading ||
                 (HasLoadingError && !CanRetryLoading))
             {
                 return;
@@ -119,6 +145,7 @@ namespace SkyOfFreedom.Managers
                 }
 
                 if (economyManager == null || factoryManager == null ||
+                    productionManager == null ||
                     warehouseManager == null || licenseManager == null)
                 {
                     throw new InvalidOperationException(
@@ -212,6 +239,8 @@ namespace SkyOfFreedom.Managers
         {
             if (pauseStatus)
             {
+                // Try again immediately when the app is backgrounded.
+                nextSaveRetry = 0f;
                 RequestSave();
             }
         }
@@ -281,6 +310,123 @@ namespace SkyOfFreedom.Managers
             }
         }
 
+
+        public Task SignOutAccountAsync()
+        {
+            if (!authenticationService.IsGoogleLinked)
+                throw new InvalidOperationException("Only a linked account can sign out.");
+            return ChangeAccountAsync(null);
+        }
+
+        public Task RestoreGoogleAccountAsync(string idToken)
+        {
+            if (string.IsNullOrWhiteSpace(idToken))
+                throw new ArgumentException("Google credential is missing.");
+            return ChangeAccountAsync(idToken);
+        }
+
+        private async Task ChangeAccountAsync(string googleToken)
+        {
+            if (IsAccountTransition || !isGameReady || isDestroyed)
+                throw new InvalidOperationException("Account change is not available.");
+
+            Scene menuScene = SceneManager.GetActiveScene();
+            if (menuScene.name != "MainMenu" || menuScene.buildIndex < 0)
+                throw new InvalidOperationException("Account changes require MainMenu in the build scene list.");
+
+            // A scene reload must replace all managers, not retain external state.
+            MonoBehaviour[] managers = {
+                databaseManager, productionManager, timeManager, economyManager,
+                marketManager, factoryManager, researchManager, warehouseManager,
+                licenseManager, contractManager, factoryStatisticsManager
+            };
+            foreach (MonoBehaviour manager in managers)
+            {
+                if (manager != null && !manager.transform.IsChildOf(transform))
+                    throw new InvalidOperationException(
+                        "All managers must belong to the persistent GameManager hierarchy.");
+            }
+
+            // Also suspend helper behaviours such as ResearchRunner during the save.
+            managers = GetComponentsInChildren<MonoBehaviour>(true);
+            string oldPlayerId = authenticationService.PlayerId;
+            IsAccountTransition = true;
+            isGameReady = false;
+            hasPendingSave = false;
+            float previousTimeScale = UnityEngine.Time.timeScale;
+            UnityEngine.Time.timeScale = 0f;
+            bool[] enabledStates = new bool[managers.Length];
+            for (int i = 0; i < managers.Length; i++)
+            {
+                if (managers[i] == null) continue;
+                enabledStates[i] = managers[i].enabled;
+                managers[i].enabled = false;
+            }
+
+            bool accountChanged = false;
+            try
+            {
+                // Await the existing request before making a final save.
+                await saveTask;
+                if (isDestroyed) throw new InvalidOperationException("GameManager was destroyed.");
+                if (!authenticationService.IsSignedIn ||
+                    authenticationService.PlayerId != oldPlayerId)
+                    throw new InvalidOperationException("The active player changed unexpectedly.");
+
+                playerDataService.CaptureFromManagers(this);
+                await cloudSaveService.SavePlayerDataAsync(playerDataService.CurrentData);
+                if (isDestroyed) throw new InvalidOperationException("GameManager was destroyed.");
+
+                if (googleToken == null)
+                {
+                    authenticationService.SignOutAndClearSession();
+                }
+                else
+                {
+                    await authenticationService.SignInToExistingGoogleAccountAsync(googleToken);
+                }
+
+                accountChanged = true;
+                UnsubscribeFromSaveEvents();
+                if (managersStarted)
+                {
+                    ShutdownManagers();
+                    managersStarted = false;
+                }
+                playerDataService.Clear();
+
+                // Retire this instance before the fresh scene creates its replacement.
+                Instance = null;
+                Destroy(gameObject);
+                while (!isDestroyed) await Task.Yield();
+                UnityEngine.Time.timeScale = previousTimeScale;
+                AsyncOperation reload = SceneManager.LoadSceneAsync(menuScene.buildIndex);
+                if (reload == null)
+                    throw new InvalidOperationException("Could not reload MainMenu.");
+                await reload;
+            }
+            catch
+            {
+                bool oldAccountRestored = !accountChanged &&
+                    authenticationService.IsSignedIn &&
+                    authenticationService.PlayerId == oldPlayerId;
+
+                if (!isDestroyed && oldAccountRestored)
+                {
+                    for (int i = 0; i < managers.Length; i++)
+                        if (managers[i] != null) managers[i].enabled = enabledStates[i];
+                    IsAccountTransition = false;
+                    isGameReady = true;
+                }
+                // Otherwise keep saving/play blocked until the game is restarted.
+                throw;
+            }
+            finally
+            {
+                UnityEngine.Time.timeScale = previousTimeScale;
+            }
+        }
+
         private void InitializeManagers()
         {
             databaseManager?.Initialize();
@@ -316,10 +462,30 @@ namespace SkyOfFreedom.Managers
             factoryManager.OnZoneLevelChanged += OnZoneLevelChanged;
             warehouseManager.OnItemChanged += OnWarehouseItemChanged;
             licenseManager.OnLicensePurchased += OnLicensePurchased;
+            productionManager.OnProductionChanged += RequestSave;
+            contractManager.OnContractsChanged += RequestSave;
+            factoryStatisticsManager.OnStatisticsChanged += RequestSave;
+            researchManager.OnResearchStarted += OnResearchChanged;
+            researchManager.OnResearchCancelled += OnResearchChanged;
+            researchManager.OnResearchCompleted += OnResearchChanged;
+            researchManager.OnResearchUnlocked += OnResearchChanged;
         }
 
         private void UnsubscribeFromSaveEvents()
         {
+            if (factoryStatisticsManager != null)
+                factoryStatisticsManager.OnStatisticsChanged -= RequestSave;
+            if (researchManager != null)
+            {
+                researchManager.OnResearchStarted -= OnResearchChanged;
+                researchManager.OnResearchCancelled -= OnResearchChanged;
+                researchManager.OnResearchCompleted -= OnResearchChanged;
+                researchManager.OnResearchUnlocked -= OnResearchChanged;
+            }
+            if (contractManager != null)
+                contractManager.OnContractsChanged -= RequestSave;
+            if (productionManager != null)
+                productionManager.OnProductionChanged -= RequestSave;
             if (economyManager != null)
             {
                 economyManager.OnMoneyChanged -= OnMoneyChanged;
@@ -377,9 +543,14 @@ namespace SkyOfFreedom.Managers
             RequestSave();
         }
 
+        private void OnResearchChanged(ResearchSO research)
+        {
+            RequestSave();
+        }
+
         private void RequestSave()
         {
-            if (isDestroyed ||
+            if (isDestroyed || IsAccountTransition ||
                 !isGameReady ||
                 playerDataService == null ||
                 !playerDataService.HasData)
@@ -389,12 +560,12 @@ namespace SkyOfFreedom.Managers
 
             hasPendingSave = true;
 
-            if (isSaving)
+            if (isSaving || UnityEngine.Time.unscaledTime < nextSaveRetry)
             {
                 return;
             }
 
-            _ = SavePendingDataAsync();
+            saveTask = SavePendingDataAsync();
         }
 
         private async Task SavePendingDataAsync()
@@ -403,8 +574,11 @@ namespace SkyOfFreedom.Managers
 
             try
             {
-                while (hasPendingSave && !isDestroyed)
+                while (hasPendingSave && !isDestroyed && !IsAccountTransition)
                 {
+                    // Coalesce synchronous changes: ingredients + queue / product + warehouse.
+                    await Task.Yield();
+                    if (isDestroyed || IsAccountTransition) break;
                     hasPendingSave = false;
 
                     playerDataService.CaptureFromManagers(this);
@@ -412,12 +586,17 @@ namespace SkyOfFreedom.Managers
                     await cloudSaveService.SavePlayerDataAsync(
                         playerDataService.CurrentData
                     );
+                    HasSaveError = false;
+                    nextSaveRetry = 0f;
                 }
             }
             catch (Exception exception)
             {
                 if (!isDestroyed)
                 {
+                    hasPendingSave = true;
+                    nextSaveRetry = UnityEngine.Time.unscaledTime + 5f;
+                    HasSaveError = true;
                     Debug.LogException(exception, this);
                 }
             }

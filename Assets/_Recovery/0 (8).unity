@@ -152,7 +152,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 490}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &21742241
@@ -175,6 +175,7 @@ MonoBehaviour:
   signOutButton: {fileID: 653256432}
   signOutOverlay: {fileID: 1462222620}
   confirmationTitle: {fileID: 531618220}
+  confirmationMessage: {fileID: 531618220}
   confirmationStatusText: {fileID: 740427535}
   confirmButton: {fileID: 5861165686803943680}
   confirmButtonText: {fileID: 5861165686803943679}
@@ -905,7 +906,7 @@ GameObject:
   - component: {fileID: 531618221}
   - component: {fileID: 531618220}
   m_Layer: 5
-  m_Name: Title Text
+  m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1336,7 +1337,7 @@ GameObject:
   - component: {fileID: 740427536}
   - component: {fileID: 740427535}
   m_Layer: 5
-  m_Name: Message Text
+  m_Name: SignOutStatusText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1358,7 +1359,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 113.93}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 346, y: 32.0657}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &740427535
@@ -4275,7 +4276,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 553015855909841750, guid: 9d32c877255e1e343abcbb5094aa40b0, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 25
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 553015855909841750, guid: 9d32c877255e1e343abcbb5094aa40b0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4403,7 +4404,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3963477346158750861, guid: eb5625cb0c08ca04ebe913fbfcdd8a99, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 25
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3963477346158750861, guid: eb5625cb0c08ca04ebe913fbfcdd8a99, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

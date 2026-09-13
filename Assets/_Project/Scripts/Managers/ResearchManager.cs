@@ -420,6 +420,26 @@ namespace SkyOfFreedom.Managers
             if (saveData == null)
                 return;
 
+            var ids = new HashSet<string>();
+            int activeCount = 0;
+            foreach (ResearchState saved in saveData)
+            {
+                if (saved == null || string.IsNullOrWhiteSpace(saved.ResearchID) ||
+                    !ids.Add(saved.ResearchID) ||
+                    !researchStates.ContainsKey(saved.ResearchID) ||
+                    float.IsNaN(saved.RemainingTime) || float.IsInfinity(saved.RemainingTime) ||
+                    float.IsNaN(saved.TotalResearchTime) || float.IsInfinity(saved.TotalResearchTime) ||
+                    saved.RemainingTime < 0f || saved.TotalResearchTime < 0f ||
+                    saved.RemainingTime > saved.TotalResearchTime ||
+                    (saved.IsCompleted && saved.IsResearching))
+                    throw new InvalidOperationException("Invalid saved research state.");
+                if (saved.IsResearching && ++activeCount > 1)
+                    throw new InvalidOperationException("Multiple active researches in save.");
+            }
+
+            activeResearch = null;
+            CreateResearchStates();
+
             foreach (ResearchState savedState
                      in saveData)
             {
@@ -432,11 +452,17 @@ namespace SkyOfFreedom.Managers
                 researchStates[savedState.ResearchID] =
                     savedState;
 
+                savedState.Progress = savedState.IsCompleted ? 1f :
+                    (savedState.TotalResearchTime > 0f
+                        ? Mathf.Clamp01(1f - savedState.RemainingTime / savedState.TotalResearchTime)
+                        : 0f);
+
                 if (savedState.IsResearching)
                 {
                     activeResearch = savedState;
                 }
             }
+            RefreshUnlockedResearches();
         }
 
         #endregion

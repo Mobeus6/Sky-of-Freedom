@@ -185,10 +185,15 @@ namespace SkyOfFreedom.Warehouse
 
         public void AddItem(string id, int quantity = 1)
         {
+            TryAddItem(id, quantity);
+        }
+
+        public bool TryAddItem(string id, int quantity = 1)
+        {
             if (string.IsNullOrWhiteSpace(id) || quantity <= 0)
-                return;
+                return false;
             if (!CanAdd(id, quantity))
-                return;
+                return false;
 
             int oldQuantity = GetQuantity(id);
 
@@ -207,6 +212,7 @@ namespace SkyOfFreedom.Warehouse
             UpdateCurrentCapacity(id, oldQuantity, item.Quantity);
             OnItemAdded?.Invoke(id, quantity);
             OnItemChanged?.Invoke(id, item.Quantity);
+            return true;
         }
 
         public bool RemoveItem(string id, int quantity = 1)
@@ -260,9 +266,9 @@ namespace SkyOfFreedom.Warehouse
             if (storageSize <= 0)
                 return false;
 
-            int requiredCapacity = storageSize * quantity;
+            long requiredCapacity = (long)storageSize * quantity;
 
-            return currentCapacity + requiredCapacity <= MaxCapacity;
+            return (long)currentCapacity + requiredCapacity <= MaxCapacity;
         }
         private void UpdateCurrentCapacity(string id, int oldQuantity, int newQuantity)
         {

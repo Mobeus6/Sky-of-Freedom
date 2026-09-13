@@ -27,6 +27,15 @@ namespace SkyOfFreedom.Services
                 throw new ArgumentNullException(nameof(playerData));
             }
 
+            if (!Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn ||
+                playerData.Account == null ||
+                playerData.Account.PlayerId !=
+                    Unity.Services.Authentication.AuthenticationService.Instance.PlayerId)
+            {
+                throw new InvalidOperationException(
+                    "Refusing to save data belonging to another player.");
+            }
+
             string json = JsonUtility.ToJson(playerData);
 
             Dictionary<string, object> data =
@@ -67,7 +76,7 @@ namespace SkyOfFreedom.Services
 
             if (string.IsNullOrEmpty(json))
             {
-                return null;
+                throw new InvalidOperationException("Cloud Save contains empty player data.");
             }
 
             PlayerData playerData =

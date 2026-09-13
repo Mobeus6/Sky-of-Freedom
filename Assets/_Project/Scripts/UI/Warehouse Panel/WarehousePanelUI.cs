@@ -95,6 +95,23 @@ namespace SkyOfFreedom.UI
         {
             Clear();
 
+            if (currentView == WarehouseView.Materials)
+            {
+                var seen = new HashSet<string>();
+                foreach (MaterialSO material in database.Database.Materials)
+                {
+                    if (material == null || string.IsNullOrEmpty(material.ID) ||
+                        !seen.Add(material.ID))
+                        continue;
+
+                    WarehouseCardUI materialCard = Instantiate(cardPrefab, content);
+                    materialCard.Setup(material, warehouse.GetQuantity(material.ID));
+                    materialCard.Selected += OnCardSelected;
+                    cards.Add(materialCard);
+                }
+                return;
+            }
+
             foreach (WarehouseItem item in warehouse.GetAllItems())
             {
 

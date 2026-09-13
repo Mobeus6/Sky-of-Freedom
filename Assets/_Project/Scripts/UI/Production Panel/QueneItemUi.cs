@@ -105,9 +105,21 @@ namespace SkyOfFreedom.UI
         private void UpdateUI()
         {
             progress.value = task.CurrentItemProgress;
-            progress.gameObject.SetActive(task.State == ProductionState.Working);
-            timeText.gameObject.SetActive(task.State == ProductionState.Working);
+            bool waitingForStorage = task.State == ProductionState.WaitingForStorage;
+            progress.gameObject.SetActive(task.State == ProductionState.Working || waitingForStorage);
+            timeText.gameObject.SetActive(true);
+            speedUpButton.interactable = task.State == ProductionState.Working;
             quantityText.text = $"x{task.RemainingQuantity}";
+            if (waitingForStorage)
+            {
+                timeText.text = "Warehouse full";
+                return;
+            }
+            if (task.State == ProductionState.Paused)
+            {
+                timeText.text = "Paused";
+                return;
+            }
             if (task.State == ProductionState.Queued)
             {
                 progress.value = 0f;

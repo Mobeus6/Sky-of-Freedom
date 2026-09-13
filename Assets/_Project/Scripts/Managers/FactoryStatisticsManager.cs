@@ -23,6 +23,42 @@ namespace SkyOfFreedom.Managers
 
         public event Action OnStatisticsChanged;
 
+        public PlayerStatisticsData GetSaveData()
+        {
+            return new PlayerStatisticsData
+            {
+                TotalDroneProduced = totalDroneProduced,
+                ComponentsProduced = componentsProduced,
+                ContractsCompleted = contractsCompleted,
+                MoneyEarned = moneyEarned,
+                ReputationEarned = reputationEarned
+            };
+        }
+
+        public void LoadSaveData(PlayerStatisticsData data)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("Statistics manager is not initialized.");
+            data = data ?? new PlayerStatisticsData();
+            if (data.TotalDroneProduced < 0 || data.ComponentsProduced < 0 ||
+                data.ContractsCompleted < 0 || data.MoneyEarned < 0 ||
+                data.ReputationEarned < 0)
+                throw new InvalidOperationException("Invalid saved statistics.");
+
+            totalDroneProduced = data.TotalDroneProduced;
+            componentsProduced = data.ComponentsProduced;
+            contractsCompleted = data.ContractsCompleted;
+            moneyEarned = data.MoneyEarned;
+            reputationEarned = data.ReputationEarned;
+            processedContracts.Clear();
+            // Restored history has already contributed to the saved counters.
+            if (contractManager != null)
+                foreach (ContractInstance contract in contractManager.CompletedContracts)
+                    if (contract != null)
+                        processedContracts.Add(contract);
+            OnStatisticsChanged?.Invoke();
+        }
+
         public long TotalDroneProduced =>
             totalDroneProduced;
 
@@ -156,6 +192,9 @@ namespace SkyOfFreedom.Managers
 
         private void OnContractsChanged()
         {
+            if (GameManager.Instance == null || !GameManager.Instance.IsGameReady)
+                return;
+
             if (contractManager == null)
                 return;
 

@@ -2,6 +2,7 @@ using SkyOfFreedom.Data;
 using SkyOfFreedom.Factory;
 using SkyOfFreedom.Managers;
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,6 +26,18 @@ namespace SkyOfFreedom.Production
             productionZones;
 
         public event Action<IProducible> OnItemProduced;
+        public event Action OnProductionChanged;
+
+        public bool HasRunningTasks
+        {
+            get
+            {
+                foreach (ProductionZone zone in productionZones)
+                    if (zone != null && zone.CurrentTask?.State == ProductionState.Working)
+                        return true;
+                return false;
+            }
+        }
 
         public override void Initialize()
         {
@@ -61,13 +74,15 @@ namespace SkyOfFreedom.Production
             productionZones.Clear();
 
             OnItemProduced = null;
+            OnProductionChanged = null;
 
             base.Shutdown();
         }
 
         private void Update()
         {
-            if (!IsInitialized)
+            if (!IsInitialized || GameManager.Instance == null ||
+                !GameManager.Instance.IsGameReady)
                 return;
 
             float deltaTime =
@@ -151,8 +166,8 @@ namespace SkyOfFreedom.Production
             IProducible item,
             int quantity)
         {
-            if (item == null ||
-                quantity <= 0)
+            if (GameManager.Instance == null || !GameManager.Instance.IsGameReady ||
+                item == null || quantity <= 0)
             {
                 return false;
             }
@@ -185,6 +200,8 @@ namespace SkyOfFreedom.Production
                 return false;
             }
 
+            if (!zone.CanAccept(item)) return false;
+
             if (!ProductionRecipeProcessor.CanProduce(
                     item,
                     quantity))
@@ -211,7 +228,10 @@ namespace SkyOfFreedom.Production
                     quantity);
 
             if (!zone.Enqueue(task))
+            {
+                ProductionRecipeProcessor.Refund(item, quantity);
                 return false;
+            }
 
             return true;
         }
@@ -304,6 +324,8 @@ namespace SkyOfFreedom.Production
         private void SubscribeToZone(
             ProductionZone zone)
         {
+            zone.QueueChanged -= OnQueueChanged;
+            zone.QueueChanged += OnQueueChanged;
             zone.ItemProduced -=
                 OnItemProducedInternal;
 
@@ -320,6 +342,7 @@ namespace SkyOfFreedom.Production
         private void UnsubscribeFromZone(
             ProductionZone zone)
         {
+            zone.QueueChanged -= OnQueueChanged;
             zone.ItemProduced -=
                 OnItemProducedInternal;
 
@@ -372,6 +395,84 @@ namespace SkyOfFreedom.Production
             return result;
         }
 
+        private void OnQueueChanged(ProductionZone zone)
+        {
+            OnProductionChanged?.Invoke();
+        }
+
+        public PlayerProductionData GetSaveData()
+        {
+            PlayerProductionData data = new PlayerProductionData
+            {
+                LastProcessedAtUtc = DateTime.UtcNow.ToString("O")
+            };
+            foreach (ProductionZone zone in productionZones)
+            {
+                if (zone == null) continue;
+                foreach (ProductionTask task in zone.Tasks)
+                {
+                    data.Tasks.Add(new PlayerProductionTaskData
+                    {
+                        TaskId = task.Id.ToString("D"),
+                        ZoneType = zone.ZoneType.ToString(),
+                        TargetId = task.Target.ID,
+                        Quantity = task.Quantity,
+                        ProducedQuantity = task.ProducedQuantity,
+                        CurrentItemProgress = task.CurrentItemProgress,
+                        CreatedAtUtc = task.CreatedAt.ToUniversalTime().ToString("O"),
+                        State = task.State.ToString()
+                    });
+                }
+            }
+            return data;
+        }
+
+        public void LoadSaveData(PlayerProductionData data)
+        {
+            if (!IsInitialized || databaseManager?.Database == null)
+                throw new InvalidOperationException("Production is not initialized.");
+
+            Dictionary<FactoryZoneType, List<ProductionTask>> restored =
+                new Dictionary<FactoryZoneType, List<ProductionTask>>();
+            foreach (ProductionZone zone in productionZones)
+            {
+                if (zone == null) continue;
+                if (restored.ContainsKey(zone.ZoneType))
+                    throw new InvalidOperationException("Production zone types must be unique.");
+                restored.Add(zone.ZoneType, new List<ProductionTask>());
+            }
+
+            HashSet<Guid> taskIds = new HashSet<Guid>();
+            if (data?.Tasks != null)
+            {
+                foreach (PlayerProductionTaskData saved in data.Tasks)
+                {
+                    if (saved == null ||
+                        !Enum.TryParse(saved.ZoneType, out FactoryZoneType type) ||
+                        !restored.TryGetValue(type, out List<ProductionTask> tasks) ||
+                        !Guid.TryParse(saved.TaskId, out Guid id) || !taskIds.Add(id) ||
+                        !Enum.TryParse(saved.State, out ProductionState state) ||
+                        !DateTime.TryParse(saved.CreatedAtUtc, CultureInfo.InvariantCulture,
+                            DateTimeStyles.RoundtripKind, out DateTime createdAt) ||
+                        string.IsNullOrWhiteSpace(saved.TargetId))
+                        throw new InvalidOperationException("Invalid saved production data.");
+
+                    IProducible target = databaseManager.Database.GetData(saved.TargetId) as IProducible;
+                    ProductionZone zone = GetZone(type);
+                    if (target == null || !zone.Supports(target) ||
+                        (tasks.Count > 0 && state != ProductionState.Queued))
+                        throw new InvalidOperationException("Saved production target or order is invalid.");
+
+                    tasks.Add(new ProductionTask(id, target, saved.Quantity,
+                        saved.ProducedQuantity, saved.CurrentItemProgress, createdAt, state));
+                }
+            }
+
+            // Validate all tasks before changing any live queue. Never consume again.
+            foreach (ProductionZone zone in productionZones)
+                if (zone != null) zone.LoadTasks(restored[zone.ZoneType]);
+        }
+
         private void OnTaskCompleted(
             ProductionZone zone,
             ProductionTask task)
@@ -384,10 +485,6 @@ namespace SkyOfFreedom.Production
         {
             if (item == null)
                 return;
-
-            GameManager.Instance?.Warehouse?.AddItem(
-                item.ID,
-                1);
 
             OnItemProduced?.Invoke(item);
         }
