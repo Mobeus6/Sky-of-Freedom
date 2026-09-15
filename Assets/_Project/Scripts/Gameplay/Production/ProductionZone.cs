@@ -326,20 +326,39 @@ namespace SkyOfFreedom.Production
 
         private void StartNextTask()
         {
-            if (currentTask != null)
-                return;
-
-            if (queue.Count == 0)
-                return;
-
-            currentTask =
-                queue[0];
-
+            if (currentTask != null || queue.Count == 0) return;
+            currentTask = queue[0];
             queue.RemoveAt(0);
-
             currentTask.Start();
-
             currentProgress = 0f;
         }
+
+        public void AdvanceOffline(double seconds)
+        {
+            if (double.IsNaN(seconds) || double.IsInfinity(seconds) || seconds <= 0)
+                return;
+            while (seconds > 0 && currentTask != null && isActiveAndEnabled)
+            {
+                if (currentTask.State == ProductionState.Paused) break;
+                double needed = Math.Max(0, Mathf.Max(0.01f, currentTask.Target.ProductionTime)
+                    - currentProgress) / ProductionSpeedCalculator.GetMultiplier(this);
+                double step = Math.Min(seconds, needed);
+                ProductionTask before = currentTask;
+                int produced = before.ProducedQuantity;
+                Tick((float)step);
+                seconds -= step;
+                if (currentTask != null && currentTask.State == ProductionState.WaitingForStorage)
+                    break;
+                if (currentTask == before && before.ProducedQuantity == produced)
+                {
+                    if (seconds <= 0) break;
+                    // Resolve floating point rounding at the completion boundary.
+                    Tick(0.001f);
+                    seconds = Math.Max(0, seconds - 0.001);
+                    if (currentTask == before && before.ProducedQuantity == produced) break;
+                }
+            }
+        }
+
     }
 }

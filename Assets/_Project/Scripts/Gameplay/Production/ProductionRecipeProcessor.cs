@@ -7,7 +7,7 @@ namespace SkyOfFreedom.Production
 {
     public static class ProductionRecipeProcessor
     {
-        private static bool TryGetRequirements(IProducible item, int quantity,
+        public static bool TryGetRequirements(IProducible item, int quantity,
             out Dictionary<string, int> requirements)
         {
             requirements = new Dictionary<string, int>();
@@ -60,6 +60,22 @@ namespace SkyOfFreedom.Production
         }
 
         public static bool Consume(IProducible item, int quantity)
+        {
+            return ConsumeIngredients(item, quantity);
+        }
+
+        public static int GetMaxQuantity(IProducible item, int limit)
+        {
+            var warehouse = GameManager.Instance?.Warehouse;
+            if (warehouse == null || !TryGetRequirements(item, 1, out var required))
+                return 0;
+            int maximum = Math.Max(0, limit);
+            foreach (var entry in required)
+                maximum = Math.Min(maximum, warehouse.GetQuantity(entry.Key) / entry.Value);
+            return maximum;
+        }
+
+        private static bool ConsumeIngredients(IProducible item, int quantity)
         {
             var warehouse = GameManager.Instance?.Warehouse;
             if (warehouse == null || !TryGetRequirements(item, quantity, out var required))

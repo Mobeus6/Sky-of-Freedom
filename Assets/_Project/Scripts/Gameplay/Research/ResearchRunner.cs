@@ -9,39 +9,56 @@ namespace SkyOfFreedom.Managers
         [SerializeField] private ResearchManager researchManager;
         [SerializeField] private TimeManager timeManager;
 
+        private TimeManager subscribedTime;
+
+        private bool CanRun =>
+            GameManager.Instance != null &&
+            GameManager.Instance.IsGameReady &&
+            !GameManager.Instance.IsAccountTransition &&
+            !GameManager.Instance.ProductionPausedAtUtc.HasValue;
+
         private void OnEnable()
         {
-            if (timeManager == null)
-            {
-                if (GameManager.Instance != null)
-                {
-                    timeManager = GameManager.Instance.Time;
-                }
-            }
+            TryConnect();
+        }
 
-            if (timeManager != null)
-            {
-                timeManager.OnTick += OnTick;
-            }
-            else
-            {
-                Debug.LogError(
-                    "[ResearchRunner] TimeManager reference is missing.");
-            }
+        private void Update()
+        {
+            // Initialization is asynchronous; retry until services are ready.
+            if (subscribedTime == null)
+                TryConnect();
+        }
+
+        private void TryConnect()
+        {
+            if (!CanRun) return;
+            if (researchManager == null)
+                researchManager = GameManager.Instance.Research;
+            if (timeManager == null)
+                timeManager = GameManager.Instance.Time;
+            if (researchManager == null || timeManager == null) return;
+            if (subscribedTime == timeManager) return;
+
+            Disconnect();
+            subscribedTime = timeManager;
+            subscribedTime.OnTick += OnTick;
+        }
+
+        private void Disconnect()
+        {
+            if (subscribedTime != null)
+                subscribedTime.OnTick -= OnTick;
+            subscribedTime = null;
         }
 
         private void OnDisable()
         {
-            if (timeManager != null)
-            {
-                timeManager.OnTick -= OnTick;
-            }
+            Disconnect();
         }
 
         private void OnTick(float deltaTime)
         {
-            if (GameManager.Instance == null || !GameManager.Instance.IsGameReady ||
-                GameManager.Instance.IsAccountTransition)
+            if (!CanRun || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) || deltaTime < 0f)
                 return;
 
             if (researchManager == null)
@@ -94,6 +111,7 @@ namespace SkyOfFreedom.Managers
 
         public void FinishInstantly()
         {
+            if (!CanRun) return;
             if (researchManager == null)
                 return;
 
@@ -131,4 +149,4 @@ namespace SkyOfFreedom.Managers
             return researchManager.ActiveResearch.Progress;
         }
     }
-}   
+}

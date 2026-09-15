@@ -430,7 +430,7 @@ namespace SkyOfFreedom.UI.Contracts
             if (droneContractTierVisual != null)
             {
                 droneContractTierVisual.SetTier(
-                    drone.Tier);
+                    drone.Tier, droneContractNameText);
             }
 
             if (droneTargetIcon != null)
@@ -530,7 +530,7 @@ namespace SkyOfFreedom.UI.Contracts
             if (componentContractTierVisual != null)
             {
                 componentContractTierVisual.SetTier(
-                    component.Tier);
+                    component.Tier, componentContractNameText);
             }
 
             CreateComponentRequiredComponent(

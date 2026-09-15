@@ -65,6 +65,15 @@ namespace SkyOfFreedom.Managers
 
             CreateResearchStates();
             RefreshUnlockedResearches();
+            factoryManager.OnFactoryLevelChanged -= OnFactoryLevelChanged;
+            factoryManager.OnFactoryLevelChanged += OnFactoryLevelChanged;
+        }
+
+        private void OnFactoryLevelChanged(int level) { RefreshUnlockedResearches(); }
+        private void OnDestroy()
+        {
+            if (factoryManager != null)
+                factoryManager.OnFactoryLevelChanged -= OnFactoryLevelChanged;
         }
 
         #endregion
@@ -124,8 +133,7 @@ namespace SkyOfFreedom.Managers
                         continue;
                     }
 
-                    if (state.IsUnlocked ||
-                        state.IsCompleted)
+                    if (state.IsCompleted || state.IsResearching)
                     {
                         continue;
                     }
@@ -133,13 +141,14 @@ namespace SkyOfFreedom.Managers
                     if (factoryManager.Level <
                         research.RequiredFactoryLevel)
                     {
+                        state.IsUnlocked = false;
                         continue;
                     }
 
                     bool prerequisitesCompleted = true;
 
                     foreach (ResearchSO prerequisite
-                             in research.Prerequisites)
+                             in research.Prerequisites ?? Array.Empty<ResearchSO>())
                     {
                         if (prerequisite == null)
                             continue;
@@ -152,7 +161,12 @@ namespace SkyOfFreedom.Managers
                     }
 
                     if (!prerequisitesCompleted)
+                    {
+                        state.IsUnlocked = false;
                         continue;
+                    }
+
+                    if (state.IsUnlocked) continue;
 
                     UnlockResearch(
                         research.ID);
@@ -188,7 +202,7 @@ namespace SkyOfFreedom.Managers
                 if (research.Prerequisites == null ||
                     research.Prerequisites.Length == 0)
                 {
-                    state.IsUnlocked = true;
+                    state.IsUnlocked = factoryManager.Level >= research.RequiredFactoryLevel;
                 }
 
                 researchStates.Add(

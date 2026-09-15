@@ -76,6 +76,8 @@ namespace SkyOfFreedom.UI
 
             GameManager.Instance.Economy.OnMoneyChanged +=
                 RefreshMoney;
+            GameManager.Instance.Factory.OnFactoryLevelChanged += RefreshLevel;
+            if (currentResearch != null) Show(currentResearch);
         }
 
         private void OnDisable()
@@ -90,6 +92,7 @@ namespace SkyOfFreedom.UI
 
             GameManager.Instance.Economy.OnMoneyChanged -=
                 RefreshMoney;
+            GameManager.Instance.Factory.OnFactoryLevelChanged -= RefreshLevel;
         }
 
         public void Show(ResearchSO research)
@@ -177,6 +180,17 @@ namespace SkyOfFreedom.UI
         }
 
         private void RefreshStatus()
+        {
+            RefreshStatusInternal();
+            RefreshFactoryLevel();
+        }
+
+        private void RefreshLevel(int level)
+        {
+            if (currentResearch != null) Show(currentResearch);
+        }
+
+        private void RefreshStatusInternal()
         {
             if (currentResearch == null ||
                 researchManager == null)
@@ -288,7 +302,7 @@ namespace SkyOfFreedom.UI
                     currentResearch.Cost);
 
             researchButton.interactable =
-                canAfford;
+                researchManager.CanStartResearch(currentResearch);
 
             SetCostColor(
                 !canAfford);

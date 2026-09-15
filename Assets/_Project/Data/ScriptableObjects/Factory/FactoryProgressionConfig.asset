@@ -33,13 +33,13 @@ MonoBehaviour:
   - targetLevel: 2
     moneyRequired: 0
     reputationRequired: 0
-  - targetLevel: 2
+  - targetLevel: 3
     moneyRequired: 0
     reputationRequired: 0
-  - targetLevel: 2
+  - targetLevel: 4
     moneyRequired: 0
     reputationRequired: 0
-  - targetLevel: 2
+  - targetLevel: 5
     moneyRequired: 0
     reputationRequired: 0
   productionZoneBonuses:

@@ -56,6 +56,7 @@ namespace SkyOfFreedom.Managers
         private const float ProductionCheckpointSeconds = 15f;
 
         public bool IsGameReady => isGameReady;
+        public DateTime? ProductionPausedAtUtc { get; private set; }
 
         public bool HasSaveError { get; private set; }
         public string SaveStatusText => HasSaveError
@@ -186,6 +187,14 @@ namespace SkyOfFreedom.Managers
                 SubscribeToSaveEvents();
 
                 isGameReady = true;
+                if (DateTime.TryParse(playerDataService.CurrentData.Production.LastProcessedAtUtc,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.RoundtripKind, out DateTime processedAt))
+                {
+                    productionManager.AdvanceOffline(Math.Max(0,
+                        (DateTime.UtcNow - processedAt.ToUniversalTime()).TotalSeconds));
+                    RequestSave();
+                }
                 SetLoadingStage(1f, "Ready!");
                 Debug.Log($"Game ready. PublicId: {PublicId}", this);
             }
@@ -237,6 +246,16 @@ namespace SkyOfFreedom.Managers
 
         private void OnApplicationPause(bool pauseStatus)
         {
+            if (!isGameReady || IsAccountTransition) return;
+            if (pauseStatus && !ProductionPausedAtUtc.HasValue)
+                ProductionPausedAtUtc = DateTime.UtcNow;
+            if (!pauseStatus && ProductionPausedAtUtc.HasValue)
+            {
+                double elapsed = Math.Max(0, (DateTime.UtcNow - ProductionPausedAtUtc.Value).TotalSeconds);
+                ProductionPausedAtUtc = null;
+                productionManager.AdvanceOffline(elapsed);
+                RequestSave();
+            }
             if (pauseStatus)
             {
                 // Try again immediately when the app is backgrounded.

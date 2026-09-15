@@ -92,6 +92,11 @@ namespace SkyOfFreedom.UI
         }
         private void OnEnable()
         {
+            if (scrollRect != null)
+            {
+                scrollRect.onValueChanged.RemoveListener(OnScrollChanged);
+                scrollRect.onValueChanged.AddListener(OnScrollChanged);
+            }
             if (researchManager == null)
                 return;
 
@@ -147,6 +152,16 @@ namespace SkyOfFreedom.UI
         }
 
         private void SelectFirstAvailableResearch()
+        {
+            SelectInitialResearch();
+        }
+
+        private void LateUpdate()
+        {
+            RefreshBranchLabels();
+        }
+
+        private void SelectInitialResearch()
         {
             foreach (ResearchNodeUI node in nodes.Values)
             {
@@ -473,7 +488,19 @@ namespace SkyOfFreedom.UI
                         labelRect.anchoredPosition.x,
                         y);
 
-                label.gameObject.SetActive(true);
+                bool visible = true;
+                if (scrollRect != null)
+                {
+                    RectTransform viewport = scrollRect.viewport != null
+                        ? scrollRect.viewport : (RectTransform)scrollRect.transform;
+                    var corners = new Vector3[4];
+                    labelRect.GetWorldCorners(corners);
+                    float bottom = viewport.InverseTransformPoint(corners[0]).y;
+                    float top = viewport.InverseTransformPoint(corners[1]).y;
+                    // Labels occupy a separate column, so clip by vertical bounds only.
+                    visible = bottom >= viewport.rect.yMin && top <= viewport.rect.yMax;
+                }
+                label.gameObject.SetActive(visible);
 
                 return;
             }

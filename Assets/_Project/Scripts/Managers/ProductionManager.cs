@@ -82,7 +82,8 @@ namespace SkyOfFreedom.Production
         private void Update()
         {
             if (!IsInitialized || GameManager.Instance == null ||
-                !GameManager.Instance.IsGameReady)
+                !GameManager.Instance.IsGameReady ||
+                GameManager.Instance.ProductionPausedAtUtc.HasValue)
                 return;
 
             float deltaTime =
@@ -172,6 +173,9 @@ namespace SkyOfFreedom.Production
                 return false;
             }
 
+            if (!MeetsFactoryLevel(item))
+                return false;
+
             ProductionZone zone =
                 GetAvailableZone(zoneType);
 
@@ -234,6 +238,13 @@ namespace SkyOfFreedom.Production
             }
 
             return true;
+        }
+
+        public static bool MeetsFactoryLevel(IProducible item)
+        {
+            return item != null && GameManager.Instance != null &&
+                GameManager.Instance.Factory != null &&
+                GameManager.Instance.Factory.Level >= Mathf.Max(1, item.Tier);
         }
 
         private ProductionZone GetAvailableZone(
@@ -402,9 +413,21 @@ namespace SkyOfFreedom.Production
 
         public PlayerProductionData GetSaveData()
         {
+            return CaptureProduction();
+        }
+
+        public void AdvanceOffline(double seconds)
+        {
+            foreach (ProductionZone zone in productionZones)
+                if (zone != null)
+                    zone.AdvanceOffline(seconds);
+        }
+
+        private PlayerProductionData CaptureProduction()
+        {
             PlayerProductionData data = new PlayerProductionData
             {
-                LastProcessedAtUtc = DateTime.UtcNow.ToString("O")
+                LastProcessedAtUtc = (GameManager.Instance?.ProductionPausedAtUtc ?? DateTime.UtcNow).ToString("O")
             };
             foreach (ProductionZone zone in productionZones)
             {

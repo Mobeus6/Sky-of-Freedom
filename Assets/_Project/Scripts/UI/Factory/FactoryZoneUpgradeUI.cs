@@ -29,6 +29,13 @@ namespace SkyOfFreedom.UI.Factory
         private Button upgradeButton;
 
         private FactoryManager factoryManager;
+        private EconomyManager economy;
+        private void Update()
+        {
+            if (factoryManager == null) TryInitialize();
+        }
+        private void OnMoneyChanged(long value) { Refresh(); }
+        private void OnReputationChanged(int value) { Refresh(); }
 
         private void OnEnable()
         {
@@ -52,6 +59,14 @@ namespace SkyOfFreedom.UI.Factory
                 return;
 
             Subscribe();
+            economy = GameManager.Instance.Economy;
+            if (economy != null)
+            {
+                economy.OnMoneyChanged -= OnMoneyChanged;
+                economy.OnMoneyChanged += OnMoneyChanged;
+                economy.OnReputationChanged -= OnReputationChanged;
+                economy.OnReputationChanged += OnReputationChanged;
+            }
             Refresh();
         }
 
@@ -81,6 +96,11 @@ namespace SkyOfFreedom.UI.Factory
 
         private void Unsubscribe()
         {
+            if (economy != null)
+            {
+                economy.OnMoneyChanged -= OnMoneyChanged;
+                economy.OnReputationChanged -= OnReputationChanged;
+            }
             if (factoryManager != null)
             {
                 factoryManager.OnFactoryLevelChanged -=
@@ -148,7 +168,9 @@ namespace SkyOfFreedom.UI.Factory
             if (factoryLevelRequirementText != null)
             {
                 factoryLevelRequirementText.text =
-                    $"Factory Lv. {nextLevel}";
+                    $"Factory Lv. {Mathf.Max(1, nextLevel - 1)}";
+                if (economy != null && economy.Reputation < requirement.ReputationRequired)
+                    factoryLevelRequirementText.text += $" | Reputation {requirement.ReputationRequired}";
             }
 
             if (upgradeButton != null)
@@ -184,13 +206,13 @@ namespace SkyOfFreedom.UI.Factory
             if (upgradeCostText != null)
             {
                 upgradeCostText.text =
-                    "—";
+                    "â€”";
             }
 
             if (factoryLevelRequirementText != null)
             {
                 factoryLevelRequirementText.text =
-                    "—";
+                    "â€”";
             }
 
             if (upgradeButton != null)

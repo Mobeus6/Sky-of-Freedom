@@ -25,6 +25,7 @@ namespace SkyOfFreedom.UI
 
         private void OnDisable()
         {
+            ProductionRecipePopupUI.CloseFor(this);
             if (selectedCard == this)
                 selectedCard = null;
             SetHighlight(false);
@@ -41,7 +42,12 @@ namespace SkyOfFreedom.UI
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left)
+            {
                 SelectCard();
+                if (producible != null)
+                    ProductionRecipePopupUI.Show(this, producible,
+                        Mathf.Max(1, selectedQuantity), nameText != null ? nameText.font : null);
+            }
         }
 
         public void SelectCard()
@@ -73,6 +79,34 @@ namespace SkyOfFreedom.UI
         private int selectedQuantity = 1;
 
         private IProducible producible;
+        private Graphic[] cardGraphics;
+        private Color[] normalColors;
+        private bool? shownLocked;
+
+        private void RefreshLockedAppearance(bool locked)
+        {
+            if (shownLocked == locked) return;
+            shownLocked = locked;
+            if (cardGraphics == null)
+            {
+                cardGraphics = GetComponentsInChildren<Graphic>(true);
+                normalColors = new Color[cardGraphics.Length];
+                for (int i = 0; i < cardGraphics.Length; i++)
+                    normalColors[i] = cardGraphics[i].color;
+            }
+            for (int i = 0; i < cardGraphics.Length; i++)
+            {
+                if (cardGraphics[i] == null || cardGraphics[i] == selectionBackground) continue;
+                Color original = normalColors[i];
+                float gray = Mathf.Clamp(original.grayscale, 0.18f, 0.65f);
+                cardGraphics[i].color = locked
+                    ? new Color(gray, gray, gray, original.a * 0.75f) : original;
+            }
+            if (producible != null && descriptionText != null)
+                descriptionText.text = locked
+                    ? $"Requires Factory Lv. {Mathf.Max(1, producible.Tier)}\n{producible.Description}"
+                    : producible.Description;
+        }
         private ProductionManager productionManager;
 
         private void Awake()
@@ -89,6 +123,9 @@ namespace SkyOfFreedom.UI
 
         public void Setup(IProducible item)
         {
+            if (shownLocked == true) RefreshLockedAppearance(false);
+            cardGraphics = null;
+            shownLocked = null;
             producible = item;
             selectedQuantity = 1;
 
@@ -131,15 +168,26 @@ namespace SkyOfFreedom.UI
 
         private void RefreshQuantity()
         {
-            selectedQuantity = Mathf.Clamp(selectedQuantity, 1, Mathf.Max(1, maxQuantity));
+            int available = ProductionRecipeProcessor.GetMaxQuantity(producible, maxQuantity);
+            selectedQuantity = available == 0 ? 0 : Mathf.Clamp(selectedQuantity, 1, available);
             if (quantityText != null)
                 quantityText.text = selectedQuantity.ToString();
             if (increaseQuantityButton != null)
-                increaseQuantityButton.interactable = selectedQuantity < Mathf.Max(1, maxQuantity);
+                increaseQuantityButton.interactable = selectedQuantity < available;
             if (decreaseQuantityButton != null)
                 decreaseQuantityButton.interactable = selectedQuantity > 1;
             if (producible == null)
                 return;
+            bool levelAllowed = ProductionManager.MeetsFactoryLevel(producible);
+            RefreshLockedAppearance(!levelAllowed);
+            if (increaseQuantityButton != null)
+                increaseQuantityButton.interactable &= levelAllowed;
+            if (decreaseQuantityButton != null)
+                decreaseQuantityButton.interactable &= levelAllowed;
+            if (produceButton != null)
+                produceButton.interactable = available > 0 && levelAllowed &&
+                    GameManager.Instance != null && GameManager.Instance.License != null &&
+                    GameManager.Instance.License.CanProduce(producible);
             if (costText != null)
                 costText.text = $"{(double)producible.ProductionCost * selectedQuantity:N0} ₴";
             if (timeText != null)
@@ -156,9 +204,20 @@ namespace SkyOfFreedom.UI
                 produceButton.onClick.RemoveListener(OnProduceClicked);
         }
 
+        private float nextQuantityRefresh;
+        private void Update()
+        {
+            if (Time.unscaledTime < nextQuantityRefresh) return;
+            nextQuantityRefresh = Time.unscaledTime + 0.2f;
+            RefreshQuantity();
+        }
+
+
         private void OnProduceClicked()
         {
             SelectCard();
+            RefreshQuantity();
+            if (selectedQuantity <= 0) return;
             if (producible == null || productionManager == null)
                 return;
 

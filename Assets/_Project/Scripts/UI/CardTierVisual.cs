@@ -14,6 +14,11 @@ namespace SkyOfFreedom.UI
 
         public void SetTier(int tier)
         {
+            SetTier(tier, null);
+        }
+
+        public void SetTier(int tier, TMPro.TMP_Text additionalTitle)
+        {
             Color borderColor;
             Color glowSmallColor;
             Color glowBigColor;
@@ -72,6 +77,8 @@ namespace SkyOfFreedom.UI
 
             if (title != null)
                 title.color = textColor;
+            if (additionalTitle != null)
+                additionalTitle.color = textColor;
         }
 
         private Color Hex(string hex)
