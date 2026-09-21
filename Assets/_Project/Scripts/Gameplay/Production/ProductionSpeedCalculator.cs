@@ -12,6 +12,12 @@ namespace SkyOfFreedom.Production
             if (zone == null)
                 return 0f;
 
+            return GetMultiplier(zone.ZoneType);
+        }
+
+        public static float GetMultiplier(FactoryZoneType zoneType)
+        {
+
             float speed = 1f;
 
             GameManager gameManager =
@@ -29,9 +35,9 @@ namespace SkyOfFreedom.Production
 
                 int zoneLevel =
                     factory.GetLevel(
-                        zone.ZoneType);
+                        zoneType);
 
-                switch (zone.ZoneType)
+                switch (zoneType)
                 {
                     case FactoryZoneType.Production:
 
@@ -59,9 +65,11 @@ namespace SkyOfFreedom.Production
                 }
             }
 
+            if (gameManager != null && gameManager.Research != null)
+                speed *= gameManager.Research.GetProductionSpeedMultiplier(zoneType);
+
             // TODO
             // Employees
-            // Research
             // Factory bonuses
             // Events
             // Boosters

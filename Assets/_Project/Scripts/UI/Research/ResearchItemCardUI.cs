@@ -124,7 +124,7 @@ namespace SkyOfFreedom.UI
 
             timeText.text =
                 FormatTime(
-                    research.ResearchTime);
+                    research.ResearchTime / (researchManager != null ? researchManager.GetResearchSpeedMultiplier() : 1f));
 
             effectsText.text =
                 research.EffectDescription;

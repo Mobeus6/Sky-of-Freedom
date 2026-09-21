@@ -43,6 +43,11 @@ namespace SkyOfFreedom.Managers
             new CloudSaveService();
 
         private PlayerDataService playerDataService;
+        private LocalSaveStore localSaves;
+        private bool localSaveDirty;
+        private float nextLocalSaveRetry;
+        public bool HasLocalSaveError { get; private set; }
+        public bool HasCloudSaveConflict { get; private set; }
 
         private bool isGameReady;
         private bool isSaving;
@@ -51,6 +56,8 @@ namespace SkyOfFreedom.Managers
         private bool hasPendingSave;
         private bool isDestroyed;
         private bool managersStarted;
+        private bool advancingOffline;
+        private bool applicationPaused;
         private float nextProductionCheckpoint;
         private float nextSaveRetry;
         private const float ProductionCheckpointSeconds = 15f;
@@ -59,7 +66,10 @@ namespace SkyOfFreedom.Managers
         public DateTime? ProductionPausedAtUtc { get; private set; }
 
         public bool HasSaveError { get; private set; }
-        public string SaveStatusText => HasSaveError
+        public string SaveStatusText => HasCloudSaveConflict
+            ? "Save conflict. Restart to choose progress."
+            : HasLocalSaveError ? "Local backup failed. Check device storage."
+            : HasSaveError
             ? "Not saved. Retrying…"
             : (isSaving || hasPendingSave ? "Saving…" : string.Empty);
 
@@ -96,6 +106,7 @@ namespace SkyOfFreedom.Managers
             }
 
             Instance = this;
+            localSaves = new LocalSaveStore(System.IO.Path.Combine(Application.persistentDataPath, "SaveRecovery"));
             DontDestroyOnLoad(gameObject);
         }
 
@@ -118,8 +129,65 @@ namespace SkyOfFreedom.Managers
                     (researchManager != null && researchManager.HasActiveResearch()))
                     RequestSave();
             }
-            if (hasPendingSave && !isSaving && now >= nextSaveRetry)
+            if (hasPendingSave && !isSaving && !HasCloudSaveConflict && now >= nextSaveRetry)
                 saveTask = SavePendingDataAsync();
+        }
+
+        private void LateUpdate()
+        {
+            // Run after complete synchronous operations, including every resource/statistics event.
+            // Unlike cloud uploads this is not blocked by an in-flight or failed network request.
+            if (isGameReady && !IsAccountTransition && localSaveDirty &&
+                UnityEngine.Time.unscaledTime >= nextLocalSaveRetry)
+                CaptureLocalSnapshot();
+        }
+
+        private PlayerData CaptureLocalSnapshot()
+        {
+            playerDataService.CaptureFromManagers(this);
+            string json = JsonUtility.ToJson(playerDataService.CurrentData);
+            PersistLocal(json, true);
+            return JsonUtility.FromJson<PlayerData>(json);
+        }
+
+        private void PersistLocal(string json, bool pending)
+        {
+            try
+            {
+                localSaves.Write(playerDataService.CurrentData.Account.PlayerId, json,
+                    cloudSaveService.ConfirmedFingerprint, pending);
+                localSaveDirty = false;
+                HasLocalSaveError = false;
+                nextLocalSaveRetry = 0;
+            }
+            catch (Exception exception)
+            {
+                localSaveDirty = true;
+                HasLocalSaveError = true;
+                nextLocalSaveRetry = UnityEngine.Time.unscaledTime + 5f;
+                Debug.LogException(exception, this);
+            }
+        }
+
+        private async Task UploadSnapshotAsync(PlayerData snapshot)
+        {
+            // The snapshot is independent of CurrentData while gameplay continues.
+            string json = JsonUtility.ToJson(snapshot);
+            await cloudSaveService.SavePlayerDataAsync(snapshot);
+            try { localSaves.Acknowledge(snapshot.Account.PlayerId, json); }
+            catch (Exception exception)
+            {
+                HasLocalSaveError = true;
+                localSaveDirty = true;
+                nextLocalSaveRetry = UnityEngine.Time.unscaledTime + 5f;
+                Debug.LogException(exception, this);
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            if (Instance == this && isGameReady && !IsAccountTransition)
+                CaptureLocalSnapshot();
         }
 
         public async Task StartGameAsync()
@@ -145,7 +213,10 @@ namespace SkyOfFreedom.Managers
                     );
                 }
 
-                if (economyManager == null || factoryManager == null ||
+                if (databaseManager == null || timeManager == null ||
+                    researchManager == null || contractManager == null ||
+                    factoryStatisticsManager == null ||
+                    economyManager == null || factoryManager == null ||
                     productionManager == null ||
                     warehouseManager == null || licenseManager == null)
                 {
@@ -186,15 +257,15 @@ namespace SkyOfFreedom.Managers
                 playerDataService.ApplyToManagers(this);
                 SubscribeToSaveEvents();
 
+                DateTime resumeAt = DateTime.UtcNow;
+                AdvanceOfflineProgress(
+                    OfflineProgress.Elapsed(playerDataService.CurrentData.Production.LastProcessedAtUtc, resumeAt),
+                    OfflineProgress.Elapsed(playerDataService.CurrentData.Research.LastProcessedAtUtc, resumeAt));
                 isGameReady = true;
-                if (DateTime.TryParse(playerDataService.CurrentData.Production.LastProcessedAtUtc,
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.RoundtripKind, out DateTime processedAt))
-                {
-                    productionManager.AdvanceOffline(Math.Max(0,
-                        (DateTime.UtcNow - processedAt.ToUniversalTime()).TotalSeconds));
-                    RequestSave();
-                }
+                if (applicationPaused) ProductionPausedAtUtc = resumeAt;
+                // Commit the fully restored state before any asynchronous upload or gameplay.
+                CaptureLocalSnapshot();
+                RequestSave();
                 SetLoadingStage(1f, "Ready!");
                 Debug.Log($"Game ready. PublicId: {PublicId}", this);
             }
@@ -202,11 +273,14 @@ namespace SkyOfFreedom.Managers
             {
                 if (!isDestroyed)
                 {
+                    isGameReady = false;
                     HasLoadingError = true;
                     CanRetryLoading = networkStage;
                     LoadingStatus = networkStage
                         ? "Unable to load data. Check your connection and try again."
                         : "Unable to prepare the game. Restart the game. If the problem persists, contact support.";
+                    if (exception is System.IO.IOException || exception is UnauthorizedAccessException)
+                        LoadingStatus = "Unable to read or write the local backup. Check device storage. Recovery files were kept.";
                     Debug.LogException(exception, this);
                 }
             }
@@ -246,6 +320,7 @@ namespace SkyOfFreedom.Managers
 
         private void OnApplicationPause(bool pauseStatus)
         {
+            applicationPaused = pauseStatus;
             if (!isGameReady || IsAccountTransition) return;
             if (pauseStatus && !ProductionPausedAtUtc.HasValue)
                 ProductionPausedAtUtc = DateTime.UtcNow;
@@ -253,15 +328,28 @@ namespace SkyOfFreedom.Managers
             {
                 double elapsed = Math.Max(0, (DateTime.UtcNow - ProductionPausedAtUtc.Value).TotalSeconds);
                 ProductionPausedAtUtc = null;
-                productionManager.AdvanceOffline(elapsed);
+                AdvanceOfflineProgress(elapsed, elapsed);
                 RequestSave();
             }
             if (pauseStatus)
             {
+                CaptureLocalSnapshot();
                 // Try again immediately when the app is backgrounded.
                 nextSaveRetry = 0f;
                 RequestSave();
             }
+        }
+
+        private void AdvanceOfflineProgress(double productionSeconds, double researchSeconds)
+        {
+            advancingOffline = true;
+            try
+            {
+                OfflineProgress.Advance(productionSeconds, researchSeconds,
+                    researchManager.GetRemainingSeconds(),
+                    productionManager.AdvanceOffline, researchManager.AdvanceTime);
+            }
+            finally { advancingOffline = false; }
         }
 
         private async Task LoadOrCreatePlayerDataAsync(
@@ -285,6 +373,29 @@ namespace SkyOfFreedom.Managers
             }
 
             bool needsSave;
+            if (loadedData?.Account != null && !string.IsNullOrEmpty(loadedData.Account.PlayerId) &&
+                loadedData.Account.PlayerId != playerId)
+                throw new InvalidOperationException("Cloud progress belongs to another account.");
+
+            LocalSaveRecord local = localSaves.Read(playerId);
+            bool useLocal = local != null && local.Pending &&
+                LocalSaveStore.Fingerprint(local.Json) != cloudSaveService.ConfirmedFingerprint;
+            if (LocalSaveStore.NeedsChoice(local, cloudSaveService.LastLoadedJson))
+            {
+                LoadingStatus = "Choose which progress to keep…";
+                PlayerData localData = ReadLocalPlayer(local, playerId);
+                useLocal = await SkyOfFreedom.UI.SaveConflictPopupUI.ChooseAsync(transform, localData, loadedData);
+                if (isDestroyed) return;
+                // Keep both candidates before replacing the active recovery slots.
+                localSaves.Archive(local);
+                if (cloudSaveService.LastLoadedJson != null)
+                    localSaves.Archive(new LocalSaveRecord
+                    {
+                        Sequence = 1, PlayerId = playerId, Pending = false,
+                        BaseFingerprint = cloudSaveService.ConfirmedFingerprint, Json = cloudSaveService.LastLoadedJson
+                    });
+            }
+            if (useLocal) loadedData = ReadLocalPlayer(local, playerId);
 
             if (loadedData != null)
             {
@@ -303,6 +414,7 @@ namespace SkyOfFreedom.Managers
                     playerDataService.CurrentData.Account;
 
                 needsSave =
+                    useLocal ||
                     account.PlayerId != playerId ||
                     account.PublicId != publicId;
 
@@ -323,10 +435,24 @@ namespace SkyOfFreedom.Managers
                 playerDataService.CurrentData.Account.LastSaveAtUtc =
                     DateTime.UtcNow.ToString("O");
 
-                await cloudSaveService.SavePlayerDataAsync(
-                    playerDataService.CurrentData
-                );
             }
+            // Recovery is committed locally before initialization/offline production.
+            // Cloud upload occurs only after managers have successfully restored this snapshot.
+            localSaves.Write(playerId, JsonUtility.ToJson(playerDataService.CurrentData),
+                cloudSaveService.ConfirmedFingerprint, needsSave);
+        }
+
+        private static PlayerData ReadLocalPlayer(LocalSaveRecord record, string playerId)
+        {
+            PlayerData data;
+            try { data = JsonUtility.FromJson<PlayerData>(record.Json); }
+            catch (ArgumentException exception)
+            {
+                throw new System.IO.InvalidDataException("Invalid local progress. Backup was preserved.", exception);
+            }
+            if (data?.Account == null || data.Account.PlayerId != playerId || data.Version != 1)
+                throw new System.IO.InvalidDataException("Invalid or unsupported local progress. Backup was preserved.");
+            return data;
         }
 
 
@@ -346,7 +472,7 @@ namespace SkyOfFreedom.Managers
 
         private async Task ChangeAccountAsync(string googleToken)
         {
-            if (IsAccountTransition || !isGameReady || isDestroyed)
+            if (IsAccountTransition || !isGameReady || isDestroyed || HasCloudSaveConflict)
                 throw new InvalidOperationException("Account change is not available.");
 
             Scene menuScene = SceneManager.GetActiveScene();
@@ -392,8 +518,7 @@ namespace SkyOfFreedom.Managers
                     authenticationService.PlayerId != oldPlayerId)
                     throw new InvalidOperationException("The active player changed unexpectedly.");
 
-                playerDataService.CaptureFromManagers(this);
-                await cloudSaveService.SavePlayerDataAsync(playerDataService.CurrentData);
+                await UploadSnapshotAsync(CaptureLocalSnapshot());
                 if (isDestroyed) throw new InvalidOperationException("GameManager was destroyed.");
 
                 if (googleToken == null)
@@ -424,8 +549,10 @@ namespace SkyOfFreedom.Managers
                     throw new InvalidOperationException("Could not reload MainMenu.");
                 await reload;
             }
-            catch
+            catch (Exception exception)
             {
+                if (exception is Unity.Services.CloudSave.CloudSaveConflictException)
+                    HasCloudSaveConflict = true;
                 bool oldAccountRestored = !accountChanged &&
                     authenticationService.IsSignedIn &&
                     authenticationService.PlayerId == oldPlayerId;
@@ -449,13 +576,13 @@ namespace SkyOfFreedom.Managers
         private void InitializeManagers()
         {
             databaseManager?.Initialize();
-            productionManager?.Initialize();
             economyManager?.Initialize();
-            marketManager?.Initialize();
             factoryManager?.Initialize();
             researchManager?.Initialize();
             warehouseManager?.Initialize();
+            marketManager?.Initialize();
             licenseManager?.Initialize();
+            productionManager?.Initialize();
             contractManager?.Initialize();
             factoryStatisticsManager?.Initialize();
         }
@@ -569,7 +696,7 @@ namespace SkyOfFreedom.Managers
 
         private void RequestSave()
         {
-            if (isDestroyed || IsAccountTransition ||
+            if (isDestroyed || IsAccountTransition || advancingOffline ||
                 !isGameReady ||
                 playerDataService == null ||
                 !playerDataService.HasData)
@@ -578,8 +705,9 @@ namespace SkyOfFreedom.Managers
             }
 
             hasPendingSave = true;
+            localSaveDirty = true;
 
-            if (isSaving || UnityEngine.Time.unscaledTime < nextSaveRetry)
+            if (isSaving || HasCloudSaveConflict || UnityEngine.Time.unscaledTime < nextSaveRetry)
             {
                 return;
             }
@@ -600,11 +728,7 @@ namespace SkyOfFreedom.Managers
                     if (isDestroyed || IsAccountTransition) break;
                     hasPendingSave = false;
 
-                    playerDataService.CaptureFromManagers(this);
-
-                    await cloudSaveService.SavePlayerDataAsync(
-                        playerDataService.CurrentData
-                    );
+                    await UploadSnapshotAsync(CaptureLocalSnapshot());
                     HasSaveError = false;
                     nextSaveRetry = 0f;
                 }
@@ -613,6 +737,8 @@ namespace SkyOfFreedom.Managers
             {
                 if (!isDestroyed)
                 {
+                    if (exception is Unity.Services.CloudSave.CloudSaveConflictException)
+                        HasCloudSaveConflict = true;
                     hasPendingSave = true;
                     nextSaveRetry = UnityEngine.Time.unscaledTime + 5f;
                     HasSaveError = true;

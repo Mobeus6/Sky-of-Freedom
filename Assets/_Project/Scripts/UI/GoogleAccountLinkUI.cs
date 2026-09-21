@@ -32,9 +32,12 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text confirmButtonText;
         [SerializeField] private Button cancelButton;
 
+        // Read by the Android bridge only; keep serialized in the Editor for configuration.
+#pragma warning disable CS0414
         [SerializeField]
         private string webClientId =
             "715019449943-dbu03rb254ppiocg4jiijfsuhi74b9al.apps.googleusercontent.com";
+#pragma warning restore CS0414
 
         private readonly GameAuthenticationService authentication =
             new GameAuthenticationService();

@@ -14,6 +14,14 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text percentText;
 
         private WarehouseManager warehouse;
+        private int displayedMax = -1;
+
+        private void Update()
+        {
+            // Capacity can change without adding/removing an item (research/upgrade/load).
+            if (warehouse != null && warehouse.MaxCapacity != displayedMax)
+                Refresh();
+        }
 
         private void Start()
         {
@@ -53,6 +61,7 @@ namespace SkyOfFreedom.UI
 
             int current = warehouse.CurrentCapacity;
             int max = warehouse.MaxCapacity;
+            displayedMax = max;
 
             capacitySlider.value = warehouse.CapacityPercent;
 

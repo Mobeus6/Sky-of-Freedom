@@ -73,6 +73,13 @@ namespace SkyOfFreedom.UI.Contracts
         private ContractManager contractManager;
 
         private System.Action<ContractInstance> acceptCallback;
+        [Header("Optional editor-configured scrolling")]
+        [SerializeField] private ScrollRect droneRequirementsScroll;
+        [SerializeField] private ScrollRect materialRequirementsScroll;
+        [SerializeField] private ScrollRect targetComponentsScroll;
+
+
+
 
         private void Awake()
         {
@@ -171,6 +178,9 @@ namespace SkyOfFreedom.UI.Contracts
             }
 
             currentContract = contract;
+            if (droneRequirementsScroll != null) droneRequirementsScroll.verticalNormalizedPosition = 1;
+            if (materialRequirementsScroll != null) materialRequirementsScroll.verticalNormalizedPosition = 1;
+            if (targetComponentsScroll != null) targetComponentsScroll.verticalNormalizedPosition = 1;
 
             switch (contract.Template.TargetType)
             {

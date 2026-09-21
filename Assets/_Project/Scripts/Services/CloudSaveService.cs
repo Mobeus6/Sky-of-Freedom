@@ -19,6 +19,10 @@ namespace SkyOfFreedom.Services
     public class CloudSaveService
     {
         private const string PlayerDataKey = "player_data";
+        private string loadedPlayerId;
+        private string writeLock;
+        public string LastLoadedJson { get; private set; }
+        public string ConfirmedFingerprint { get; private set; } = string.Empty;
 
         public async Task SavePlayerDataAsync(PlayerData playerData)
         {
@@ -37,22 +41,30 @@ namespace SkyOfFreedom.Services
             }
 
             string json = JsonUtility.ToJson(playerData);
+            string playerId = playerData.Account.PlayerId;
+            if (loadedPlayerId != playerId)
+                throw new InvalidOperationException("Load this player's cloud save before writing it.");
 
-            Dictionary<string, object> data =
-                new Dictionary<string, object>
+            Dictionary<string, Unity.Services.CloudSave.Models.SaveItem> data =
+                new Dictionary<string, Unity.Services.CloudSave.Models.SaveItem>
                 {
-                    { PlayerDataKey, json }
+                    { PlayerDataKey, new Unity.Services.CloudSave.Models.SaveItem(json, writeLock) }
                 };
 
-            await UnityCloudSaveService.Instance.Data.Player
+            var locks = await UnityCloudSaveService.Instance.Data.Player
                 .SaveAsync(
                     data,
                     new UnityPlayerSaveOptions()
                 );
+            if (Unity.Services.Authentication.AuthenticationService.Instance.PlayerId != playerId)
+                throw new InvalidOperationException("Player changed while saving.");
+            writeLock = locks[PlayerDataKey];
+            ConfirmedFingerprint = LocalSaveStore.Fingerprint(json);
         }
 
         public async Task<PlayerData> LoadPlayerDataAsync()
         {
+            string playerId = Unity.Services.Authentication.AuthenticationService.Instance.PlayerId;
             HashSet<string> keys = new HashSet<string>
             {
                 PlayerDataKey
@@ -63,12 +75,19 @@ namespace SkyOfFreedom.Services
                     keys,
                     new UnityPlayerLoadOptions()
                 );
+            if (!Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn ||
+                Unity.Services.Authentication.AuthenticationService.Instance.PlayerId != playerId)
+                throw new InvalidOperationException("Player changed while loading.");
 
             if (!result.TryGetValue(
                     PlayerDataKey,
                     out var savedItem
                 ))
             {
+                loadedPlayerId = playerId;
+                writeLock = null;
+                LastLoadedJson = null;
+                ConfirmedFingerprint = string.Empty;
                 return null;
             }
 
@@ -88,6 +107,13 @@ namespace SkyOfFreedom.Services
                     "Cloud Save returned invalid PlayerData."
                 );
             }
+
+            loadedPlayerId = playerId;
+            writeLock = savedItem.WriteLock;
+            if (string.IsNullOrEmpty(writeLock))
+                throw new InvalidOperationException("Existing cloud save has no write lock.");
+            LastLoadedJson = json;
+            ConfirmedFingerprint = LocalSaveStore.Fingerprint(json);
 
             return playerData;
         }

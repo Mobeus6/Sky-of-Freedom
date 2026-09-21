@@ -18,11 +18,12 @@ MonoBehaviour:
   branch: 0
   category: 3
   tier: 5
-  requiredFactoryLevel: 7
+  requiredFactoryLevel: 5
   cost: 9000
   researchTime: 600
   prerequisites:
   - {fileID: 11400000, guid: f627b314c2954ef41be205058c277f9f, type: 2}
+  storageCapacityBonus: 20
   effectDescription: +20 Storage Capacity
   unlockDescription: Expands warehouse capacity, allowing more materials and components
     to be stored.

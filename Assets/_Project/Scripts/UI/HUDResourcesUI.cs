@@ -11,11 +11,22 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text moneyText;
         [SerializeField] private TMP_Text reputationText;
         [SerializeField] private TMP_Text saveStatusText;
+        [SerializeField] private TMP_Text playerIdText;
 
         private EconomyManager economyManager;
 
         private void Awake()
         {
+            if (playerIdText == null)
+            {
+                foreach (GameObject root in gameObject.scene.GetRootGameObjects())
+                {
+                    if (root.name != "GameCanvas") continue;
+                    Transform label = root.transform.Find("Top Bar/Resources Panel/Factory/UserName");
+                    if (label != null) playerIdText = label.GetComponent<TMP_Text>();
+                }
+            }
+            RefreshPlayerId();
             economyManager = FindAnyObjectByType<EconomyManager>();
 
             if (economyManager == null)
@@ -53,6 +64,7 @@ namespace SkyOfFreedom.UI
 
         private void Update()
         {
+            RefreshPlayerId();
             if (saveStatusText == null)
                 return;
 
@@ -64,6 +76,15 @@ namespace SkyOfFreedom.UI
                 saveStatusText.text = status;
             // This label must not intercept taps on the HUD.
             saveStatusText.raycastTarget = false;
+        }
+
+        private void RefreshPlayerId()
+        {
+            if (playerIdText == null) return;
+            GameManager game = GameManager.Instance;
+            string id = game != null && game.IsGameReady ? game.PublicId : null;
+            string label = string.IsNullOrEmpty(id) ? "ID: —" : id;
+            if (playerIdText.text != label) playerIdText.text = label;
         }
 
         private void UpdateReputation(int value)

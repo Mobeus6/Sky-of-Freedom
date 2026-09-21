@@ -37,13 +37,17 @@ namespace SkyOfFreedom.Managers
 
         public bool HasMoney(long amount)
         {
-            return money >= amount;
+            return amount >= 0 && money >= amount;
         }
 
         public bool SpendMoney(long amount)
         {
-            if (amount <= 0)
+            if (amount < 0)
                 return false;
+
+            // Free upgrades/purchases succeed without changing the balance.
+            if (amount == 0)
+                return true;
 
             if (!HasMoney(amount))
                 return false;

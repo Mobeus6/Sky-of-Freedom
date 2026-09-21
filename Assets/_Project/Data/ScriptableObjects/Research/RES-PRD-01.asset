@@ -22,6 +22,8 @@ MonoBehaviour:
   cost: 500
   researchTime: 1
   prerequisites: []
+  productionSpeedBonusPercent: 10
+  assemblySpeedBonusPercent: 0
   effectDescription: +10% Component Production Speed
   unlockDescription: Increases component manufacturing efficiency, allowing production
     lines to operate faster.

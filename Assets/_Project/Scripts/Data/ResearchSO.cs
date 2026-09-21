@@ -23,6 +23,16 @@ namespace SkyOfFreedom.Data
         [SerializeField] private ResearchSO[] prerequisites;
 
         [Header("Effects")]
+        [SerializeField, Min(0f)] private float researchSpeedBonusPercent;
+        public float ResearchSpeedBonusPercent => researchSpeedBonusPercent;
+        [SerializeField, Range(0f, 100f)] private float materialDiscountPercent;
+        public float MaterialDiscountPercent => materialDiscountPercent;
+        [SerializeField, Min(0)] private int storageCapacityBonus;
+        public int StorageCapacityBonus => storageCapacityBonus;
+        [SerializeField, Min(0f)] private float productionSpeedBonusPercent;
+        [SerializeField, Min(0f)] private float assemblySpeedBonusPercent;
+        public float ProductionSpeedBonusPercent => productionSpeedBonusPercent;
+        public float AssemblySpeedBonusPercent => assemblySpeedBonusPercent;
         [SerializeField, TextArea(2, 4)] private string effectDescription;
         [SerializeField, TextArea(2, 4)] private string unlockDescription;
 

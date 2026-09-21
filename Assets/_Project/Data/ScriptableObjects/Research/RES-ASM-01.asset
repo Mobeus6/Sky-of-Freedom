@@ -18,10 +18,12 @@ MonoBehaviour:
   branch: 0
   category: 0
   tier: 1
-  requiredFactoryLevel: 3
+  requiredFactoryLevel: 1
   cost: 500
   researchTime: 30
   prerequisites: []
+  productionSpeedBonusPercent: 0
+  assemblySpeedBonusPercent: 10
   effectDescription: +10% Assembly Speed
   unlockDescription: Improves drone assembly efficiency, reducing assembly time by
     optimizing production workflows.

@@ -6,7 +6,10 @@ namespace SkyOfFreedom.Gameplay.Factory
 {
     public class FactoryZoneInteraction :
         MonoBehaviour,
-        IPointerClickHandler
+        IPointerClickHandler,
+        IBeginDragHandler,
+        IDragHandler,
+        IEndDragHandler
     {
         [Header("Zone Highlight")]
         [SerializeField]
@@ -66,12 +69,25 @@ namespace SkyOfFreedom.Gameplay.Factory
         public void OnPointerClick(
             PointerEventData eventData)
         {
+            if (!eventData.eligibleForClick || eventData.button != PointerEventData.InputButton.Left || eventData.dragging ||
+                GameplayCameraController.ExceedsDragThreshold(eventData.pressPosition, eventData.position) ||
+                (cameraController != null && cameraController.SuppressZoneClick)) return;
             SelectZone();
 
             Debug.Log(
                 $"Factory zone clicked: {GetZoneName()}",
                 this);
         }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            // Camera owns movement; EventSystem only cancels the click on release.
+            eventData.eligibleForClick = false;
+            ClearSelection();
+        }
+
+        public void OnDrag(PointerEventData eventData) { }
+        public void OnEndDrag(PointerEventData eventData) { eventData.eligibleForClick = false; }
 
         public void SelectZone()
         {

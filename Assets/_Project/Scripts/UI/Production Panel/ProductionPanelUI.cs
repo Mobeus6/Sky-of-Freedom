@@ -28,6 +28,7 @@ namespace SkyOfFreedom.UI
 
         private bool hasPendingView;
 
+
         private void Start()
         {
             productionManager =

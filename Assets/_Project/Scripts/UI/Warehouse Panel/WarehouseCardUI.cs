@@ -21,8 +21,10 @@ namespace SkyOfFreedom.UI
         [SerializeField] private GameObject _sourceAssemble;
 
         private DataSO item;
+        public string ItemId => item != null ? item.ID : null;
 
         public event Action<DataSO> Selected;
+
 
         private void Awake()
         {

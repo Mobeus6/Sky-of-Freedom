@@ -18,10 +18,12 @@ MonoBehaviour:
   branch: 0
   category: 4
   tier: 3
-  requiredFactoryLevel: 5
+  requiredFactoryLevel: 3
   cost: 2500
   researchTime: 120
   prerequisites:
   - {fileID: 11400000, guid: 79079b66fd41c8c4b86894a0b68b6b5a, type: 2}
-  effectDescription: +5% Global Production Efficiency
+  productionSpeedBonusPercent: 5
+  assemblySpeedBonusPercent: 5
+  effectDescription: +5% Production and Assembly Speed
   unlockDescription: Introduces automated machinery that boosts overall factory productivity.

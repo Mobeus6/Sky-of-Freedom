@@ -33,7 +33,10 @@ namespace SkyOfFreedom.Warehouse
                     GameManager.Instance.Factory.GetLevel(
                         FactoryZoneType.Warehouse);
 
-                return config.GetCapacity(level);
+                int researchBonus = GameManager.Instance.Research != null
+                    ? GameManager.Instance.Research.GetStorageCapacityBonus() : 0;
+                return (int)Math.Min(int.MaxValue,
+                    (long)Math.Max(0, config.GetCapacity(level)) + researchBonus);
             }
         }
 

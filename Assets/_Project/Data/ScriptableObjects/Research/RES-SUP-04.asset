@@ -18,11 +18,12 @@ MonoBehaviour:
   branch: 1
   category: 7
   tier: 4
-  requiredFactoryLevel: 6
+  requiredFactoryLevel: 4
   cost: 6000
   researchTime: 480
   prerequisites:
   - {fileID: 11400000, guid: f393e1353b5e89041a53c4ab47d556bb, type: 2}
+  materialDiscountPercent: 3
   effectDescription: -3% Material Prices
   unlockDescription: Optimizes supplier logistics, reducing material costs and improving
     delivery efficiency.

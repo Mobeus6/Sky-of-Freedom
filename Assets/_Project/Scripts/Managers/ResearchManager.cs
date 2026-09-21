@@ -104,6 +104,81 @@ namespace SkyOfFreedom.Managers
             return GetState(researchID)?.IsCompleted ?? false;
         }
 
+        public float GetResearchSpeedMultiplier()
+        {
+            double bonus = 0;
+            if (gameDatabase == null)
+                return 1f;
+            foreach (ResearchState state in researchStates.Values)
+            {
+                if (!state.IsCompleted)
+                    continue;
+                ResearchSO research = gameDatabase.GetResearch(state.ResearchID);
+                if (research == null)
+                    continue;
+                float value = research.ResearchSpeedBonusPercent;
+                if (!float.IsNaN(value) && !float.IsInfinity(value) && value > 0f)
+                    bonus += value;
+            }
+            return (float)Math.Min(float.MaxValue, 1d + bonus / 100d);
+        }
+
+        public float GetMaterialDiscountPercent()
+        {
+            double discount = 0;
+            if (gameDatabase == null)
+                return 0f;
+            foreach (ResearchState state in researchStates.Values)
+            {
+                if (!state.IsCompleted)
+                    continue;
+                ResearchSO research = gameDatabase.GetResearch(state.ResearchID);
+                if (research == null)
+                    continue;
+                float value = research.MaterialDiscountPercent;
+                if (!float.IsNaN(value) && !float.IsInfinity(value) && value > 0f)
+                    discount += value;
+            }
+            return (float)Math.Min(100d, discount);
+        }
+
+        public int GetStorageCapacityBonus()
+        {
+            long bonus = 0;
+            if (gameDatabase == null)
+                return 0;
+            foreach (ResearchState state in researchStates.Values)
+            {
+                if (!state.IsCompleted)
+                    continue;
+                ResearchSO research = gameDatabase.GetResearch(state.ResearchID);
+                if (research != null)
+                    bonus += Math.Max(0, research.StorageCapacityBonus);
+            }
+            return (int)Math.Min(int.MaxValue, bonus);
+        }
+
+        public float GetProductionSpeedMultiplier(FactoryZoneType zoneType)
+        {
+            double bonus = 0;
+            foreach (ResearchState state in researchStates.Values)
+            {
+                if (!state.IsCompleted || gameDatabase == null)
+                    continue;
+                ResearchSO research = gameDatabase.GetResearch(state.ResearchID);
+                if (research == null)
+                    continue;
+                float value = zoneType == FactoryZoneType.Production
+                    ? research.ProductionSpeedBonusPercent
+                    : zoneType == FactoryZoneType.Assembly
+                        ? research.AssemblySpeedBonusPercent : 0f;
+                if (!float.IsNaN(value) && !float.IsInfinity(value) && value > 0f)
+                    bonus += value;
+            }
+            // Research percentages add together; zone upgrades multiply separately.
+            return (float)Math.Min(float.MaxValue, 1d + bonus / 100d);
+        }
+
         public bool IsResearching(string researchID)
         {
             return GetState(researchID)?.IsResearching ?? false;
@@ -214,6 +289,11 @@ namespace SkyOfFreedom.Managers
         public bool CanStartResearch(
             ResearchSO research)
         {
+            if (GameManager.Instance == null || !GameManager.Instance.IsGameReady ||
+                GameManager.Instance.IsAccountTransition ||
+                economyManager == null || factoryManager == null)
+                return false;
+
             if (research == null)
                 return false;
 
@@ -246,7 +326,7 @@ namespace SkyOfFreedom.Managers
             }
 
             foreach (ResearchSO prerequisite
-                     in research.Prerequisites)
+                     in research.Prerequisites ?? Array.Empty<ResearchSO>())
             {
                 if (prerequisite == null)
                     continue;
@@ -281,6 +361,25 @@ namespace SkyOfFreedom.Managers
             return activeResearch != null;
         }
 
+        public double GetRemainingSeconds()
+        {
+            return activeResearch == null ? double.PositiveInfinity :
+                activeResearch.RemainingTime / (double)GetResearchSpeedMultiplier();
+        }
+
+        public void AdvanceTime(double seconds)
+        {
+            if (activeResearch == null || double.IsNaN(seconds) ||
+                double.IsInfinity(seconds) || seconds < 0d) return;
+            ResearchState state = activeResearch;
+            double remaining = Math.Max(0d,
+                state.RemainingTime - seconds * GetResearchSpeedMultiplier());
+            state.RemainingTime = (float)remaining;
+            state.Progress = state.TotalResearchTime > 0f
+                ? Mathf.Clamp01(1f - state.RemainingTime / state.TotalResearchTime) : 1f;
+            if (remaining <= 0.000001d) CompleteResearch();
+        }
+
         public bool StartResearch(
             ResearchSO research)
         {
@@ -294,11 +393,15 @@ namespace SkyOfFreedom.Managers
                 return false;
             }
 
-            economyManager.SpendMoney(
-                research.Cost);
-
             float researchDuration =
                 GetResearchDuration(research);
+
+            if (float.IsNaN(researchDuration) || float.IsInfinity(researchDuration) ||
+                researchDuration < 0f)
+                return false;
+
+            if (!economyManager.SpendMoney(research.Cost))
+                return false;
 
             state.IsResearching = true;
             state.Progress = 0f;

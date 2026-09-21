@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class GameplayCameraController : MonoBehaviour
 {
@@ -24,6 +25,17 @@ public class GameplayCameraController : MonoBehaviour
     [SerializeField] private float touchPanSpeed = 0.01f;
 
     private Vector2 lastTouchPosition;
+    private Vector2 touchPressPosition;
+    private bool trackingTouch;
+    private bool draggingTouch;
+    private bool mouseWasPressed;
+    private bool mouseBlockedByUI;
+    private bool draggingMouse;
+    private Vector2 mousePressPosition;
+    private Vector2 lastMousePosition;
+    private readonly System.Collections.Generic.List<RaycastResult> uiHits =
+        new System.Collections.Generic.List<RaycastResult>();
+    public bool SuppressZoneClick { get; private set; }
 
     [Header("Zoom")]
     [SerializeField] private TMPro.TMP_Text debugText;
@@ -84,6 +96,10 @@ public class GameplayCameraController : MonoBehaviour
 
     private void OnDisable()
     {
+        trackingTouch = draggingTouch = draggingMouse = mouseWasPressed = false;
+        touch0WasPressed = touch1WasPressed = false;
+        touch0BlockedByUI = touch1BlockedByUI = false;
+        isPinching = false;
         panAction.action.Disable();
         zoomAction.action.Disable();
 
@@ -97,18 +113,12 @@ public class GameplayCameraController : MonoBehaviour
     private void Update()
     {
         UpdateTouchUIState();
-
-        if (isMovingToZone)
-        {
-            HandleZoneCameraMovement();
-            return;
-        }
-
         HandleKeyboardPan();
         HandleTouchPan();
+        HandleMousePan();
         HandleZoom();
         HandlePinchZoom();
-
+        if (isMovingToZone) HandleZoneCameraMovement();
         ApplyBounds();
     }
 
@@ -128,6 +138,7 @@ public class GameplayCameraController : MonoBehaviour
 
         if (touch0Pressed && !touch0WasPressed)
         {
+            SuppressZoneClick = false;
             touch0BlockedByUI =
                 IsScreenPositionOverUI(
                     touch0Position);
@@ -172,14 +183,25 @@ public class GameplayCameraController : MonoBehaviour
         pointerData.position =
             screenPosition;
 
-        var results =
-            new System.Collections.Generic.List<RaycastResult>();
-
+        uiHits.Clear();
         EventSystem.current.RaycastAll(
             pointerData,
-            results);
+            uiHits);
+        foreach (RaycastResult hit in uiHits)
+            if (IsUIHit(hit)) return true;
+        return false;
+    }
 
-        return results.Count > 0;
+    private static bool IsUIHit(RaycastResult hit)
+    {
+        // PhysicsRaycaster hits on factory zones are world input, not UI.
+        return hit.module is GraphicRaycaster;
+    }
+
+    public static bool ExceedsDragThreshold(Vector2 start, Vector2 current)
+    {
+        float threshold = EventSystem.current != null ? Mathf.Max(1, EventSystem.current.pixelDragThreshold) : 10f;
+        return (current - start).sqrMagnitude >= threshold * threshold;
     }
 
     private void HandleKeyboardPan()
@@ -300,6 +322,7 @@ public class GameplayCameraController : MonoBehaviour
 
         if (!isPinching)
         {
+            SuppressZoneClick = true;
             isPinching = true;
 
             lastPinchDistance =
@@ -349,24 +372,24 @@ public class GameplayCameraController : MonoBehaviour
         if (touch0PressAction.action.IsPressed() &&
             touch1PressAction.action.IsPressed())
         {
-            lastTouchPosition =
-                Vector2.zero;
+            trackingTouch = false;
+            draggingTouch = false;
 
             return;
         }
 
         if (!touch0PressAction.action.IsPressed())
         {
-            lastTouchPosition =
-                Vector2.zero;
+            trackingTouch = false;
+            draggingTouch = false;
 
             return;
         }
 
         if (touch0BlockedByUI)
         {
-            lastTouchPosition =
-                Vector2.zero;
+            trackingTouch = false;
+            draggingTouch = false;
 
             return;
         }
@@ -374,13 +397,21 @@ public class GameplayCameraController : MonoBehaviour
         Vector2 currentTouchPosition =
             touch0PositionAction.action.ReadValue<Vector2>();
 
-        if (lastTouchPosition ==
-            Vector2.zero)
+        if (!trackingTouch)
         {
+            trackingTouch = true;
+            touchPressPosition = currentTouchPosition;
             lastTouchPosition =
                 currentTouchPosition;
 
             return;
+        }
+
+        if (!draggingTouch)
+        {
+            if (!ExceedsDragThreshold(touchPressPosition, currentTouchPosition)) return;
+            draggingTouch = true;
+            SuppressZoneClick = true;
         }
 
         Vector2 delta =
@@ -479,12 +510,44 @@ public class GameplayCameraController : MonoBehaviour
 
     private void NotifyUserStartedCameraMovement()
     {
-        if (isMovingToZone)
+        isMovingToZone = false;
+        UserStartedCameraMovement?.Invoke();
+    }
+
+    private void HandleMousePan()
+    {
+        // Do not process a simulated mouse alongside a real touch gesture.
+        if (Mouse.current == null || touch0PressAction.action.IsPressed() || touch1PressAction.action.IsPressed())
         {
+            mouseWasPressed = false;
+            draggingMouse = false;
             return;
         }
-
-        UserStartedCameraMovement?.Invoke();
+        bool pressed = Mouse.current.leftButton.isPressed;
+        Vector2 position = Mouse.current.position.ReadValue();
+        if (pressed && !mouseWasPressed)
+        {
+            mousePressPosition = lastMousePosition = position;
+            mouseBlockedByUI = IsScreenPositionOverUI(position);
+            draggingMouse = false;
+            SuppressZoneClick = false;
+        }
+        mouseWasPressed = pressed;
+        if (!pressed || mouseBlockedByUI) return;
+        if (!draggingMouse)
+        {
+            if (!ExceedsDragThreshold(mousePressPosition, position)) return;
+            draggingMouse = true;
+            SuppressZoneClick = true;
+        }
+        Vector2 delta = position - lastMousePosition;
+        lastMousePosition = position;
+        if (delta.sqrMagnitude <= 0f) return;
+        NotifyUserStartedCameraMovement();
+        Vector3 right = gameplayCamera.right;
+        Vector3 forward = gameplayCamera.forward;
+        right.y = forward.y = 0f;
+        transform.position += (-right.normalized * delta.x - forward.normalized * delta.y) * touchPanSpeed;
     }
 
     public bool IsMovingToZone

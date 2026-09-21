@@ -49,6 +49,34 @@ namespace SkyOfFreedom.UI
 
         private ProductionZone assemblyZone;
 
+        /// <summary>Rebinds world interaction without replacing gameplay state.</summary>
+        public void BindZone(FactoryZoneInteraction zone)
+        {
+            if (assemblyZoneInteraction == zone)
+            {
+                return;
+            }
+
+            if (assemblyZoneInteraction != null)
+            {
+                assemblyZoneInteraction.ZoneSelected -= OnZoneSelected;
+                assemblyZoneInteraction.ZoneDeselected -= OnZoneDeselected;
+            }
+
+            assemblyZoneInteraction = zone;
+            if (isActiveAndEnabled && assemblyZoneInteraction != null)
+            {
+                assemblyZoneInteraction.ZoneSelected += OnZoneSelected;
+                assemblyZoneInteraction.ZoneDeselected += OnZoneDeselected;
+            }
+
+            if (canvasGroup == null)
+            {
+                canvasGroup = GetComponent<CanvasGroup>();
+            }
+            Hide();
+        }
+
         private void Awake()
         {
             if (canvasGroup == null)
@@ -87,7 +115,7 @@ namespace SkyOfFreedom.UI
 
             RefreshQueue(assemblyZone);
 
-            if (FactoryZoneInteraction.SelectedZone ==
+            if (assemblyZoneInteraction != null && FactoryZoneInteraction.SelectedZone ==
                 assemblyZoneInteraction)
             {
                 Open();

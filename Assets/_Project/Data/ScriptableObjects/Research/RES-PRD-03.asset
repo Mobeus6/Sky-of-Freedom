@@ -18,11 +18,13 @@ MonoBehaviour:
   branch: 0
   category: 1
   tier: 3
-  requiredFactoryLevel: 2
+  requiredFactoryLevel: 3
   cost: 2500
   researchTime: 120
   prerequisites:
   - {fileID: 11400000, guid: 74ed6afc1b8309e41b87c0208fcefbb0, type: 2}
+  productionSpeedBonusPercent: 10
+  assemblySpeedBonusPercent: 0
   effectDescription: +10% Component Production Speed
   unlockDescription: Increases component manufacturing efficiency, allowing production
     lines to operate faster.

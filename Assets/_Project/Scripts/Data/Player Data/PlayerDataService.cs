@@ -155,8 +155,6 @@ namespace SkyOfFreedom.Services
                 data.Licenses.UnlockedLicenseIds
             );
 
-            gameManager.Production.LoadSaveData(data.Production);
-            gameManager.Contracts.LoadSaveData(data.Contracts);
             var researchStates = new List<ResearchState>();
             if (data.Research?.ResearchStates != null)
             {
@@ -177,6 +175,8 @@ namespace SkyOfFreedom.Services
                 }
             }
             gameManager.Research.LoadSaveData(researchStates);
+            gameManager.Production.LoadSaveData(data.Production);
+            gameManager.Contracts.LoadSaveData(data.Contracts);
             gameManager.Statistics.LoadSaveData(data.Statistics);
         }
 
@@ -264,7 +264,7 @@ namespace SkyOfFreedom.Services
             data.Research = new PlayerResearchData
             {
                 ActiveResearchId = gameManager.Research.ActiveResearch?.ResearchID,
-                LastProcessedAtUtc = DateTime.UtcNow.ToString("O")
+                LastProcessedAtUtc = data.Production.LastProcessedAtUtc
             };
             foreach (ResearchState state in gameManager.Research.GetSaveData())
             {
@@ -317,6 +317,10 @@ namespace SkyOfFreedom.Services
         private static void EnsureSupportedData(
             PlayerData data)
         {
+            if (data.Research == null)
+                data.Research = new PlayerResearchData();
+            if (data.Research.ResearchStates == null)
+                data.Research.ResearchStates = new List<PlayerResearchStateData>();
             if (data.Production == null)
                 data.Production = new PlayerProductionData();
             if (data.Production.Tasks == null)

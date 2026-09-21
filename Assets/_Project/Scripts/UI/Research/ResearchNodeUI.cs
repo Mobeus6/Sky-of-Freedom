@@ -126,7 +126,7 @@ timeText.gameObject.SetActive(isResearching);
                 state.Progress;
 
             timeText.text =
-                FormatTime(state.RemainingTime);
+                FormatTime(state.RemainingTime / researchManager.GetResearchSpeedMultiplier());
         }
 
         public void SetSelected(bool value)

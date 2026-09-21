@@ -85,7 +85,12 @@ namespace SkyOfFreedom.Managers
 
             float modifier = GetModifier(data.ID);
 
-            return Mathf.RoundToInt(basePrice * modifier);
+            if (data is MaterialSO && GameManager.Instance != null &&
+                GameManager.Instance.Research != null)
+                modifier *= 1f - GameManager.Instance.Research.GetMaterialDiscountPercent() / 100f;
+
+            // Keep paid materials purchasable and non-free after integer rounding.
+            return basePrice > 0 ? Mathf.Max(1, Mathf.RoundToInt(basePrice * modifier)) : 0;
         }
         public int GetPriceDifference(DataSO data)
         {
@@ -115,7 +120,10 @@ namespace SkyOfFreedom.Managers
             if (quantity <= 0)
                 return MarketTransactionResult.InvalidQuantity;
 
-            int totalPrice = GetCurrentPrice(material) * quantity;
+            long total = (long)GetCurrentPrice(material) * quantity;
+            if (total > int.MaxValue)
+                return MarketTransactionResult.NotEnoughMoney;
+            int totalPrice = (int)total;
 
             if (!economy.HasMoney(totalPrice))
                 return MarketTransactionResult.NotEnoughMoney;
@@ -155,7 +163,9 @@ namespace SkyOfFreedom.Managers
             if (material == null)
                 return 0;
 
-            return Mathf.RoundToInt(GetCurrentPrice(material) * 0.8f);
+            // Supplier discounts affect purchases, not the market resale value.
+            int marketPrice = Mathf.RoundToInt(GetBasePrice(material) * GetModifier(material.ID));
+            return Mathf.RoundToInt(marketPrice * 0.8f);
         }
 
         public int GetMaxAffordable(MaterialSO material)

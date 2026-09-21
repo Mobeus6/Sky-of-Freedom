@@ -18,11 +18,14 @@ MonoBehaviour:
   branch: 2
   category: 9
   tier: 2
-  requiredFactoryLevel: 7
+  requiredFactoryLevel: 4
   cost: 18000
   researchTime: 1200
   prerequisites:
   - {fileID: 11400000, guid: e2e8eb94e2489df449128dcb804691f0, type: 2}
-  effectDescription: +10% Factory Efficiency
+  researchSpeedBonusPercent: 0
+  productionSpeedBonusPercent: 10
+  assemblySpeedBonusPercent: 10
+  effectDescription: +10% Production and Assembly Speed
   unlockDescription: Integrates artificial intelligence into factory operations,
     improving overall efficiency.

@@ -74,6 +74,7 @@ namespace SkyOfFreedom.UI
         [SerializeField] private Button increaseQuantityButton;
         [SerializeField] private Button decreaseQuantityButton;
         [SerializeField] private TMP_Text quantityText;
+        private TMP_InputField quantityInput;
         [SerializeField, Min(1)] private int maxQuantity = 9999;
 
         private int selectedQuantity = 1;
@@ -109,9 +110,13 @@ namespace SkyOfFreedom.UI
         }
         private ProductionManager productionManager;
 
+
+
         private void Awake()
         {
             productionManager = GameManager.Instance.Production;
+            quantityInput = QuantityInputUI.Create(quantityText);
+            if (quantityInput != null) quantityInput.onEndEdit.AddListener(CommitQuantity);
 
             produceButton.onClick.RemoveAllListeners();
             produceButton.onClick.AddListener(OnProduceClicked);
@@ -158,6 +163,14 @@ namespace SkyOfFreedom.UI
             RefreshQuantity();
         }
 
+        private void CommitQuantity(string text)
+        {
+            int available = ProductionRecipeProcessor.GetMaxQuantity(producible, maxQuantity);
+            selectedQuantity = QuantityInputUI.Parse(text, selectedQuantity, available > 0 ? 1 : 0, available);
+            if (quantityInput != null) quantityInput.SetTextWithoutNotify(selectedQuantity.ToString());
+            RefreshQuantity();
+        }
+
         private void DecreaseQuantity()
         {
             SelectCard();
@@ -170,8 +183,7 @@ namespace SkyOfFreedom.UI
         {
             int available = ProductionRecipeProcessor.GetMaxQuantity(producible, maxQuantity);
             selectedQuantity = available == 0 ? 0 : Mathf.Clamp(selectedQuantity, 1, available);
-            if (quantityText != null)
-                quantityText.text = selectedQuantity.ToString();
+            QuantityInputUI.Show(quantityInput, quantityText, selectedQuantity);
             if (increaseQuantityButton != null)
                 increaseQuantityButton.interactable = selectedQuantity < available;
             if (decreaseQuantityButton != null)
@@ -185,17 +197,18 @@ namespace SkyOfFreedom.UI
             if (decreaseQuantityButton != null)
                 decreaseQuantityButton.interactable &= levelAllowed;
             if (produceButton != null)
-                produceButton.interactable = available > 0 && levelAllowed &&
-                    GameManager.Instance != null && GameManager.Instance.License != null &&
-                    GameManager.Instance.License.CanProduce(producible);
+                produceButton.interactable = producible != null;
+            if (quantityInput != null) quantityInput.interactable = levelAllowed && available > 0;
+            int displayedQuantity = Mathf.Max(1, selectedQuantity);
             if (costText != null)
-                costText.text = $"{(double)producible.ProductionCost * selectedQuantity:N0} ₴";
+                costText.text = $"{(double)producible.ProductionCost * displayedQuantity:N0} ₴";
             if (timeText != null)
-                timeText.text = $"{(double)producible.ProductionTime * selectedQuantity:0.#} s";
+                timeText.text = $"{(double)producible.ProductionTime * displayedQuantity / ProductionSpeedCalculator.GetMultiplier(producible is DroneModelSO ? FactoryZoneType.Assembly : FactoryZoneType.Production):0.#} s";
         }
 
         private void OnDestroy()
         {
+            if (quantityInput != null) quantityInput.onEndEdit.RemoveListener(CommitQuantity);
             if (increaseQuantityButton != null)
                 increaseQuantityButton.onClick.RemoveListener(IncreaseQuantity);
             if (decreaseQuantityButton != null)
@@ -216,23 +229,17 @@ namespace SkyOfFreedom.UI
         private void OnProduceClicked()
         {
             SelectCard();
+            if (quantityInput != null && quantityInput.isFocused) CommitQuantity(quantityInput.text);
             RefreshQuantity();
-            if (selectedQuantity <= 0) return;
             if (producible == null || productionManager == null)
-                return;
-
-            if (producible is ComponentSO component)
             {
-                productionManager.QueueProduction(
-                    FactoryZoneType.Production, component, selectedQuantity);
+                PlayerMessageUI.Show(this, "Production is not ready. Please try again.");
                 return;
             }
-
-            if (producible is DroneModelSO drone)
-            {
-                productionManager.QueueProduction(
-                    FactoryZoneType.Assembly, drone, selectedQuantity);
-            }
+            FactoryZoneType zone = producible is DroneModelSO ? FactoryZoneType.Assembly : FactoryZoneType.Production;
+            if (!productionManager.QueueProduction(zone, producible, Mathf.Max(1, selectedQuantity), out string reason))
+                PlayerMessageUI.Show(this, reason);
+            RefreshQuantity();
         }
     }
 }

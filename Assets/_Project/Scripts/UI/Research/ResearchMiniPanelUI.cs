@@ -55,6 +55,34 @@ namespace SkyOfFreedom.UI
         private ResearchManager researchManager;
         private TimeManager timeManager;
 
+        /// <summary>Rebinds world interaction without replacing gameplay state.</summary>
+        public void BindZone(FactoryZoneInteraction zone)
+        {
+            if (researchZoneInteraction == zone)
+            {
+                return;
+            }
+
+            if (researchZoneInteraction != null)
+            {
+                researchZoneInteraction.ZoneSelected -= OnZoneSelected;
+                researchZoneInteraction.ZoneDeselected -= OnZoneDeselected;
+            }
+
+            researchZoneInteraction = zone;
+            if (isActiveAndEnabled && researchZoneInteraction != null)
+            {
+                researchZoneInteraction.ZoneSelected += OnZoneSelected;
+                researchZoneInteraction.ZoneDeselected += OnZoneDeselected;
+            }
+
+            if (canvasGroup == null)
+            {
+                canvasGroup = GetComponent<CanvasGroup>();
+            }
+            Hide();
+        }
+
         private void Awake()
         {
             if (canvasGroup == null)
@@ -130,7 +158,7 @@ namespace SkyOfFreedom.UI
 
             Refresh();
 
-            if (FactoryZoneInteraction.SelectedZone ==
+            if (researchZoneInteraction != null && FactoryZoneInteraction.SelectedZone ==
                 researchZoneInteraction)
             {
                 Open();
@@ -306,7 +334,7 @@ namespace SkyOfFreedom.UI
             {
                 timeText.text =
                     FormatTime(
-                        state.RemainingTime);
+                        state.RemainingTime / researchManager.GetResearchSpeedMultiplier());
             }
 
             if (progressFill != null)

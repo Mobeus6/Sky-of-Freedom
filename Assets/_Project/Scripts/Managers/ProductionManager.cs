@@ -167,6 +167,36 @@ namespace SkyOfFreedom.Production
             IProducible item,
             int quantity)
         {
+            return QueueProduction(zoneType, item, quantity, out _);
+        }
+
+        public string GetStartError(FactoryZoneType zoneType, IProducible item, int quantity)
+        {
+            var game = GameManager.Instance;
+            if (game == null || !game.IsGameReady || game.License == null || game.Warehouse == null)
+                return "Production is not ready. Please try again.";
+            if (item == null) return "This item is unavailable.";
+            if (!MeetsFactoryLevel(item)) return $"Requires Factory Lv. {Mathf.Max(1, item.Tier)}.";
+            if (!game.License.CanProduce(item)) return "Unlock the required license before producing this item.";
+            if (quantity <= 0) return "Enter a quantity of at least 1.";
+            if (!ProductionRecipeProcessor.TryGetRequirements(item, quantity, out var requirements))
+                return "This recipe is unavailable or the quantity is too large.";
+            foreach (var required in requirements)
+                if (!game.Warehouse.HasItem(required.Key, required.Value))
+                    return item is DroneModelSO
+                        ? "Not enough components. Tap the item card to view its recipe."
+                        : "Not enough materials. Tap the item card to view its recipe and buy materials.";
+            ProductionZone zone = GetAvailableZone(zoneType);
+            if (zone == null) return "No free production slots. Wait for a task to finish or upgrade the factory.";
+            if (!zone.CanAccept(item)) return "This production zone cannot make the selected item.";
+            return null;
+        }
+
+        public bool QueueProduction(FactoryZoneType zoneType, IProducible item, int quantity, out string reason)
+        {
+            reason = GetStartError(zoneType, item, quantity);
+            if (reason != null) return false;
+            reason = "Production could not start. Please try again.";
             if (GameManager.Instance == null || !GameManager.Instance.IsGameReady ||
                 item == null || quantity <= 0)
             {
@@ -237,6 +267,7 @@ namespace SkyOfFreedom.Production
                 return false;
             }
 
+            reason = null;
             return true;
         }
 

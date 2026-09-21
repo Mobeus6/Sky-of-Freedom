@@ -64,6 +64,34 @@ namespace SkyOfFreedom.UI
 
         private const int MaxRecentItems = 2;
 
+        /// <summary>Rebinds world interaction without replacing gameplay state.</summary>
+        public void BindZone(FactoryZoneInteraction zone)
+        {
+            if (warehouseZoneInteraction == zone)
+            {
+                return;
+            }
+
+            if (warehouseZoneInteraction != null)
+            {
+                warehouseZoneInteraction.ZoneSelected -= OnZoneSelected;
+                warehouseZoneInteraction.ZoneDeselected -= OnZoneDeselected;
+            }
+
+            warehouseZoneInteraction = zone;
+            if (isActiveAndEnabled && warehouseZoneInteraction != null)
+            {
+                warehouseZoneInteraction.ZoneSelected += OnZoneSelected;
+                warehouseZoneInteraction.ZoneDeselected += OnZoneDeselected;
+            }
+
+            if (canvasGroup == null)
+            {
+                canvasGroup = GetComponent<CanvasGroup>();
+            }
+            Hide();
+        }
+
         private void Awake()
         {
             if (canvasGroup == null)
@@ -131,7 +159,7 @@ namespace SkyOfFreedom.UI
 
             Refresh();
 
-            if (FactoryZoneInteraction.SelectedZone ==
+            if (warehouseZoneInteraction != null && FactoryZoneInteraction.SelectedZone ==
                 warehouseZoneInteraction)
             {
                 Open();

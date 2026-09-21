@@ -16,6 +16,7 @@ namespace SkyOfFreedom.UI.Contracts
         [Header("Tier Visual")]
         [SerializeField] private CardTierVisual tierVisual;
 
+
         public void Setup(
             ComponentSO component,
             int quantity)

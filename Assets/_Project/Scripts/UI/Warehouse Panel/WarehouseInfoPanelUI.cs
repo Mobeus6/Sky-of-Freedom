@@ -34,10 +34,10 @@ namespace SkyOfFreedom.UI
         [SerializeField] private Button increaseQuantityButton;
         [SerializeField] private Button maxQuantityButton;
         [SerializeField] private TMP_Text quantityText;
+        private TMP_InputField quantityInput;
 
         private int selectedQuantity = 1;
         private const int MinQuantity = 1;
-        private const int MaxQuantity = 999;
 
         [Header("Component")]
         [SerializeField] private Transform componentRecipeContent;
@@ -65,6 +65,24 @@ namespace SkyOfFreedom.UI
         private ProductionManager production;
 
         private DataSO currentData;
+        private float nextTimeRefresh;
+        [SerializeField] private ScrollRect detailScroll; // Optional ScrollRect configured in the scene.
+
+
+
+
+
+        private void Update()
+        {
+            if (Time.unscaledTime < nextTimeRefresh || commonPanel == null || !commonPanel.activeInHierarchy)
+                return;
+            nextTimeRefresh = Time.unscaledTime + .2f;
+            if (currentData is ComponentSO component && productionTimeText != null)
+                productionTimeText.text = $"{component.ProductionTime / ProductionSpeedCalculator.GetMultiplier(SkyOfFreedom.Factory.FactoryZoneType.Production):0.#}s";
+            else if (currentData is DroneModelSO drone && assemblyTimeText != null)
+                assemblyTimeText.text = $"{drone.ProductionTime / ProductionSpeedCalculator.GetMultiplier(SkyOfFreedom.Factory.FactoryZoneType.Assembly):0.#}s";
+        }
+        private ResearchManager research;
 
         private void Awake()
         {
@@ -75,20 +93,38 @@ namespace SkyOfFreedom.UI
             decreaseQuantityButton.onClick.AddListener(DecreaseQuantity);
             increaseQuantityButton.onClick.AddListener(IncreaseQuantity);
             maxQuantityButton.onClick.AddListener(SetMaxQuantity);
+            quantityInput = QuantityInputUI.Create(quantityText);
+            if (quantityInput != null) quantityInput.onEndEdit.AddListener(CommitQuantity);
             RefreshQuantity();
             HideAll();
         }
 
         private void OnEnable()
         {
+            research = GameManager.Instance != null ? GameManager.Instance.Research : null;
+            if (research != null)
+                research.OnResearchCompleted += OnResearchCompleted;
             if (market != null)
                 market.OnPriceChanged += OnPriceChanged;
         }
 
         private void OnDisable()
         {
+            if (research != null)
+                research.OnResearchCompleted -= OnResearchCompleted;
             if (market != null)
                 market.OnPriceChanged -= OnPriceChanged;
+        }
+
+        private void OnResearchCompleted(ResearchSO completed)
+        {
+            if (currentData is MaterialSO && commonPanel != null && commonPanel.activeInHierarchy)
+            {
+                int previousQuantity = selectedQuantity;
+                Show(currentData, warehouse.GetQuantity(currentData.ID));
+                selectedQuantity = previousQuantity;
+                RefreshQuantity();
+            }
         }
 
         public void Show(DataSO data, int quantity)
@@ -99,6 +135,7 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
+            if (currentData != data && detailScroll != null) detailScroll.verticalNormalizedPosition = 1;
             currentData = data;
 
             HideAll();
@@ -120,7 +157,7 @@ namespace SkyOfFreedom.UI
                     int tier = material.Tier;
                     tierVisual.SetTier(tier);
                     productionPriceText.text = "$ " + material.BasePrice;
-                    badgeText.text = material.Tier.ToString();
+                    badgeText.text = $"T{material.Tier}";
 
                     ShowMaterial(material);
 
@@ -265,8 +302,11 @@ namespace SkyOfFreedom.UI
                     material.Material.Tier,
                     material.Amount);
                 MaterialSO recipeMaterial = material.Material;
-                item.EnablePurchase(() => Show(recipeMaterial,
-                    warehouse.GetQuantity(recipeMaterial.ID)));
+                item.EnablePurchase(() =>
+                {
+                    if (!WarehousePanelUI.TryOpenMaterial(recipeMaterial))
+                        PlayerMessageUI.Show(this, "Warehouse is unavailable.");
+                });
             }
         }
         private void ShowComponent(ComponentSO component)
@@ -277,7 +317,7 @@ namespace SkyOfFreedom.UI
             componentPanel.SetActive(true);
 
             productionTimeText.text =
-                $"{component.ProductionTime:0}s";
+                $"{component.ProductionTime / ProductionSpeedCalculator.GetMultiplier(SkyOfFreedom.Factory.FactoryZoneType.Production):0.#}s";
 
             ShowComponentRecipe(component.Recipe);
 
@@ -297,7 +337,7 @@ namespace SkyOfFreedom.UI
             dronePanel.SetActive(true);
 
             assemblyTimeText.text =
-                $"{drone.ProductionTime:0}s";
+                $"{drone.ProductionTime / ProductionSpeedCalculator.GetMultiplier(SkyOfFreedom.Factory.FactoryZoneType.Assembly):0.#}s";
 
             flightDistanceText.text =
                 $"{drone.FlightDistanceKm} km";
@@ -359,20 +399,27 @@ namespace SkyOfFreedom.UI
 
                 case MarketTransactionResult.NotEnoughMoney:
 
-                    Debug.Log("Not enough money.");
+                    PlayerMessageUI.Show(this, "Not enough money.");
 
+                    break;
+
+                case MarketTransactionResult.InvalidItem:
+                    PlayerMessageUI.Show(this, "This material is unavailable.");
+                    break;
+                case MarketTransactionResult.InvalidQuantity:
+                    PlayerMessageUI.Show(this, "Choose a valid quantity.");
                     break;
 
                 case MarketTransactionResult.WarehouseFull:
 
-                    Debug.Log("Warehouse is full.");
+                    PlayerMessageUI.Show(this, "Not enough warehouse space.");
 
                     break;
             }
         }
         private void IncreaseQuantity()
         {
-            if (selectedQuantity >= MaxQuantity)
+            if (selectedQuantity >= GetQuantityLimit())
                 return;
 
             selectedQuantity++;
@@ -392,18 +439,29 @@ namespace SkyOfFreedom.UI
 
         private void RefreshQuantity()
         {
-            if (currentMaterial != null)
-            {
-                int maxQuantity = Mathf.Max(1,
-                    market.GetMaxBuyQuantity(currentMaterial));
+            selectedQuantity = Mathf.Clamp(selectedQuantity, MinQuantity, GetQuantityLimit());
+            QuantityInputUI.Show(quantityInput, quantityText, selectedQuantity);
+            if (increaseQuantityButton != null) increaseQuantityButton.interactable = selectedQuantity < GetQuantityLimit();
+            if (decreaseQuantityButton != null) decreaseQuantityButton.interactable = selectedQuantity > MinQuantity;
+        }
 
-                selectedQuantity = Mathf.Clamp(
-                    selectedQuantity,
-                    1,
-                    maxQuantity);
-            }
+        private int GetQuantityLimit()
+        {
+            if (currentMaterial == null || market == null || warehouse == null) return 1;
+            // One field serves both Buy and Sell: allow selling stock even when buying is impossible.
+            return Mathf.Max(1, Mathf.Max(market.GetMaxBuyQuantity(currentMaterial), warehouse.GetQuantity(currentMaterial.ID)));
+        }
 
-            quantityText.text = selectedQuantity.ToString();
+        private void CommitQuantity(string text)
+        {
+            selectedQuantity = QuantityInputUI.Parse(text, selectedQuantity, MinQuantity, GetQuantityLimit());
+            if (quantityInput != null) quantityInput.SetTextWithoutNotify(selectedQuantity.ToString());
+            RefreshQuantity();
+        }
+
+        private void OnDestroy()
+        {
+            if (quantityInput != null) quantityInput.onEndEdit.RemoveListener(CommitQuantity);
         }
         private void SetMaxQuantity()
         {
@@ -441,19 +499,19 @@ namespace SkyOfFreedom.UI
 
                 case MarketTransactionResult.NotEnoughItems:
 
-                    Debug.Log("Not enough items.");
+                    PlayerMessageUI.Show(this, "Not enough items in storage.");
 
                     break;
 
                 case MarketTransactionResult.InvalidItem:
 
-                    Debug.LogError("Invalid material.");
+                    PlayerMessageUI.Show(this, "This material is unavailable.");
 
                     break;
 
                 case MarketTransactionResult.InvalidQuantity:
 
-                    Debug.LogError("Invalid quantity.");
+                    PlayerMessageUI.Show(this, "Choose a valid quantity.");
 
                     break;
             }

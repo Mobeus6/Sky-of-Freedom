@@ -1,8 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
 using SkyOfFreedom.Warehouse;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SkyOfFreedom.UI
 {
@@ -28,11 +30,27 @@ namespace SkyOfFreedom.UI
 
         private WarehouseView currentView = WarehouseView.Materials;
         private ComponentCategory currentCategory = ComponentCategory.All;
+        private bool initialized;
+        private Coroutine focusRoutine;
+
+        private void Awake()
+        {
+        }
 
         private void Start()
         {
+            if (initialized) return;
+            if (!Initialize()) return;
+            ShowMaterials();
+        }
+
+        private bool Initialize()
+        {
+            if (initialized) return true;
+            if (GameManager.Instance == null) return false;
             warehouse = GameManager.Instance.Warehouse;
             database = GameManager.Instance.Database;
+            if (warehouse == null || database == null) return false;
 
             warehouse.OnItemChanged += OnItemChanged;
 
@@ -48,7 +66,45 @@ namespace SkyOfFreedom.UI
                     button.Initialize(this);
             }
 
+            initialized = true;
+            return true;
+        }
+
+        public bool OpenMaterial(MaterialSO material)
+        {
+            if (material == null || !Initialize() || infoPanel == null) return false;
+            MenuManager menu = FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
+            if (menu == null || !menu.OpenPanel(gameObject)) return false;
             ShowMaterials();
+            OnCardSelected(material);
+            if (focusRoutine != null) StopCoroutine(focusRoutine);
+            focusRoutine = StartCoroutine(FocusMaterial(material.ID));
+            return true;
+        }
+
+        public static bool TryOpenMaterial(MaterialSO material)
+        {
+            WarehousePanelUI panel = FindAnyObjectByType<WarehousePanelUI>(FindObjectsInactive.Include);
+            return panel != null && panel.OpenMaterial(material);
+        }
+
+        private IEnumerator FocusMaterial(string id)
+        {
+            // Destroyed cards and layout groups settle at the end of the current frame.
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            ScrollRect scroll = content.GetComponentInParent<ScrollRect>();
+            WarehouseCardUI card = cards.Find(candidate => candidate != null && candidate.ItemId == id);
+            if (scroll != null && scroll.content != null && card != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+                RectTransform viewport = scroll.viewport != null ? scroll.viewport : (RectTransform)scroll.transform;
+                float overflow = scroll.content.rect.height - viewport.rect.height;
+                float top = -((RectTransform)card.transform).anchoredPosition.y;
+                scroll.StopMovement();
+                scroll.verticalNormalizedPosition = overflow > 0 ? 1f - Mathf.Clamp01(top / overflow) : 1f;
+            }
+            focusRoutine = null;
         }
 
         public void ShowMaterials()
@@ -93,6 +149,7 @@ namespace SkyOfFreedom.UI
 
         private void Refresh()
         {
+            if (!Initialize()) return;
             Clear();
 
             if (currentView == WarehouseView.Materials)
@@ -167,7 +224,10 @@ namespace SkyOfFreedom.UI
             foreach (WarehouseCardUI card in cards)
             {
                 if (card != null)
+                {
+                    card.gameObject.SetActive(false);
                     Destroy(card.gameObject);
+                }
             }
 
             cards.Clear();

@@ -23,6 +23,7 @@ namespace SkyOfFreedom.UI
             public string Id;
             public int Required;
             public TMP_Text Text;
+            public Button Purchase;
         }
 
         public static void Show(ProductionCardUI source, IProducible item,
@@ -37,8 +38,8 @@ namespace SkyOfFreedom.UI
             current = root.AddComponent<ProductionRecipePopupUI>();
             current.owner = source;
             current.font = labelFont;
-            float width = ((RectTransform)canvas.rootCanvas.transform).rect.width;
-            current.fontSize = Mathf.Clamp(width / 60f, 16f, 36f);
+            Rect screen = ((RectTransform)canvas.rootCanvas.transform).rect;
+            current.fontSize = Mathf.Clamp(Mathf.Min(screen.width / 65f, screen.height / 32f), 12f, 30f);
             current.Build(item, quantity);
         }
 
@@ -102,36 +103,62 @@ namespace SkyOfFreedom.UI
 
         private void Build(IProducible item, int quantity)
         {
+            bool validRecipe = ProductionRecipeProcessor.TryGetRequirements(item, quantity, out var required);
+            int count = validRecipe ? required.Count : 1;
+            Rect screen = ((RectTransform)transform).rect;
+            float rowHeight = fontSize * 2.8f;
+            float height = Mathf.Min(screen.height * 0.78f,
+                fontSize * (string.IsNullOrWhiteSpace(item.Description) ? 7f : 12f) + Mathf.Max(1, count) * rowHeight);
+            float width = Mathf.Min(screen.width * 0.9f,
+                Mathf.Max(screen.width * 0.48f, fontSize * 30f));
             var backdrop = Box("Backdrop", transform, Vector2.zero, Vector2.one,
-                new Color(0, 0, 0, 0.7f));
+                new Color(0, 0, 0, 0.6f));
             backdrop.gameObject.AddComponent<Button>().onClick.AddListener(Close);
-            var panel = Box("Recipe", backdrop, new Vector2(0.14f, 0.1f),
-                new Vector2(0.86f, 0.9f), new Color(0.10f, 0.14f, 0.17f));
+            var safeContent = Box("Safe Content", backdrop, Vector2.zero, Vector2.one, Color.clear);
+            safeContent.GetComponent<Image>().raycastTarget = false;
+            safeContent.gameObject.AddComponent<ScreenSafeAreaUI>();
+            var panel = Box("Recipe", safeContent, new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), new Color(0.105f, 0.14f, 0.16f));
+            panel.sizeDelta = new Vector2(width, height);
+            var outline = panel.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.18f, 0.38f, 0.58f);
+            outline.effectDistance = new Vector2(1, -1);
             // Consume clicks on the panel so they do not close through the backdrop.
             panel.gameObject.AddComponent<Button>().transition = Selectable.Transition.None;
 
-            var heading = Box("Heading", panel, new Vector2(0.04f, 0.81f),
-                new Vector2(0.84f, 0.97f), Color.clear);
-            Text(item.Name + " — Recipe ×" + quantity, heading,
-                fontSize * 1.15f, TextAlignmentOptions.MidlineLeft);
-            var close = Box("Close", panel, new Vector2(0.87f, 0.84f),
-                new Vector2(0.97f, 0.97f), new Color(0.35f, 0.18f, 0.2f));
-            close.gameObject.AddComponent<Button>().onClick.AddListener(Close);
-            Text("X", close, fontSize, TextAlignmentOptions.Center);
+            var heading = Box("Heading", panel, new Vector2(0, 1),
+                new Vector2(1, 1), Color.clear);
+            heading.offsetMin = new Vector2(fontSize, -fontSize * 3);
+            heading.offsetMax = new Vector2(-fontSize * 4, -fontSize * 0.5f);
+            Text(item.Name + " ×" + quantity, heading,
+                fontSize * 1.1f, TextAlignmentOptions.MidlineLeft);
+            var close = Box("Close", panel, Vector2.one,
+                Vector2.one, Color.white);
+            close.pivot = Vector2.one;
+            close.sizeDelta = Vector2.one * fontSize * 2.4f;
+            close.anchoredPosition = new Vector2(-fontSize * 0.5f, -fontSize * 0.5f);
+            Button closeButton = close.gameObject.AddComponent<Button>();
+            closeButton.onClick.AddListener(Close);
+            CloseButtonStyle.Apply(closeButton);
+            var divider = Box("Blue Divider", panel, new Vector2(0, 1),
+                Vector2.one, new Color(0.18f, 0.40f, 0.66f));
+            divider.offsetMin = new Vector2(fontSize, -fontSize * 3.25f - 2);
+            divider.offsetMax = new Vector2(-fontSize, -fontSize * 3.25f);
 
-            var subtitle = Box("Requirements", panel, new Vector2(0.04f, 0.70f),
-                new Vector2(0.96f, 0.81f), Color.clear);
             string requirement = ProductionManager.MeetsFactoryLevel(item)
                 ? "In stock / Required"
                 : "Requires Factory Lv. " + Mathf.Max(1, item.Tier) + "  |  In stock / Required";
-            Text(requirement, subtitle, fontSize * 0.85f, TextAlignmentOptions.MidlineLeft);
 
-            var viewport = Box("Viewport", panel, new Vector2(0.04f, 0.05f),
-                new Vector2(0.96f, 0.68f), new Color(0, 0, 0, 0.08f));
+            var viewport = Box("Viewport", panel, Vector2.zero,
+                Vector2.one, new Color(0, 0, 0, 0.08f));
+            viewport.offsetMin = new Vector2(fontSize, fontSize);
+            viewport.offsetMax = new Vector2(-fontSize, -fontSize * 3.5f);
             viewport.gameObject.AddComponent<RectMask2D>();
             var scroll = viewport.gameObject.AddComponent<ScrollRect>();
             scroll.viewport = viewport;
             scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.scrollSensitivity = 35f;
             scroll.movementType = ScrollRect.MovementType.Clamped;
             var contentObject = new GameObject("Rows", typeof(RectTransform));
             contentObject.transform.SetParent(viewport, false);
@@ -142,13 +169,34 @@ namespace SkyOfFreedom.UI
             content.anchoredPosition = Vector2.zero;
             scroll.content = content;
 
-            if (!ProductionRecipeProcessor.TryGetRequirements(item, quantity, out var required))
+            float offset = 0f;
+            if (!string.IsNullOrWhiteSpace(item.Description))
             {
-                content.sizeDelta = new Vector2(0, fontSize * 3);
-                Text("Recipe unavailable", content, fontSize, TextAlignmentOptions.Center);
+                TMP_Text description = Text(item.Description, content, fontSize * .9f, TextAlignmentOptions.TopLeft);
+                description.name = "Full Description";
+                description.enableAutoSizing = false;
+                description.richText = false;
+                description.textWrappingMode = TextWrappingModes.Normal;
+                description.overflowMode = TextOverflowModes.Overflow;
+                description.maxVisibleLines = int.MaxValue;
+                float textHeight = description.GetPreferredValues(item.Description, width - 2f * fontSize, Mathf.Infinity).y;
+                ResponsiveUI.Top(description.rectTransform, 0, 0, width - 2f * fontSize, textHeight + 4);
+                offset = textHeight + fontSize;
+            }
+            var subtitle = Box("Requirements", content, new Vector2(0, 1), Vector2.one, Color.clear);
+            subtitle.pivot = new Vector2(.5f, 1);
+            subtitle.anchoredPosition = new Vector2(0, -offset);
+            subtitle.sizeDelta = new Vector2(0, fontSize * 1.75f);
+            Text(requirement, subtitle, fontSize * .85f, TextAlignmentOptions.MidlineLeft);
+            offset += fontSize * 2f;
+
+            if (!validRecipe)
+            {
+                content.sizeDelta = new Vector2(0, offset + rowHeight);
+                TMP_Text unavailable = Text("Recipe unavailable", content, fontSize, TextAlignmentOptions.Center);
+                ResponsiveUI.Top(unavailable.rectTransform, 0, offset, width - 2f * fontSize, rowHeight);
                 return;
             }
-            float rowHeight = fontSize * 3.5f;
             int index = 0;
             foreach (var entry in required)
             {
@@ -169,7 +217,7 @@ namespace SkyOfFreedom.UI
                     new Color(0.15f, 0.20f, 0.23f));
                 row.pivot = new Vector2(0.5f, 1);
                 row.sizeDelta = new Vector2(0, rowHeight - 6);
-                row.anchoredPosition = new Vector2(0, -index * rowHeight);
+                row.anchoredPosition = new Vector2(0, -offset - index * rowHeight);
                 var icon = Box("Icon", row, new Vector2(0.01f, 0.1f),
                     new Vector2(0.13f, 0.9f), Color.white).GetComponent<Image>();
                 icon.sprite = sprite;
@@ -182,11 +230,28 @@ namespace SkyOfFreedom.UI
                     new Vector2(0.98f, 0.92f), Color.clear);
                 rows.Add(new StockRow { Id = entry.Key, Required = entry.Value,
                     Text = Text("", countRect, fontSize, TextAlignmentOptions.MidlineRight) });
+                if (data is MaterialSO purchaseMaterial)
+                {
+                    Button purchase = row.gameObject.AddComponent<Button>();
+                    purchase.targetGraphic = row.GetComponent<Image>();
+                    purchase.onClick.AddListener(() =>
+                    {
+                        if (WarehousePanelUI.TryOpenMaterial(purchaseMaterial)) Close();
+                        else PlayerMessageUI.Show(this, "Warehouse is unavailable.");
+                    });
+                    rows[rows.Count - 1].Purchase = purchase;
+                    // The row owns the hit area, including its icon and labels.
+                    foreach (Graphic graphic in row.GetComponentsInChildren<Graphic>())
+                        graphic.raycastTarget = graphic.gameObject == row.gameObject;
+                }
                 index++;
             }
-            content.sizeDelta = new Vector2(0, Mathf.Max(1, index) * rowHeight);
+            content.sizeDelta = new Vector2(0, offset + Mathf.Max(1, index) * rowHeight);
             if (index == 0)
-                Text("No ingredients required", content, fontSize, TextAlignmentOptions.Center);
+            {
+                TMP_Text empty = Text("No ingredients required", content, fontSize, TextAlignmentOptions.Center);
+                ResponsiveUI.Top(empty.rectTransform, 0, offset, width - 2f * fontSize, rowHeight);
+            }
             RefreshStock();
         }
 
@@ -212,6 +277,11 @@ namespace SkyOfFreedom.UI
             {
                 int stock = warehouse.GetQuantity(row.Id);
                 row.Text.text = stock + " / " + row.Required;
+                if (row.Purchase != null)
+                {
+                    row.Purchase.interactable = stock < row.Required;
+                    if (stock < row.Required) row.Text.text += "\nBuy ›";
+                }
                 row.Text.color = stock >= row.Required
                     ? new Color(0.5f, 0.8f, 0.55f) : new Color(1f, 0.4f, 0.4f);
             }

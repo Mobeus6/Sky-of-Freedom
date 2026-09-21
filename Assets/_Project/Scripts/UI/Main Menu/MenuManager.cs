@@ -165,4 +165,19 @@ public class MenuManager : MonoBehaviour
 
         currentButton = null;
     }
+
+    // Unlike Toggle, a deep link must not close an already open destination.
+    public bool OpenPanel(GameObject target)
+    {
+        if (target == null) return false;
+        foreach (MenuButton button in buttons)
+        {
+            if (button == null || button.Panel == null) continue;
+            if (target != button.Panel && !target.transform.IsChildOf(button.Panel.transform)) continue;
+            if (currentButton != button) Toggle(button);
+            else Show(button.Panel);
+            return true;
+        }
+        return false;
+    }
 }

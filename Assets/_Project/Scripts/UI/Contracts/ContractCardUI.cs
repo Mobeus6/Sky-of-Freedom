@@ -29,6 +29,7 @@ namespace SkyOfFreedom.UI.Contracts
 
         public ContractInstance Contract => contract;
 
+
         private void Awake()
         {
             if (button == null)
