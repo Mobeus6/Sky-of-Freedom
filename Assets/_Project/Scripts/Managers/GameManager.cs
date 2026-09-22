@@ -67,7 +67,7 @@ namespace SkyOfFreedom.Managers
 
         public bool HasSaveError { get; private set; }
         public string SaveStatusText => HasCloudSaveConflict
-            ? "Save conflict. Restart to choose progress."
+            ? "Save conflict. Restart to restore progress."
             : HasLocalSaveError ? "Local backup failed. Check device storage."
             : HasSaveError
             ? "Not saved. Retrying…"
@@ -382,9 +382,9 @@ namespace SkyOfFreedom.Managers
                 LocalSaveStore.Fingerprint(local.Json) != cloudSaveService.ConfirmedFingerprint;
             if (LocalSaveStore.NeedsChoice(local, cloudSaveService.LastLoadedJson))
             {
-                LoadingStatus = "Choose which progress to keep…";
+                LoadingStatus = "Restoring progress…";
                 PlayerData localData = ReadLocalPlayer(local, playerId);
-                useLocal = await SkyOfFreedom.UI.SaveConflictPopupUI.ChooseAsync(transform, localData, loadedData);
+                useLocal = SkyOfFreedom.Services.SaveProgressSelection.PreferLocal(localData, loadedData);
                 if (isDestroyed) return;
                 // Keep both candidates before replacing the active recovery slots.
                 localSaves.Archive(local);

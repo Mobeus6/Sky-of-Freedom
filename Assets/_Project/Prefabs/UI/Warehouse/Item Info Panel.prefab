@@ -477,8 +477,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1209,13 +1209,18 @@ MonoBehaviour:
   differencePriceText: {fileID: 294396058526403799}
   buyButton: {fileID: 6316533229997644375}
   sellButton: {fileID: 3948558801745377231}
+  decreaseQuantityButton: {fileID: 0}
+  increaseQuantityButton: {fileID: 0}
+  maxQuantityButton: {fileID: 0}
+  quantityText: {fileID: 0}
+  componentRecipeContent: {fileID: 0}
   componentPanel: {fileID: 3477555237057001556}
   productionTimeText: {fileID: 3546806301355993998}
-  recipeContentText: {fileID: 6958572038440990506}
   produceComponentButton: {fileID: 7079924681877300334}
   dronePanel: {fileID: 6484351054091304129}
   assemblyTimeText: {fileID: 2744327604238786560}
-  componentsContentText: {fileID: 8337965440304154516}
+  componentsContent: {fileID: 0}
+  recipeItemPrefab: {fileID: 0}
   flightDistanceText: {fileID: 3331723937345379136}
   payloadText: {fileID: 3984321995706643614}
   durabilityText: {fileID: 7196999195931866345}
@@ -1223,6 +1228,7 @@ MonoBehaviour:
   stealthText: {fileID: 100735785353099049}
   tierVisual: {fileID: 4219964597912930926}
   produceDroneButton: {fileID: 4867713520673152585}
+  detailScroll: {fileID: 0}
 --- !u!1 &1687739850016717115
 GameObject:
   m_ObjectHideFlags: 0

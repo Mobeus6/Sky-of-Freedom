@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class MenuManager : MonoBehaviour
 {
@@ -10,6 +11,14 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private GameObject[] additionalPanels;
 
+    [Header("Panel animation")]
+    [FormerlySerializedAs("animateProduction")]
+    [SerializeField] private bool animatePanels = true;
+    [FormerlySerializedAs("productionShowDuration")]
+    [SerializeField, Min(0f)] private float panelShowDuration = .18f;
+    [FormerlySerializedAs("productionHideDuration")]
+    [SerializeField, Min(0f)] private float panelHideDuration = .12f;
+    private bool initialized;
     private MenuButton currentButton;
 
     private void Awake()
@@ -42,6 +51,7 @@ public class MenuManager : MonoBehaviour
         }
 
         currentButton = null;
+        initialized = true;
     }
 
     private void Show(GameObject panel)
@@ -63,6 +73,12 @@ public class MenuManager : MonoBehaviour
             return;
         }
 
+        var fade = GetPanelFade(panel);
+        if (fade != null)
+        {
+            fade.SetVisible(true, initialized && animatePanels);
+            return;
+        }
         group.alpha = 1f;
         group.interactable = true;
         group.blocksRaycasts = true;
@@ -87,9 +103,24 @@ public class MenuManager : MonoBehaviour
             return;
         }
 
+        var fade = GetPanelFade(panel);
+        if (fade != null)
+        {
+            fade.SetVisible(false, initialized && animatePanels);
+            return;
+        }
         group.alpha = 0f;
         group.interactable = false;
         group.blocksRaycasts = false;
+    }
+
+    private SkyOfFreedom.UI.PanelFadeUI GetPanelFade(GameObject panel)
+    {
+        var fade = panel.GetComponent<SkyOfFreedom.UI.PanelFadeUI>();
+        if (fade == null) fade = panel.AddComponent<SkyOfFreedom.UI.PanelFadeUI>();
+        fade.Configure(animatePanels ? panelShowDuration : 0f,
+            animatePanels ? panelHideDuration : 0f);
+        return fade;
     }
 
     private void HideAllMainMenus()

@@ -14,6 +14,9 @@ namespace SkyOfFreedom.UI
 
         public void Show()
         {
+            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+            var fade = GetComponent<PanelFadeUI>();
+            if (fade != null) { fade.SetVisible(true); return; }
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
@@ -21,6 +24,9 @@ namespace SkyOfFreedom.UI
 
         public void Hide()
         {
+            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+            var fade = GetComponent<PanelFadeUI>();
+            if (fade != null) { fade.SetVisible(false); return; }
             canvasGroup.alpha = 0f;
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
