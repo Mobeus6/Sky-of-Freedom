@@ -104,6 +104,7 @@ namespace SkyOfFreedom.UI
             SetupRequirements(data);
             SetupTier(component);
             SetupStatus(data);
+            UIUnlockFeedback.Bind(this, "license:" + data.ID);
         }
 
         private void SetupIcon(
@@ -353,6 +354,7 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
+            ButtonFeedbackUI.Success(this);
             /*
              * Update this card immediately.
              */

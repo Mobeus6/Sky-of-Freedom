@@ -252,8 +252,8 @@ namespace SkyOfFreedom.UI.Contracts
             if (contractManager == null)
                 return;
 
-            contractManager.TrySubmitContract(
-                currentContract);
+            if (contractManager.TrySubmitContract(currentContract))
+                ButtonFeedbackUI.Success(this);
         }
 
         private void OnContractReadyForSubmission(

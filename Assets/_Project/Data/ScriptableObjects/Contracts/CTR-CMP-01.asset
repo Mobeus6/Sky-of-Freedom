@@ -22,7 +22,7 @@ MonoBehaviour:
   requiredResearch: {fileID: 0}
   requiredLicense: {fileID: 11400000, guid: 9236dc2725a40864c8bdfa7dfd777f0e, type: 2}
   requiredReputation: 0
-  reputationReward: 1
+  reputationReward: 55
   reputationPenalty: 1
   minQuantity: 10
   maxQuantity: 10

@@ -132,6 +132,7 @@ namespace SkyOfFreedom.UI
             cardGraphics = null;
             shownLocked = null;
             producible = item;
+            UIUnlockFeedback.Bind(this, "product:" + item.ID);
             selectedQuantity = 1;
 
             produceButtonText.text = item is DroneModelSO
@@ -239,6 +240,8 @@ namespace SkyOfFreedom.UI
             FactoryZoneType zone = producible is DroneModelSO ? FactoryZoneType.Assembly : FactoryZoneType.Production;
             if (!productionManager.QueueProduction(zone, producible, Mathf.Max(1, selectedQuantity), out string reason))
                 PlayerMessageUI.Show(this, reason);
+            else
+                ButtonFeedbackUI.Success(produceButton);
             RefreshQuantity();
         }
     }

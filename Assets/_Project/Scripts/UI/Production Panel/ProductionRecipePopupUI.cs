@@ -16,6 +16,8 @@ namespace SkyOfFreedom.UI
         private TMP_FontAsset font;
         private float fontSize;
         private float nextRefresh;
+        private PanelFadeUI fade;
+        private bool closing;
         private readonly List<StockRow> rows = new List<StockRow>();
 
         private class StockRow
@@ -31,16 +33,20 @@ namespace SkyOfFreedom.UI
         {
             Canvas canvas = source.GetComponentInParent<Canvas>();
             if (canvas == null) return;
-            if (current != null) current.Close();
+            // Replacing a recipe must not leave two modal backdrops visible.
+            if (current != null) current.CloseImmediately();
             var root = new GameObject("Production Recipe Popup", typeof(RectTransform));
             root.transform.SetParent(canvas.rootCanvas.transform, false);
             Stretch((RectTransform)root.transform);
             current = root.AddComponent<ProductionRecipePopupUI>();
+            current.fade = root.AddComponent<PanelFadeUI>();
+            current.fade.SetVisible(false, false);
             current.owner = source;
             current.font = labelFont;
             Rect screen = ((RectTransform)canvas.rootCanvas.transform).rect;
             current.fontSize = Mathf.Clamp(Mathf.Min(screen.width / 65f, screen.height / 32f), 12f, 30f);
             current.Build(item, quantity);
+            current.fade.SetVisible(true);
         }
 
         public static void CloseFor(ProductionCardUI source)
@@ -49,6 +55,19 @@ namespace SkyOfFreedom.UI
         }
 
         private void Close()
+        {
+            if (closing) return;
+            closing = true;
+            if (fade == null || !isActiveAndEnabled)
+            {
+                CloseImmediately();
+                return;
+            }
+            fade.SetVisible(false);
+            if (!fade.IsAnimating) CloseImmediately();
+        }
+
+        private void CloseImmediately()
         {
             if (current == this) current = null;
             gameObject.SetActive(false);
@@ -257,6 +276,11 @@ namespace SkyOfFreedom.UI
 
         private void Update()
         {
+            if (closing)
+            {
+                if (fade == null || !fade.IsAnimating) CloseImmediately();
+                return;
+            }
             if (owner == null || !owner.isActiveAndEnabled)
             {
                 Close();

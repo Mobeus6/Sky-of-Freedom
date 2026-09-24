@@ -44,6 +44,7 @@ namespace SkyOfFreedom.UI
             ResearchTreeUI tree)
         {
             this.research = research;
+            UIUnlockFeedback.Bind(this, "research:" + research.ID);
             researchManager = manager;
             treeUI = tree;
 
@@ -122,8 +123,7 @@ namespace SkyOfFreedom.UI
 progressGlow.SetActive(isResearching);
 
 timeText.gameObject.SetActive(isResearching);
-            progressFill.fillAmount =
-                state.Progress;
+            UIProgressMotion.Set(progressFill, state.Progress, state, state.IsResearching);
 
             timeText.text =
                 FormatTime(state.RemainingTime / researchManager.GetResearchSpeedMultiplier());

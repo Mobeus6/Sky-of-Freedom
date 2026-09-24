@@ -250,6 +250,7 @@ namespace SkyOfFreedom.UI.Factory
             }
 
             Refresh();
+            ButtonFeedbackUI.Success(this);
         }
     }
 }

@@ -20,6 +20,21 @@ namespace SkyOfFreedom.UI
         [SerializeField]
         private CanvasGroup canvasGroup;
 
+        private PanelFadeUI panelFade;
+        private bool animationReady;
+
+        private void SetPanelVisible(bool visible, bool animate)
+        {
+            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+            if (panelFade == null)
+            {
+                panelFade = canvasGroup.GetComponent<PanelFadeUI>();
+                if (panelFade == null)
+                    panelFade = canvasGroup.gameObject.AddComponent<PanelFadeUI>();
+            }
+            panelFade.SetVisible(visible, animate && isActiveAndEnabled);
+        }
+
         [SerializeField]
         private Slider capacitySlider;
 
@@ -122,6 +137,9 @@ namespace SkyOfFreedom.UI
 
         private void OnEnable()
         {
+            // Start hidden without a flash; selection below may reopen the panel.
+            SetPanelVisible(false, false);
+            animationReady = true;
             if (warehouse == null &&
                 GameManager.Instance != null)
             {
@@ -168,6 +186,8 @@ namespace SkyOfFreedom.UI
 
         private void OnDisable()
         {
+            animationReady = false;
+            if (panelFade != null) panelFade.SetVisible(false, false);
             if (warehouseZoneInteraction != null)
             {
                 warehouseZoneInteraction.ZoneSelected -=
@@ -423,9 +443,7 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
+            SetPanelVisible(true, animationReady);
 
             Refresh();
         }
@@ -437,9 +455,7 @@ namespace SkyOfFreedom.UI
                 return;
             }
 
-            canvasGroup.alpha = 0f;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
+            SetPanelVisible(false, animationReady);
         }
 
         public void OpenWarehousePanel()

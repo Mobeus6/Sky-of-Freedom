@@ -12,6 +12,7 @@ namespace SkyOfFreedom.UI
 
         public static void Show(Component owner, string message)
         {
+            ButtonFeedbackUI.Error(owner);
             Canvas canvas = owner.GetComponentInParent<Canvas>();
             if (canvas == null) return;
             canvas = canvas.rootCanvas;

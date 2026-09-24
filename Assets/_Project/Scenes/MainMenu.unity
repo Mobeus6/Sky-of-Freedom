@@ -4113,7 +4113,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dc57ad37fc53834ea7e83dc42590bad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkyOfFreedom.Managers.FactoryManager
-  level: 2
+  level: 1
   progressionConfig: {fileID: 11400000, guid: 8436eb0caabd1cf4586edbb3000c4103, type: 2}
 --- !u!114 &2080129659
 MonoBehaviour:

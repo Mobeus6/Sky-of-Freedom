@@ -352,8 +352,8 @@ namespace SkyOfFreedom.UI
             if (currentResearch == null)
                 return;
 
-            researchManager.StartResearch(
-                currentResearch);
+            if (researchManager.StartResearch(currentResearch))
+                ButtonFeedbackUI.Success(this);
         }
 
         private string FormatTime(

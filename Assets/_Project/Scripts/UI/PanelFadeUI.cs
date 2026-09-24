@@ -15,6 +15,8 @@ namespace SkyOfFreedom.UI
         private float duration;
         private bool moving;
 
+        public bool IsAnimating => moving;
+
         public void Configure(float show, float hide)
         {
             showDuration = Mathf.Max(0f, show);

@@ -271,9 +271,10 @@ namespace SkyOfFreedom.UI.Factory
             if (factoryManager == null)
                 return;
 
-            factoryManager.TryUpgradeFactory();
+            bool upgraded = factoryManager.TryUpgradeFactory();
 
             Refresh();
+            if (upgraded) ButtonFeedbackUI.Success(this);
         }
 
         public void Refresh()

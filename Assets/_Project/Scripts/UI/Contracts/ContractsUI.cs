@@ -166,10 +166,13 @@ namespace SkyOfFreedom.UI.Contracts
                 return;
             }
 
+            bool wasAvailable = contract.State == ContractState.Available;
             contractManager.AcceptContract(
                 contract);
 
             ShowInProgress();
+            if (wasAvailable && contract.State == ContractState.InProgress)
+                ButtonFeedbackUI.Success(inProgressButton);
         }
 
         private void ShowInProgress()

@@ -26,10 +26,22 @@ namespace SkyOfFreedom.UI
         [SerializeField] private GameObject emptyRoot;
         private ProductionZone productionZone;
         private ProductionTask task;
+        private ProductionTask lastCompletedEffect;
+
+        private void NotifyCompletion()
+        {
+            if (task == null || !task.IsCompleted || lastCompletedEffect == task) return;
+            lastCompletedEffect = task;
+            var game = SkyOfFreedom.Managers.GameManager.Instance;
+            if (game == null || !game.IsGameReady || game.IsAccountTransition ||
+                !UIUnlockFeedback.Visible(transform as RectTransform)) return;
+            ButtonFeedbackUI.Success(this);
+            UIFloatingFeedback.Show(transform as RectTransform, nameText, "✓", new Color(0.4f, 1f, 0.55f));
+        }
 
         public void Setup(ProductionTask productionTask, ProductionZone zone)
         {
-
+            if (task != productionTask) NotifyCompletion();
             task = productionTask;
             productionZone = zone;
             SetState(true, false, false);
@@ -64,6 +76,7 @@ namespace SkyOfFreedom.UI
         }
         public void ShowEmpty()
         {
+            NotifyCompletion();
             task = null;
             productionZone = null;
 
@@ -83,6 +96,7 @@ namespace SkyOfFreedom.UI
         }
         private void Update()
         {
+            NotifyCompletion();
             if (task == null)
                 return;
 
@@ -104,7 +118,8 @@ namespace SkyOfFreedom.UI
         }
         private void UpdateUI()
         {
-            progress.value = task.CurrentItemProgress;
+            UIProgressMotion.Set(progress, task.CurrentItemProgress, task,
+                task.State == ProductionState.Working);
             bool waitingForStorage = task.State == ProductionState.WaitingForStorage;
             progress.gameObject.SetActive(task.State == ProductionState.Working || waitingForStorage);
             timeText.gameObject.SetActive(true);
@@ -122,7 +137,7 @@ namespace SkyOfFreedom.UI
             }
             if (task.State == ProductionState.Queued)
             {
-                progress.value = 0f;
+                UIProgressMotion.Set(progress, 0f, task, false);
                 timeText.text = "Waiting...";
                 return;
             }

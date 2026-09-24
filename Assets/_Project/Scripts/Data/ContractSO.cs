@@ -77,7 +77,20 @@ namespace SkyOfFreedom.Contracts
 
         public int RequiredReputation => requiredReputation;
 
-        public int ReputationReward => reputationReward;
+        // Temporary baseline until the final economy pass. Shared by rewards and UI.
+        public int ReputationReward
+        {
+            get
+            {
+                int tier = requiredFactoryLevel;
+                if (targetType == ContractTargetType.Component && component != null)
+                    tier = Mathf.Max(tier, component.Tier);
+                if (targetType == ContractTargetType.Drone && droneModel != null)
+                    tier = Mathf.Max(tier, droneModel.Tier);
+                int baseline = (targetType == ContractTargetType.Drone ? 25 : 10) * Mathf.Clamp(tier, 1, 5);
+                return Mathf.Max(reputationReward, baseline);
+            }
+        }
 
         public int ReputationPenalty => reputationPenalty;
 

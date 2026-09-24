@@ -391,6 +391,7 @@ namespace SkyOfFreedom.UI
             {
                 case MarketTransactionResult.Success:
 
+                    ButtonFeedbackUI.Success(this);
                     Show(
                         currentMaterial,
                         warehouse.GetQuantity(currentMaterial.ID));
@@ -491,6 +492,7 @@ namespace SkyOfFreedom.UI
             {
                 case MarketTransactionResult.Success:
 
+                    ButtonFeedbackUI.Success(this);
                     Show(
                         currentMaterial,
                         warehouse.GetQuantity(currentMaterial.ID));
