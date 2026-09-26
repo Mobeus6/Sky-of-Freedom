@@ -472,6 +472,9 @@ namespace SkyOfFreedom.Managers
 
         private async Task ChangeAccountAsync(string googleToken)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (developerResetBusy) throw new InvalidOperationException("Wait for the zone reset to finish.");
+#endif
             if (IsAccountTransition || !isGameReady || isDestroyed || HasCloudSaveConflict)
                 throw new InvalidOperationException("Account change is not available.");
 
@@ -693,6 +696,72 @@ namespace SkyOfFreedom.Managers
         {
             RequestSave();
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private bool developerResetBusy;
+        public string DeveloperResetBlockReason()
+        {
+            if (!isGameReady || IsAccountTransition || isDestroyed || applicationPaused)
+                return "Wait for the game to finish loading.";
+            if (isSaving || hasPendingSave || HasSaveError || HasLocalSaveError || HasCloudSaveConflict)
+                return "Resolve save errors and wait for saving to finish first.";
+            if (Application.internetReachability == NetworkReachability.NotReachable)
+                return "An internet connection is required.";
+            if (productionManager == null || researchManager == null || warehouseManager == null || factoryManager == null)
+                return "Managers are not ready.";
+            foreach (var zone in productionManager.Zones)
+                if (zone != null && zone.TaskCount > 0)
+                    return "Finish or cancel all production and assembly tasks first.";
+            if (researchManager.HasActiveResearch()) return "Finish the active research first.";
+            var config = databaseManager?.Database?.WarehouseConfig;
+            if (config == null) return "Warehouse configuration is missing.";
+            long capacity = Math.Max(0, config.GetCapacity(1)) + (long)researchManager.GetStorageCapacityBonus();
+            if (warehouseManager.CurrentCapacity > capacity)
+                return "Empty some warehouse space first. Level 1 capacity: " + capacity;
+            return string.Empty;
+        }
+
+        public async Task<string> DeveloperResetZonesAsync()
+        {
+            if (developerResetBusy) return "A reset is already running.";
+            string blocked = DeveloperResetBlockReason();
+            if (!string.IsNullOrEmpty(blocked)) return blocked;
+            developerResetBusy = true;
+            bool changed = false;
+            try
+            {
+                // Capture and verify a separate, permanent pre-reset copy before any mutation.
+                var before = CaptureLocalSnapshot();
+                if (HasLocalSaveError) return "Backup failed. No levels changed.";
+                string json = JsonUtility.ToJson(before, true);
+                string folder = System.IO.Path.Combine(Application.persistentDataPath, "DeveloperBackups");
+                System.IO.Directory.CreateDirectory(folder);
+                string path = System.IO.Path.Combine(folder, "zones-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") +
+                    "-" + Guid.NewGuid().ToString("N") + ".json");
+                System.IO.File.WriteAllText(path, json);
+                if (System.IO.File.ReadAllText(path) != json) throw new System.IO.IOException("Backup verification failed.");
+                Debug.Log("Developer zone reset backup: " + path, this);
+                changed = true;
+                factoryManager.SetLevel(FactoryZoneType.Production, 1);
+                factoryManager.SetLevel(FactoryZoneType.Assembly, 1);
+                factoryManager.SetLevel(FactoryZoneType.Research, 1);
+                factoryManager.SetLevel(FactoryZoneType.Warehouse, 1);
+                nextSaveRetry = 0f;
+                RequestSave();
+                await saveTask;
+                if (isDestroyed || IsAccountTransition || HasSaveError || HasLocalSaveError || HasCloudSaveConflict || hasPendingSave)
+                    return "Levels reset locally, but saving is NOT confirmed. Keep this device online; do not use another device. Check save status.";
+                return "Saved locally and to cloud. All four zones are level 1. Other progress unchanged.\nBackup: " + path;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, this);
+                return changed ? "Reset may be applied; saving is not confirmed. Check save status before continuing."
+                    : "Reset cancelled: backup could not be created. No levels changed.";
+            }
+            finally { developerResetBusy = false; }
+        }
+#endif
 
         private void RequestSave()
         {

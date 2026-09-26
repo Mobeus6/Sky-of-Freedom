@@ -14,23 +14,20 @@ namespace SkyOfFreedom.UI
         private QueueItemUI[] queueSlots;
 
         private ProductionZone productionZone;
+        [Tooltip("Factory means automatic detection from the existing ProductionZone/AssemblyZone panel name.")]
+        [SerializeField] private FactoryZoneType zoneType = FactoryZoneType.Factory;
+        private FactoryManager observedFactory;
+        private float nextBindingRefresh;
+
+        private FactoryZoneType EffectiveZoneType => zoneType != FactoryZoneType.Factory ? zoneType :
+            (gameObject.name.Replace(" ", "").Equals("AssemblyZone", System.StringComparison.OrdinalIgnoreCase)
+                ? FactoryZoneType.Assembly : FactoryZoneType.Production);
 
         private void OnEnable()
         {
             ResolveProductionZone();
 
-            if (productionZone != null)
-            {
-                productionZone.QueueChanged +=
-                    RefreshQueue;
-            }
-
-            if (GameManager.Instance != null &&
-                GameManager.Instance.Factory != null)
-            {
-                GameManager.Instance.Factory.OnFactoryLevelChanged +=
-                    OnFactoryLevelChanged;
-            }
+            RefreshQueue(productionZone);
         }
 
         private void OnDisable()
@@ -41,13 +38,13 @@ namespace SkyOfFreedom.UI
                     RefreshQueue;
             }
 
-            if (GameManager.Instance != null &&
-                GameManager.Instance.Factory != null)
+            if (observedFactory != null)
             {
-                GameManager.Instance.Factory.OnFactoryLevelChanged -=
+                observedFactory.OnFactoryLevelChanged -=
                     OnFactoryLevelChanged;
             }
 
+            observedFactory = null;
             productionZone = null;
         }
 
@@ -57,12 +54,31 @@ namespace SkyOfFreedom.UI
             RefreshQueue(productionZone);
         }
 
+        private void Update()
+        {
+            if (Time.unscaledTime < nextBindingRefresh) return;
+            nextBindingRefresh = Time.unscaledTime + 0.25f;
+            ResolveProductionZone();
+        }
+
         private void ResolveProductionZone()
         {
-            productionZone = null;
-
-            if (GameManager.Instance == null)
+            ProductionZone previous = productionZone;
+            ProductionZone found = null;
+            var game = GameManager.Instance;
+            var factory = game != null && game.IsGameReady ? game.Factory : null;
+            if (observedFactory != factory)
             {
+                if (observedFactory != null) observedFactory.OnFactoryLevelChanged -= OnFactoryLevelChanged;
+                observedFactory = factory;
+                if (observedFactory != null) observedFactory.OnFactoryLevelChanged += OnFactoryLevelChanged;
+            }
+
+            if (game == null || !game.IsGameReady || game.IsAccountTransition)
+            {
+                if (previous != null) previous.QueueChanged -= RefreshQueue;
+                productionZone = null;
+                RefreshQueue(null);
                 return;
             }
 
@@ -91,14 +107,19 @@ namespace SkyOfFreedom.UI
                     continue;
                 }
 
-                if (zone.ZoneType != FactoryZoneType.Production)
+                if (zone.ZoneType != EffectiveZoneType)
                 {
                     continue;
                 }
 
-                productionZone = zone;
-                return;
+                found = zone;
+                break;
             }
+            if (previous == found) return;
+            if (previous != null) previous.QueueChanged -= RefreshQueue;
+            productionZone = found;
+            if (productionZone != null) productionZone.QueueChanged += RefreshQueue;
+            RefreshQueue(productionZone);
         }
 
         private void OnFactoryLevelChanged(int level)
@@ -111,6 +132,9 @@ namespace SkyOfFreedom.UI
         {
             if (zone == null)
             {
+                if (queueSlots != null)
+                    foreach (var slot in queueSlots)
+                        if (slot != null) slot.ShowEmpty();
                 return;
             }
 

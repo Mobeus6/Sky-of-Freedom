@@ -303,8 +303,7 @@ namespace SkyOfFreedom.UI
                 row.Text.text = stock + " / " + row.Required;
                 if (row.Purchase != null)
                 {
-                    row.Purchase.interactable = stock < row.Required;
-                    if (stock < row.Required) row.Text.text += "\nBuy ›";
+                    row.Purchase.interactable = true;
                 }
                 row.Text.color = stock >= row.Required
                     ? new Color(0.5f, 0.8f, 0.55f) : new Color(1f, 0.4f, 0.4f);

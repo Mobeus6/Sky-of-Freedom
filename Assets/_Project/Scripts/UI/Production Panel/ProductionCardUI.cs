@@ -80,6 +80,7 @@ namespace SkyOfFreedom.UI
         private int selectedQuantity = 1;
 
         private IProducible producible;
+        public string ItemId => producible != null ? producible.ID : null;
         private Graphic[] cardGraphics;
         private Color[] normalColors;
         private bool? shownLocked;

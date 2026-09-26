@@ -26,12 +26,12 @@ namespace SkyOfFreedom.UI
         [SerializeField] private GameObject emptyRoot;
         private ProductionZone productionZone;
         private ProductionTask task;
-        private ProductionTask lastCompletedEffect;
+        private int observedProducedQuantity;
 
         private void NotifyCompletion()
         {
-            if (task == null || !task.IsCompleted || lastCompletedEffect == task) return;
-            lastCompletedEffect = task;
+            if (task == null || task.ProducedQuantity <= observedProducedQuantity) return;
+            observedProducedQuantity = task.ProducedQuantity;
             var game = SkyOfFreedom.Managers.GameManager.Instance;
             if (game == null || !game.IsGameReady || game.IsAccountTransition ||
                 !UIUnlockFeedback.Visible(transform as RectTransform)) return;
@@ -41,7 +41,9 @@ namespace SkyOfFreedom.UI
 
         public void Setup(ProductionTask productionTask, ProductionZone zone)
         {
-            if (task != productionTask) NotifyCompletion();
+            NotifyCompletion();
+            if (task != productionTask)
+                observedProducedQuantity = productionTask != null ? productionTask.ProducedQuantity : 0;
             task = productionTask;
             productionZone = zone;
             SetState(true, false, false);

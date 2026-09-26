@@ -28,6 +28,8 @@ namespace SkyOfFreedom.UI.Factory
         [SerializeField]
         private Button upgradeButton;
 
+        [SerializeField] private ZoneUpgradePresentationUI upgradePresentation;
+
         private FactoryManager factoryManager;
         private EconomyManager economy;
         private void Update()
@@ -242,15 +244,23 @@ namespace SkyOfFreedom.UI.Factory
             if (factoryManager == null)
                 return;
 
+            if (upgradePresentation != null && upgradePresentation.IsBusy) return;
+            int previousLevel = factoryManager.GetLevel(zoneType);
+            bool present = upgradePresentation != null && upgradePresentation.IsConfigured;
+            if (present) upgradePresentation.Prepare(zoneType);
+
             if (!factoryManager.TryUpgradeZone(
                     zoneType))
             {
+                if (present) upgradePresentation.CancelPrepared();
                 Refresh();
                 return;
             }
 
             Refresh();
             ButtonFeedbackUI.Success(this);
+            if (present) upgradePresentation.Show(zoneType, previousLevel,
+                factoryManager.GetLevel(zoneType), factoryManager.ProgressionConfig);
         }
     }
 }

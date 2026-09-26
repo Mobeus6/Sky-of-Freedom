@@ -35,6 +35,8 @@ namespace SkyOfFreedom.UI.Contracts
         [SerializeField] private Transform completedContent;
 
         private ContractManager contractManager;
+        private readonly List<ContractCardUI> cards = new List<ContractCardUI>();
+        private ContractInstance selectedContract;
 
         private void Awake()
         {
@@ -208,6 +210,8 @@ namespace SkyOfFreedom.UI.Contracts
             if (contractManager == null)
                 return;
 
+            cards.Clear();
+
             ClearContent(
                 availableContent);
 
@@ -262,6 +266,8 @@ namespace SkyOfFreedom.UI.Contracts
                 card.Setup(
                     contract,
                     SelectContract);
+                cards.Add(card);
+                card.SetSelected(contract == selectedContract);
             }
         }
 
@@ -282,6 +288,10 @@ namespace SkyOfFreedom.UI.Contracts
 
             contractDetailUI.Show(
                 contract);
+            selectedContract = contract;
+            foreach (ContractCardUI card in cards)
+                if (card != null)
+                    card.SetSelected(card.Contract == contract);
         }
 
         private void ShowFirstContract(
@@ -306,8 +316,7 @@ namespace SkyOfFreedom.UI.Contracts
                 return;
             }
 
-            contractDetailUI.Show(
-                firstContract);
+            SelectContract(firstContract);
         }
 
         private void ClearContent(
@@ -320,6 +329,7 @@ namespace SkyOfFreedom.UI.Contracts
                  i >= 0;
                  i--)
             {
+                content.GetChild(i).gameObject.SetActive(false);
                 Destroy(
                     content.GetChild(i).gameObject);
             }

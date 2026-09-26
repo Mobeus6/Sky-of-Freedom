@@ -28,7 +28,6 @@ namespace SkyOfFreedom.UI
             purchaseButton.interactable = true;
             if (quantityText != null)
             {
-                quantityText.text += "\nBuy";
                 quantityText.raycastTarget = false;
             }
         }

@@ -408,6 +408,9 @@ namespace SkyOfFreedom.UI.Contracts
             }
 
             droneContractInfoCard.SetActive(true);
+            ProductionItemLinkUI.Bind(droneTargetIcon, drone);
+            ProductionItemLinkUI.Bind(droneTargetNameText, drone);
+            ProductionItemLinkUI.Bind(droneContractImage, drone);
             componentContractInfoCard.SetActive(false);
 
             UpdateActionButtons(
@@ -506,6 +509,7 @@ namespace SkyOfFreedom.UI.Contracts
 
             droneContractInfoCard.SetActive(false);
             componentContractInfoCard.SetActive(true);
+            ProductionItemLinkUI.Bind(componentContractImage, component);
 
             UpdateActionButtons(
                 ContractTargetType.Component);

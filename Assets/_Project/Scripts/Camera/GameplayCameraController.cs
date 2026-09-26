@@ -64,6 +64,19 @@ public class GameplayCameraController : MonoBehaviour
     private Vector3 zoneMoveStartPosition;
     private Vector3 zoneMoveTargetPosition;
     private float zoneMoveTimer;
+    private bool upgradeFocus;
+    private float focusStartZoom;
+    private float focusTargetZoom;
+    public bool IsUpgradeFocusMoving => upgradeFocus && isMovingToZone;
+
+    public void FocusZoneUpgrade(Transform area)
+    {
+        if (area == null || gameplayCamera == null || !isActiveAndEnabled) return;
+        MoveToZone(area);
+        focusStartZoom = gameplayCamera.localPosition.magnitude;
+        focusTargetZoom = Mathf.Clamp(minZoom + (maxZoom - minZoom) * .25f, minZoom, maxZoom);
+        upgradeFocus = true;
+    }
 
     private bool touch0WasPressed;
     private bool touch1WasPressed;
@@ -112,6 +125,12 @@ public class GameplayCameraController : MonoBehaviour
 
     private void Update()
     {
+        if (upgradeFocus)
+        {
+            HandleZoneCameraMovement();
+            ApplyBounds();
+            return;
+        }
         UpdateTouchUIState();
         HandleKeyboardPan();
         HandleTouchPan();
@@ -450,11 +469,11 @@ public class GameplayCameraController : MonoBehaviour
     private void HandleZoneCameraMovement()
     {
         zoneMoveTimer +=
-            Time.deltaTime;
+            upgradeFocus ? Mathf.Min(Time.unscaledDeltaTime, .05f) : Time.deltaTime;
 
         float normalizedTime =
             zoneMoveTimer /
-            zoneMoveDuration;
+            (upgradeFocus ? 1.2f : Mathf.Max(.01f, zoneMoveDuration));
 
         normalizedTime =
             Mathf.Clamp01(
@@ -475,12 +494,19 @@ public class GameplayCameraController : MonoBehaviour
                 smoothTime
             );
 
+        if (upgradeFocus)
+        {
+            targetZoom = Mathf.Lerp(focusStartZoom, focusTargetZoom, smoothTime);
+            gameplayCamera.localPosition = initialCameraDirection * targetZoom;
+        }
+
         if (normalizedTime >= 1f)
         {
             transform.position =
                 zoneMoveTargetPosition;
 
             isMovingToZone = false;
+            upgradeFocus = false;
             currentVelocity = Vector3.zero;
 
             ApplyBounds();
@@ -490,6 +516,7 @@ public class GameplayCameraController : MonoBehaviour
     public void MoveToZone(
         Transform zoneArea)
     {
+        upgradeFocus = false;
         if (zoneArea == null)
         {
             return;

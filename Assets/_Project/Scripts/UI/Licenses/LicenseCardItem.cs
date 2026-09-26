@@ -3,11 +3,12 @@ using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace SkyOfFreedom.UI
 {
-    public class LicenseCardItem : MonoBehaviour
+    public class LicenseCardItem : MonoBehaviour, IPointerClickHandler
     {
         [Header("References")]
         [SerializeField] private Image icon;
@@ -39,8 +40,38 @@ namespace SkyOfFreedom.UI
         public event Action<LicenseSO> Selected;
         public event Action<LicenseSO> Purchased;
 
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left &&
+                !eventData.dragging && eventData.eligibleForClick && license != null)
+                Selected?.Invoke(license);
+        }
+
+        [Header("Selection")]
+        [Tooltip("Optional. If empty, the direct child BG Image is used.")]
+        [SerializeField] private Image selectionHighlight;
+
+        public void SetSelected(bool selected)
+        {
+            if (selectionHighlight == null)
+            {
+                Transform background = transform.Find("BG");
+                if (background != null)
+                    selectionHighlight = background.GetComponent<Image>();
+            }
+
+            if (selectionHighlight == null)
+                return;
+
+            selectionHighlight.raycastTarget = false;
+            selectionHighlight.enabled = selected;
+            if (selected && !selectionHighlight.gameObject.activeSelf)
+                selectionHighlight.gameObject.SetActive(true);
+        }
+
         private void Awake()
         {
+            SetSelected(false);
             tierVisual =
                 GetComponent<CardTierVisual>();
 

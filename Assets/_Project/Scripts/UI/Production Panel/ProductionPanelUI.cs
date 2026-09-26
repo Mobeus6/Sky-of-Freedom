@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.UI;
 using UnityEngine;
 using SkyOfFreedom.Data;
 using SkyOfFreedom.Managers;
@@ -27,6 +29,61 @@ namespace SkyOfFreedom.UI
             ComponentCategory.All;
 
         private bool hasPendingView;
+        private Coroutine focusRoutine;
+        private string focusId;
+
+        public bool OpenItem(IProducible item)
+        {
+            if (item == null || content == null || cardPrefab == null ||
+                GameManager.Instance == null || !GameManager.Instance.IsGameReady) return false;
+            bool opened = false;
+            foreach (var menu in Resources.FindObjectsOfTypeAll<MenuManager>())
+            {
+                if (menu.gameObject.scene == gameObject.scene && menu.OpenPanel(gameObject))
+                {
+                    opened = true;
+                    break;
+                }
+            }
+            if (!opened || !isActiveAndEnabled) return false;
+            currentView = item is DroneModelSO ? ProductionView.Drones : ProductionView.Components;
+            currentCategory = item is ComponentSO component ? component.Category : ComponentCategory.All;
+            focusId = item.ID;
+            hasPendingView = false;
+            Refresh();
+            if (focusRoutine != null) StopCoroutine(focusRoutine);
+            focusRoutine = StartCoroutine(FocusItem());
+            return true;
+        }
+
+        private IEnumerator FocusItem()
+        {
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            var card = spawnedCards.Find(candidate => candidate != null && candidate.ItemId == focusId);
+            if (card != null)
+            {
+                card.SelectCard();
+                var scroll = content.GetComponentInParent<ScrollRect>();
+                if (scroll != null && scroll.content != null)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+                    var viewport = scroll.viewport != null ? scroll.viewport : (RectTransform)scroll.transform;
+                    Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, card.transform);
+                    Bounds contentBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, scroll.content);
+                    Vector3 delta = bounds.center - (Vector3)viewport.rect.center;
+                    scroll.StopMovement();
+                    float height = contentBounds.size.y - viewport.rect.height;
+                    float width = contentBounds.size.x - viewport.rect.width;
+                    if (scroll.vertical && height > 0)
+                        scroll.verticalNormalizedPosition = Mathf.Clamp01(scroll.verticalNormalizedPosition + delta.y / height);
+                    if (scroll.horizontal && width > 0)
+                        scroll.horizontalNormalizedPosition = Mathf.Clamp01(scroll.horizontalNormalizedPosition + delta.x / width);
+                }
+            }
+            focusId = null;
+            focusRoutine = null;
+        }
 
 
         private void Start()

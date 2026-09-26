@@ -12,6 +12,19 @@ namespace SkyOfFreedom.UI
     [RequireComponent(typeof(CanvasGroup))]
     public class AssemblyMiniPanelUI : MonoBehaviour
     {
+        [Header("Zone Level")]
+        [SerializeField] private TMPro.TMP_Text zoneLevelText;
+
+        private void LateUpdate()
+        {
+            if (zoneLevelText == null) return;
+            var game = GameManager.Instance;
+            string value = game != null && game.IsGameReady && game.Factory != null
+                ? "Lv. " + game.Factory.GetLevel(SkyOfFreedom.Factory.FactoryZoneType.Assembly)
+                : "Lv. —";
+            if (zoneLevelText.text != value) zoneLevelText.text = value;
+        }
+
         [Header("Zone References")]
         [SerializeField]
         private FactoryZoneInteraction assemblyZoneInteraction;

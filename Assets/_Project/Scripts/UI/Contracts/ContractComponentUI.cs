@@ -31,6 +31,9 @@ namespace SkyOfFreedom.UI.Contracts
                 component.Name,
                 component.Tier,
                 quantity);
+            ProductionItemLinkUI.Bind(this, component);
+            ProductionItemLinkUI.Bind(icon, component);
+            ProductionItemLinkUI.Bind(nameText, component);
         }
 
         public void Setup(
@@ -47,6 +50,9 @@ namespace SkyOfFreedom.UI.Contracts
                 material.MaterialName,
                 material.Tier,
                 quantity);
+            ProductionItemLinkUI.Bind(this, null);
+            ProductionItemLinkUI.Bind(icon, null);
+            ProductionItemLinkUI.Bind(nameText, null);
         }
 
         private void SetCommonData(

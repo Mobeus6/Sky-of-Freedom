@@ -696,6 +696,9 @@ namespace SkyOfFreedom.UI
 
             licenseInfoCard.Show(
                 license);
+            foreach (LicenseCardItem card in cards)
+                if (card != null)
+                    card.SetSelected(card.License == license);
         }
 
         private void OnLicensePurchased(

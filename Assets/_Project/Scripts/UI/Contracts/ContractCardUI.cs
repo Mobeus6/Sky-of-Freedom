@@ -30,8 +30,31 @@ namespace SkyOfFreedom.UI.Contracts
         public ContractInstance Contract => contract;
 
 
+        [Header("Selection")]
+        [Tooltip("Optional. If empty, the direct child BG Image is used.")]
+        [SerializeField] private Image selectionHighlight;
+
+        public void SetSelected(bool selected)
+        {
+            if (selectionHighlight == null)
+            {
+                Transform background = transform.Find("BG");
+                if (background != null)
+                    selectionHighlight = background.GetComponent<Image>();
+            }
+
+            if (selectionHighlight == null)
+                return;
+
+            selectionHighlight.raycastTarget = false;
+            selectionHighlight.enabled = selected;
+            if (selected && !selectionHighlight.gameObject.activeSelf)
+                selectionHighlight.gameObject.SetActive(true);
+        }
+
         private void Awake()
         {
+            SetSelected(false);
             if (button == null)
             {
                 button = GetComponent<Button>();

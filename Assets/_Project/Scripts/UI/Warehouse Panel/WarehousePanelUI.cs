@@ -24,6 +24,7 @@ namespace SkyOfFreedom.UI
         [SerializeField] private GameObject categoryPanel;
 
         private readonly List<WarehouseCardUI> cards = new();
+        private string selectedItemId;
 
         private WarehouseManager warehouse;
         private DatabaseManager database;
@@ -163,6 +164,7 @@ namespace SkyOfFreedom.UI
 
                     WarehouseCardUI materialCard = Instantiate(cardPrefab, content);
                     materialCard.Setup(material, warehouse.GetQuantity(material.ID));
+                    materialCard.SetSelected(material.ID == selectedItemId);
                     materialCard.Selected += OnCardSelected;
                     cards.Add(materialCard);
                 }
@@ -187,6 +189,7 @@ namespace SkyOfFreedom.UI
                 WarehouseCardUI card = Instantiate(cardPrefab, content);
 
                 card.Setup(data, item.Quantity);
+                card.SetSelected(data.ID == selectedItemId);
                 card.Selected += OnCardSelected;
 
                 cards.Add(card);
@@ -246,6 +249,10 @@ namespace SkyOfFreedom.UI
     int quantity = warehouse.GetQuantity(data.ID);
 
     infoPanel.Show(data, quantity);
+    selectedItemId = data.ID;
+    foreach (WarehouseCardUI card in cards)
+        if (card != null)
+            card.SetSelected(card.ItemId == selectedItemId);
 }
     }
 }

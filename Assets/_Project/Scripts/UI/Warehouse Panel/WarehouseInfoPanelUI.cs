@@ -22,6 +22,7 @@ namespace SkyOfFreedom.UI
         [SerializeField] private TMP_Text storageSizeText;
         [SerializeField] private TMP_Text productionPriceText;
         [SerializeField] private TMP_Text badgeText;
+        [SerializeField] private TMP_Text dronePlatformText;
 
         [Header("Material")]
         [SerializeField] private GameObject materialPanel;
@@ -129,6 +130,10 @@ namespace SkyOfFreedom.UI
 
         public void Show(DataSO data, int quantity)
         {
+            if (dronePlatformText != null)
+                dronePlatformText.text = data is DroneModelSO model ? model.Platform.ToString() : string.Empty;
+            ProductionItemLinkUI.Bind(iconImage, data as IProducible);
+            ProductionItemLinkUI.Bind(itemNameText, data as IProducible);
             if (data == null)
             {
                 HideAll();
@@ -202,7 +207,7 @@ namespace SkyOfFreedom.UI
                         "$ " + drone.ProductionCost;
 
                     badgeText.text =
-                        $"{drone.Platform}  T{drone.Tier}";
+                        $"T{drone.Tier}";
 
                     ShowDrone(drone);
 
@@ -222,6 +227,7 @@ namespace SkyOfFreedom.UI
                     component.Component.Icon,
                     component.Component.Tier,
                     component.Amount);
+                ProductionItemLinkUI.Bind(item, component.Component);
             }
         }
 
@@ -322,10 +328,11 @@ namespace SkyOfFreedom.UI
             ShowComponentRecipe(component.Recipe);
 
             produceComponentButton.onClick.RemoveAllListeners();
+            produceComponentButton.interactable = true;
 
             produceComponentButton.onClick.AddListener(() =>
             {
-                production.QueueComponent(component);
+                StartProduction(component, produceComponentButton);
             });
         }
 
@@ -364,12 +371,14 @@ namespace SkyOfFreedom.UI
     droneComponent.Component.Icon,
     droneComponent.Component.Tier,
     droneComponent.Amount);
+                ProductionItemLinkUI.Bind(item, droneComponent.Component);
             }
             produceDroneButton.onClick.RemoveAllListeners();
+            produceDroneButton.interactable = true;
 
             produceDroneButton.onClick.AddListener(() =>
             {
-                production.QueueDrone(drone);
+                StartProduction(drone, produceDroneButton);
             });
         }
         private void ClearRecipe(Transform parent)
@@ -379,6 +388,25 @@ namespace SkyOfFreedom.UI
                 Destroy(child.gameObject);
             }
         }
+        private void StartProduction(IProducible item, Button source)
+        {
+            production = GameManager.Instance != null ? GameManager.Instance.Production : null;
+            if (production == null)
+            {
+                PlayerMessageUI.Show(this, "Production is not ready. Please try again.");
+                return;
+            }
+            var zone = item is DroneModelSO
+                ? SkyOfFreedom.Factory.FactoryZoneType.Assembly
+                : SkyOfFreedom.Factory.FactoryZoneType.Production;
+            if (!production.QueueProduction(zone, item, 1, out string reason))
+            {
+                PlayerMessageUI.Show(this, reason);
+                return;
+            }
+            ButtonFeedbackUI.Success(source);
+        }
+
         private void BuyMaterial()
         {
             if (currentMaterial == null)
